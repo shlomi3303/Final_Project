@@ -199,7 +199,7 @@ public class User
 		this.userLocation = userLocation;
 	}
 
-	public String getInterests() {
+	public String getInterests() 
 		return this.interests ;
 	}
 
