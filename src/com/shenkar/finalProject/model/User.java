@@ -25,7 +25,6 @@ public class User
     
     @Id
     @NotNull
-    //@Expose
 	 private String userId;
 	 
     @NotNull
@@ -200,10 +199,12 @@ public class User
 	}
 
 	public String getInterests() 
+	{	
 		return this.interests ;
 	}
 
 	public void setInterests(String interests) {
+		
 		this.interests = interests;
 	}
 	

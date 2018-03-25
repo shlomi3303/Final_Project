@@ -13,25 +13,26 @@ import org.hibernate.pretty.Printer;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.oracle.jrockit.jfr.RequestableEvent;
+import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.User;
 import com.shenkar.finalProject.model.UserExceptionHandler;
-import com.shenkar.finalProject.model.HibernateHandels.HibernateUserDAO;
 
 /**
  * Servlet implementation class UserLoginServelt
  */
 @WebServlet(value="/UserLoginServelt")
-public class UserLoginServelt extends HttpServlet {
+public class UserServelt extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public UserLoginServelt() {super();}
+    public UserServelt() {super();}
     
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+    //insert function trigger into doGet()
 	protected void doGet(HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
 		response.getWriter().println("doGet function");
 		
@@ -47,8 +48,6 @@ public class UserLoginServelt extends HttpServlet {
 				e.printStackTrace();
 			}
 			
-			//response.getWriter().append("Served at: ").append(request.getContextPath());
-			 //final String output = "check";
 			String arr =  new Gson().toJson(user).toString();
 			System.out.println(arr);
 			//String output = new Gson().toJson(user1).toString();
@@ -112,7 +111,6 @@ public class UserLoginServelt extends HttpServlet {
 	
 	private User getUser(String mail, String password) throws UserExceptionHandler
 	{
-		
 		User user = null;
 		if (verification(mail, password))
 		{

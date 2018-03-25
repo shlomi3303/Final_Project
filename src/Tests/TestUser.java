@@ -5,9 +5,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.google.gson.Gson;
+import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.User;
 import com.shenkar.finalProject.model.UserExceptionHandler;
-import com.shenkar.finalProject.model.HibernateHandels.HibernateUserDAO;
 import com.sun.istack.internal.NotNull;
 import com.sun.xml.internal.fastinfoset.util.StringArray;
 
@@ -41,8 +41,19 @@ public class TestUser {
 		 //System.out.println(interestString1);
 		 User user1 = new User(userId1,firstname1, lastname1, mail1, password1, phone1, age1,
 					familyStatus1,kids1, userLocation1, interestString1);
-		 HibernateUserDAO.getInstance().addNewUser(user1);
 		 
+		 String arr =  new Gson().toJson(user1);
+		 System.out.println(arr);
+		 String newArr = arr;
+		 Gson gson = new Gson();
+		 User DeserializationString = gson.fromJson(newArr, User.class);
+		 System.out.println(DeserializationString.getFamilyStatus());
+		 //HibernateUserDAO.getInstance().addNewUser(DeserializationString);
+		 //HibernateUserDAO.getInstance().addNewUser(user1);
+		 
+		 
+		 
+		/* 
 		 String userId2 = "999999";
 		 String firstname2 = "יעקב";
 		 String lastname2 = "יעקבי";
@@ -69,7 +80,7 @@ public class TestUser {
 			 HibernateUserDAO.getInstance().addNewUser(user3);
 		 
 		 
-		 //User updateUser = new User(user1.getId(), userId1,"שלומי", lastname1, mail1, password1, phone1, age1,
+		 User updateUser = new User(user1.getId(), userId1,"שלומי", lastname1, mail1, password1, phone1, age1,
 					//familyStatus1,kids1, userLocation1, interests1);
 		 
 		 //HibernateUserDAO.getInstance().updateUser(userId1, updateUser);

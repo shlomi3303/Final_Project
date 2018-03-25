@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+	<class name="com.shenkar.finalProject.model.Offer" table="OFFERS">
+		<id name="offerId" type="int" column="Offer_ID" >
+			<generator class="increment"/>	
+		 </id>
+		
+		<property name="userId">
+			<column name="userId"/>
+		</property>
+		
+		<property name="period">
+			<column name="Period"/>
+		</property>
+		
+		<property name="location">
+			<column name="Location"/>
+		</property>
+		
+		<property name="category">
+				<column name="Category"/>
+		</property>
+		
+		<property name="periodic">
+			<column name="Periodic"/>
+		</property>
+		
+		<property name="urgency">
+			<column name="Urgency"/>
+		</property>
+		
+		<property name="TTL">
+			<column name="TTL"/>
+		</property>		
+		
+		<property name="description">
+			<column name="Description"/>
+		</property>
+		
+		<property name="userLocation">
+			<column name="userLocation"/>
+		</property>
+		
+		<property name="isAprroved">
+			<column name="isAprroved"/>
+		</property>
+		
+	</class>
+</hibernate-mapping>

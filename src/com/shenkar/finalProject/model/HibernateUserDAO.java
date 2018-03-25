@@ -1,4 +1,4 @@
-package com.shenkar.finalProject.model.HibernateHandels;
+package com.shenkar.finalProject.model;
 
 import java.util.List;
 
@@ -10,9 +10,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 
-
-import com.shenkar.finalProject.model.User;
-import com.shenkar.finalProject.model.UserExceptionHandler;
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
 
 public class HibernateUserDAO implements IUserDAO 
@@ -28,12 +25,6 @@ public class HibernateUserDAO implements IUserDAO
 	{	
 		if (instance == null) {
 			instance = new HibernateUserDAO();
-			/*
-			Configuration cfg = new Configuration().configure("hibernateUser.cfg.xml"); 
-			ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(cfg.getProperties()).buildServiceRegistry();
-
-			userFactory = cfg.buildSessionFactory(serviceRegistry);
-			*/
 			userFactory = new AnnotationConfiguration().configure("hibernateUser.cfg.xml").buildSessionFactory();
 		}
 		return instance;
@@ -80,8 +71,6 @@ public class HibernateUserDAO implements IUserDAO
 		}
 		
 	}
-
-	
 
 	@Override
 	public void deleteUser(String mail, String password) 
@@ -163,7 +152,7 @@ public class HibernateUserDAO implements IUserDAO
 	    		 user.setUserLocation(updateUser.getUserLocation());
 	    		 
 				 session.update(user); 
-		    	 session.getTransaction().commit();
+		    	 tx.commit();
 	         }
 	         
 	      }
