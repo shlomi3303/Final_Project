@@ -31,7 +31,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	@Override
 	public void createOffer(Offer offer) throws OfferExceptionHandler {
 		Session session = offerFactory.openSession();
-		org.hibernate.Transaction tx = null;
+		Transaction tx = null;
 		int id = 0;
 		
 		try
@@ -182,13 +182,15 @@ public class HibernateOfferDAO implements IOfferDAO
 	public List<Offer> getOffers(String userId) throws OfferExceptionHandler {
 		Session session = offerFactory.openSession();
 		List <Offer> offers = null;
+	    Transaction tx = null;
+
 		try{
 	         session.beginTransaction();
 	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId='" + userId+"'").list(); 
-			 session.getTransaction().commit();
+			 tx.commit();
 			 
 	      }catch (HibernateException e) {
-	         if (session.getTransaction() != null) session.getTransaction().rollback();
+	         if (tx != null) tx.rollback();
 	         throw new OfferExceptionHandler("Offers list not avilable at the moment" + e.getMessage());
 	      }finally {
 	    	 try {

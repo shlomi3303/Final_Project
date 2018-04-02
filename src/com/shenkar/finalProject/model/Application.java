@@ -36,10 +36,20 @@ public class Application
 		String status;
 		boolean isAprroved;
 		
+		String gender;
+		String language;
+		
+		//Student Attribute
+		String educationLevel;
+		String fieldOfStudy;
+		
+		
 		public Application(){}
 		
+
 		public Application(String userId, Date period, String location, String category, Date periodic, boolean urgency,
-				int tTL, String description, String userLocation, String status, boolean isAprroved) 
+				int tTL, String description, String userLocation, String status, boolean isAprroved, String gender,
+				String language, String educationLevel, String fieldOfStudy) 
 		{
 			super();
 			this.userId = userId;
@@ -53,7 +63,13 @@ public class Application
 			this.userLocation = userLocation;
 			this.status = status;
 			this.isAprroved = isAprroved;
+			this.gender = gender;
+			this.language = language;
+			this.educationLevel = educationLevel;
+			this.fieldOfStudy = fieldOfStudy;
 		}
+
+
 
 		/**
 		 * @return the applicationID
@@ -222,16 +238,61 @@ public class Application
 		public void setIsAprroved(boolean isAprroved) {
 			this.isAprroved = isAprroved;
 		}
+
+		/**
+		 * @return the gender
+		 */
+		public String getGender() {
+			return gender;
+		}
+
+		/**
+		 * @param gender the gender to set
+		 */
+		public void setGender(String gender) {
+			this.gender = gender;
+		}
+
+		/**
+		 * @return the language
+		 */
+		public String getLanguage() {
+			return language;
+		}
+
+		/**
+		 * @param language the language to set
+		 */
+		public void setLanguage(String language) {
+			this.language = language;
+		}
+
+		/**
+		 * @return the educationLevel
+		 */
+		public String getEducationLevel() {
+			return educationLevel;
+		}
+
+		/**
+		 * @param educationLevel the educationLevel to set
+		 */
+		public void setEducationLevel(String educationLevel) {
+			this.educationLevel = educationLevel;
+		}
+
+		/**
+		 * @return the fieldOfStudy
+		 */
+		public String getFieldOfStudy() {
+			return fieldOfStudy;
+		}
+
+		/**
+		 * @param fieldOfStudy the fieldOfStudy to set
+		 */
+		public void setFieldOfStudy(String fieldOfStudy) {
+			this.fieldOfStudy = fieldOfStudy;
+		}
 		
-		
-		
-		
-		
-		
-		
-		
-		
-	
-	
-	
 }

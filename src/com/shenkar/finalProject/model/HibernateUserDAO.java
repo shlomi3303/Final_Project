@@ -2,7 +2,7 @@ package com.shenkar.finalProject.model;
 
 import java.util.List;
 
-import javax.transaction.Transaction;
+import org.hibernate.Transaction;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -108,13 +108,14 @@ public class HibernateUserDAO implements IUserDAO
 	public User getUser(String mail, String password) throws UserExceptionHandler 
 	{
 		  Session session = userFactory.openSession();
+		  Transaction tx = null;
 	      List<User> user = null;
 	      try{
 	    	  session.beginTransaction();
 	          user = session.createQuery("from " + User.class.getName() + " user where user.mail ='" + mail +"'").list();
-	          session.getTransaction().commit();
+	          tx.commit();
 	      }catch (HibernateException e) {
-	         if (session.beginTransaction() != null) session.beginTransaction().rollback();
+	         if (tx != null) tx.rollback();
 	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
 	      }finally {
 	    	 try {
@@ -133,10 +134,12 @@ public class HibernateUserDAO implements IUserDAO
 	public void updateUser(String userId, User updateUser) throws UserExceptionHandler 
 	{
 		  Session session = userFactory.openSession();
+		  Transaction tx = null;
+
 		  System.out.println("im here!!!!!!!");
 	      try
 	      {
-	    	  org.hibernate.Transaction tx = session.beginTransaction();
+	    	  tx = session.beginTransaction();
 	    	  User user = (User)session.get(User.class, new Integer(updateUser.getId())); 
 	    	  System.out.println("im here");
 	    	  if (updateUser.getUserId().equals(user.getUserId()) ) 
@@ -157,7 +160,7 @@ public class HibernateUserDAO implements IUserDAO
 	         
 	      }
 	      catch (HibernateException e) {
-	         if (session.getTransaction()!=null) session.getTransaction().rollback();
+	         if (tx!=null) tx.rollback();
 	         	throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
 	      }finally {
 	    	 try {

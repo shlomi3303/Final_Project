@@ -20,8 +20,6 @@
 	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/commons-collections-3.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/javassist-3.9.0.GA.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/jta-1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/mysql-connector-java-5.1.13-bin.jar"/>
 	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/slf4j-api-1.5.8.jar"/>
@@ -34,7 +32,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/WebContent/WEB-INF/lib/hibernate3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Downloads/postgresql-42.2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/hibernate3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/shlomi shlush/Desktop/שלומי לימודים/JavaEE/jars/jta-1.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

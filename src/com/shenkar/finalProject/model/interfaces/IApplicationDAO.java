@@ -10,15 +10,15 @@ public interface IApplicationDAO
 {
 	public void createApplication(Application application) throws ApplicationExceptionHandler;
 	
-	public void editApplication(int offerId, Application updateApplication) throws ApplicationExceptionHandler;
+	public void editApplication(int applicationId, Application updateApplication) throws ApplicationExceptionHandler;
 	
-	public void deleteApplication(int offerId) throws ApplicationExceptionHandler;
+	public void deleteApplication(int applicationId) throws ApplicationExceptionHandler;
 	
-	public Application getApplication(int offerId) throws ApplicationExceptionHandler;
+	public Application getApplication(int applicationId) throws ApplicationExceptionHandler;
 	
 	public int ttlCalc(int ttl) throws ApplicationExceptionHandler;
 	
-	public void status (String status, Application offer) throws ApplicationExceptionHandler;
+	public void status (String status, Application application) throws ApplicationExceptionHandler;
 	
 	public void notification (Application application) throws ApplicationExceptionHandler;
 	

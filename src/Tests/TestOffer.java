@@ -2,6 +2,7 @@ package Tests;
 
 import java.util.Date;
 
+import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
@@ -38,8 +39,10 @@ public class TestOffer {
 		String userLocation = "תל אביב";
 		boolean isAprroved = false;
 		
+		/*
 		Offer offer1 = new Offer(userId, period, location, category, periodic,
 				urgency, TTL, description, userLocation, isAprroved);
+		/*
 		//HibernateOfferDAO.getInstance().createOffer(offer1);
 		//Offer upda = new Offer(offer1.getId(),offerId, userId, period, "רחובות", category, periodic,
 				//urgency, TTL, description, userLocation, isAprroved);
@@ -67,11 +70,12 @@ public class TestOffer {
 		String description1 = "להגיע מהר";
 		String userLocation1 = "רמת גן";
 		boolean isAprroved1 = false;
-		
+		/*
 		Offer offer2 = new Offer(userId, period1, location1, category1, periodic1,
 				urgency1, TTL1, description1, userLocation1, isAprroved1);
 		Offer upoffer2 = new Offer(userId, period1, "רמת גן", "טרמפ", periodic1,
 				urgency1, TTL1, description1, userLocation1, isAprroved1);
+		 */
 		//HibernateOfferDAO.getInstance().createOffer(offer2);
 		
 		//System.out.println("offer 1 id: " + offer1.getId());
@@ -82,6 +86,7 @@ public class TestOffer {
 		System.out.println(offers.get(0).getLocation());
 		System.out.println(offers.get(1).getOfferId());
 	}
+	
 	
 	
 	private String modifyDateLayout(String inputDate) throws ParseException{

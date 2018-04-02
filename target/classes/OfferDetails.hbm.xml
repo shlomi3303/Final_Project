@@ -33,6 +33,10 @@
 			<column name="Urgency"/>
 		</property>
 		
+		<property name="status">
+			<column name="Status"/>
+		</property>
+		
 		<property name="TTL">
 			<column name="TTL"/>
 		</property>		
@@ -48,6 +52,23 @@
 		<property name="isAprroved">
 			<column name="isAprroved"/>
 		</property>
+		
+		<property name="gender">
+			<column name="Gender"/>
+		</property>
+		
+		<property name="language">
+			<column name="Language"/>
+		</property>
+		
+		<property name="educationLevel">
+			<column name="Education_Level"/>
+		</property>
+		
+		<property name="fieldOfStudy">
+			<column name="field_Of_Study"/>
+		</property>
+		
 		
 	</class>
 </hibernate-mapping>
