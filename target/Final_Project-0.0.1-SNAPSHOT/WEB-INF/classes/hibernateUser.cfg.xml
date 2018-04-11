@@ -18,10 +18,7 @@
     <property name="connection_pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
 	<property name="validationQuery"> SELECT 1 </property>
-        <property name="validationInterval">34000 </property>
-        <property name="testOnBorrow">true</property>
-        <property name="removeAbandoned">true </property>
-        <property name="removeAbandonedTimeout"> 55 </property>
+      
      
    </session-factory>
    
