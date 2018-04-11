@@ -33,7 +33,6 @@ public class OfferServelt extends HttpServlet {
     //insert function trigger into doGet()
 	protected void doGet(HttpServletRequest request, HttpServletResponse response, String functionTrigger) throws ServletException, IOException, OfferExceptionHandler 
 	{
-		
 		if(functionTrigger.equals("update_offer"))
 		{
 			updateOffer(request);

@@ -16,7 +16,7 @@ public class Application
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		int applicationID;
 	
-		String userId;
+		int userId;
 		
 		@Column(name="CREATION_DATE")
 		@Temporal(TemporalType.TIMESTAMP)
@@ -38,16 +38,17 @@ public class Application
 		
 		String gender;
 		String language;
+		String img;
+
 		
 		//Student Attribute
 		String educationLevel;
 		String fieldOfStudy;
 		
-		
 		public Application(){}
 		
 
-		public Application(String userId, Date period, String location, String category, Date periodic, boolean urgency,
+		public Application(int userId, Date period, String location, String category, Date periodic, boolean urgency,
 				int tTL, String description, String userLocation, String status, boolean isAprroved, String gender,
 				String language, String educationLevel, String fieldOfStudy) 
 		{
@@ -88,14 +89,14 @@ public class Application
 		/**
 		 * @return the userId
 		 */
-		public String getUserId() {
+		public int getUserId() {
 			return userId;
 		}
 
 		/**
 		 * @param userId the userId to set
 		 */
-		public void setUserId(String userId) {
+		public void setUserId(int userId) {
 			this.userId = userId;
 		}
 

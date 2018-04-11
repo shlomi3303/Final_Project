@@ -1,61 +1,73 @@
 package com.shenkar.finalProject.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-
 import java.util.Date;
 
 import javax.persistence.*;
-import com.sun.istack.internal.NotNull;
 
+@Entity
+@Table (name="offers")
 public class Offer 
 {
 	
 	@Id
+    @Column (name="Offer_Id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	int offerId;
-	String userId;
+	
+	@Column (name="User_Id")
+	int userId;
 	
 	@Column(name="CREATION_DATE")
 	@Temporal(TemporalType.TIMESTAMP)
 	Date period;
 	
+	@Column(name="Location")
 	String location;
+	
+	@Column(name="Category")
 	String category;
 	
-	@Column(name="CREATION_DATE")
+	@Column(name="Periodic")
 	@Temporal(TemporalType.TIMESTAMP)
 	Date periodic;
 	
+	@Column(name="Urgency")
 	boolean urgency;
+	
+	@Column(name="TTL")
 	int TTL;
+	
+	@Column(name="Description")
 	String description;
+	
+	@Column(name="Status")
 	String status;
+	
+	@Column(name="User_Location")
 	String userLocation;
+	
+	@Column(name="Is_Aprroved")
 	boolean isAprroved;
 	
+	@Column(name="Gender")
 	String gender;
+	
+	@Column(name="Language")
 	String language;
 	
+	@Column(name="Image")
+	String img;
+	
 	//Student Attribute
+	@Column(name="Education_Level")
 	String educationLevel;
+	
+	@Column(name="field_Of_Study")
 	String fieldOfStudy;
-
 	
 	public Offer(){}
 	
-	
-	
-	public Offer(String userId, Date period, String location, String category, Date periodic, boolean urgency, int tTL,
+	public Offer(int userId, Date period, String location, String category, Date periodic, boolean urgency, int tTL,
 			String description, String status, String userLocation, boolean isAprroved, String gender, String language,
 			String educationLevel, String fieldOfStudy) 
 	{
@@ -94,13 +106,13 @@ public class Offer
 	/**
 	 * @return the userId
 	 */
-	public String getUserId() {
+	public int getUserId() {
 		return userId;
 	}
 	/**
 	 * @param userId the userId to set
 	 */
-	public void setUserId(String userId) {
+	public void setUserId(int userId) {
 		this.userId = userId;
 	}
 	/**
@@ -283,4 +295,18 @@ public class Offer
 	}
 	
 
+	/*
+	get top 10 offers כלשהו
+	login -> user requset offers + details
+	
+	user{
+		detailes{
+		
+		},
+		offers{
+			
+		}
+	}
+	user.deta.name
+	*/
 }

@@ -6,14 +6,17 @@
    <session-factory>
 	    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/finalproject?useSSL=false</property>
-	    <property name="hibernate.connection.username">root</property>
-	    <property name="hibernate.connection.password">997451</property>
+	    <property name="connection.username">root</property>
+	    <property name="connection.password">997451</property>
 	    <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
 	    <property name="hibernate.hbm2ddl.auto">update</property>
+	    <property name="connection.pool_size">1</property>
+	    
 	    <property name="show_sql">true</property>
+	    <property name="current_session_context_class">thread</property>
+	    
 	    
 	    	<!-- Mapping files -->
-		<mapping resource="OfferDetails.hbm.xml"/>
 		
 	</session-factory>
 </hibernate-configuration>

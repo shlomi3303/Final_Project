@@ -9,10 +9,6 @@
 			<generator class="increment"/>	
 		 </id>
 		
-		<property name="userId">
-			<column name="userId" unique = "true"/>
-		</property>
-		
 		<property name="firstname">
 			<column name="First_Name"/>
 		</property>

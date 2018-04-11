@@ -17,7 +17,7 @@ public class TestOffer {
 	{
 		//offer #1
 		//int offerId =234;
-		String userId = "2076893234";
+		int userId = 207689323;
 		//SimpleDateFormat formatter = new SimpleDateFormat("d-MMM-yyyy ,HH:mm:ss aaa");
 		//String testDate = "09-May-2015,23:10:14 PM";
 		//java.util.Date period =  formatter.parse(testDate);
@@ -39,11 +39,12 @@ public class TestOffer {
 		String userLocation = "תל אביב";
 		boolean isAprroved = false;
 		
-		/*
+		
 		Offer offer1 = new Offer(userId, period, location, category, periodic,
-				urgency, TTL, description, userLocation, isAprroved);
+				urgency, TTL, description, "waiting", userLocation, isAprroved,"male", "english", "high", "math");
+		HibernateOfferDAO.getInstance().createOffer(offer1);
 		/*
-		//HibernateOfferDAO.getInstance().createOffer(offer1);
+		/
 		//Offer upda = new Offer(offer1.getId(),offerId, userId, period, "רחובות", category, periodic,
 				//urgency, TTL, description, userLocation, isAprroved);
 		//HibernateOfferDAO.getInstance().editOffer(upda);
@@ -81,10 +82,10 @@ public class TestOffer {
 		//System.out.println("offer 1 id: " + offer1.getId());
 		//System.out.println("offer 2 id: " + offer1.getId());
 		//HibernateOfferDAO.getInstance().deleteOffer(2);
-		java.util.List<Offer> offers = null;
-		offers =  HibernateOfferDAO.getInstance().getOffers(userId);
-		System.out.println(offers.get(0).getLocation());
-		System.out.println(offers.get(1).getOfferId());
+		//java.util.List<Offer> offers = null;
+		//offers =  HibernateOfferDAO.getInstance().getOffers(userId);
+		//System.out.println(offers.get(0).getLocation());
+		//System.out.println(offers.get(1).getOfferId());
 	}
 	
 	

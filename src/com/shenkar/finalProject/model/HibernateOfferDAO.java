@@ -6,7 +6,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
@@ -23,7 +22,8 @@ public class HibernateOfferDAO implements IOfferDAO
 	{	
 		if (instance == null) {
 			instance = new HibernateOfferDAO();
-			offerFactory = new AnnotationConfiguration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+		
+			offerFactory =new Configuration().configure("hibernateOffer.cfg.xml").addAnnotatedClass(Offer.class).buildSessionFactory(); 
 		}
 		return instance;
 	}
@@ -31,6 +31,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	@Override
 	public void createOffer(Offer offer) throws OfferExceptionHandler {
 		Session session = offerFactory.openSession();
+		System.out.println("session: " + session);
 		Transaction tx = null;
 		int id = 0;
 		
@@ -69,8 +70,7 @@ public class HibernateOfferDAO implements IOfferDAO
 		{
 			tx = session.beginTransaction();
 			Offer offer = (Offer)session.get(Offer.class, new Integer(offerId));
-			if (updateOffer.getUserId().equals(offer.getUserId()))
-			{
+		
 				 offer.setLocation(updateOffer.getLocation());
 				 offer.setPeriod(updateOffer.getPeriod());
 				 offer.setPeriodic(updateOffer.getPeriodic());
@@ -82,7 +82,7 @@ public class HibernateOfferDAO implements IOfferDAO
 				 
 				 session.update(offer); 
 		    	 tx.commit();
-			 }
+			
 		}
 		catch (HibernateException e)
 		{
@@ -185,7 +185,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	    Transaction tx = null;
 
 		try{
-	         session.beginTransaction();
+			 tx=session.beginTransaction();
 	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId='" + userId+"'").list(); 
 			 tx.commit();
 			 

@@ -6,7 +6,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
@@ -23,7 +22,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	{	
 		if (instance == null) {
 			instance = new HibernateApplicationDAO();
-			applicationFactory = new AnnotationConfiguration().configure("hibernateApplication.cfg.xml").buildSessionFactory();
+			//applicationFactory = new AnnotationConfiguration().configure("hibernateApplication.cfg.xml").buildSessionFactory();
 		}
 		return instance;
 	}
@@ -69,8 +68,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		{
 			tx = session.beginTransaction();
 			Application application = (Application)session.get(Application.class, new Integer(applicationId));
-			if (updateApplication.getUserId().equals(updateApplication.getUserId()))
-			{
+			
 				 application.setLocation(updateApplication.getLocation());
 				 application.setPeriod(updateApplication.getPeriod());
 				 application.setPeriodic(updateApplication.getPeriodic());
@@ -82,7 +80,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				 
 				 session.update(application); 
 		    	 tx.commit();
-			 }
+			 
 		}
 		catch (HibernateException e)
 		{

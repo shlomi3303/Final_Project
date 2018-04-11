@@ -3,18 +3,22 @@
  */
 package com.shenkar.finalProject.model.interfaces;
 
-import com.shenkar.finalProject.model.User;
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
+import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 public interface IUserDAO
 {
 	
-	public void addNewUser(User user) throws UserExceptionHandler; 
+	public void addNewUser(AppUser user, HttpServletResponse response) throws UserExceptionHandler, IOException; 
 	
 	public void deleteUser (String mail, String password) throws UserExceptionHandler;
 	
-	public User getUser(String mail, String password) throws UserExceptionHandler;
+	public AppUser getUser(String mail, String password) throws UserExceptionHandler;
 	
-	public void updateUser(String userId, User updateUser) throws UserExceptionHandler;
+	public void updateUser(int id, AppUser updateUser) throws UserExceptionHandler;
 
 }

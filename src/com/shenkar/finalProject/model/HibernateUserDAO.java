@@ -1,13 +1,21 @@
 package com.shenkar.finalProject.model;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
-import org.hibernate.Transaction;
+import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
@@ -19,59 +27,112 @@ public class HibernateUserDAO implements IUserDAO
 	
 	private static SessionFactory userFactory;
 	
+
 	private HibernateUserDAO () {}
-	
-	public static HibernateUserDAO getInstance() 
+		
+	public static HibernateUserDAO getInstance(HttpServletResponse response) throws IOException 
 	{	
-		if (instance == null) {
-			instance = new HibernateUserDAO();
-			userFactory = new AnnotationConfiguration().configure("hibernateUser.cfg.xml").buildSessionFactory();
+		response.getWriter().println("in get instance");
+		
+		response.getWriter().println("instance is a null");
+		instance = new HibernateUserDAO();
+		response.getWriter().println("instance is not null now");
+		try{
+			userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
 		}
+		catch (Exception e)
+		{
+			response.getWriter().println(e);
+			response.getWriter().println(e.toString());
+		}
+		response.getWriter().println("user factory was created");
+		
+		response.getWriter().println("returning the instance");
 		return instance;
 	}
 	
-	public void addNewUser(User user) throws UserExceptionHandler 
+	private static Connection getConnection() throws URISyntaxException, SQLException {
+	    URI jdbUri = new URI(System.getenv("mysql://jr3maktf4pdemcnl:n22nrh4y735ezfw4@i5x1cqhq5xbqtv00.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/gz1an2hjx3itd2un"));
+
+	    String username = "jr3maktf4pdemcnl";
+	    String password = "n22nrh4y735ezfw4";
+	    String port = "3306";
+	    String jdbUrl = "jdbc:mysql://i5x1cqhq5xbqtv00.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:" + port + "/gz1an2hjx3itd2un";
+
+	    return DriverManager.getConnection(jdbUrl, username, password);
+	}
+	
+	public void addNewUser(AppUser user, HttpServletResponse response) throws UserExceptionHandler, IOException 
 	{	
-		Session session = userFactory.openSession();
-		org.hibernate.Transaction tx = null;
+
+		response.getWriter().println("userfactory: ");
+		Session session = null; 
+		response.getWriter().println("session: ");	
+
 		int id = 0;
-		try{
-			tx = session.beginTransaction();
-			List <Object> users = (List <Object>) session.createSQLQuery("select * from users").list();
-			java.util.Iterator i = users.iterator();
-			
-			while(i.hasNext())
+		try
+		{
+			response.getWriter().println("Before session");
+			session = userFactory.getCurrentSession();
+			if (session != null)
 			{
-				Object obj[] = (Object[])i.next();
-				String mail = (String) obj[5];
-				if (mail.equals(user.getMail()))
-					throw new UserExceptionHandler("Unable to signup with that User name because it is already exist");
-			}			
-			tx = session.beginTransaction();
-			id = (Integer) session.save(user); 
-			tx.commit();
-		}catch (HibernateException e) {
-			if (tx !=null) tx.rollback();
+				response.getWriter().println("in the try stament");
+			}
+			
+			session.beginTransaction();
+			session.save(user);
+			session.getTransaction().commit();
+			
+			response.getWriter().println("the user is in the DB");
+
+		}catch (HibernateException e) 
+		{
+			response.getWriter().println(e);
+			if (session.getTransaction() != null) session.getTransaction().rollback();
 			throw new HibernateException (e);
 			//("Unable to signup, duplicate User name or no network connection"); 
 		}finally 
 		{
 			try 
-			{
-				session.close();
-			} 
+			{session.close();} 
 			catch (HibernateException e)
 			{
 				throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
 			} 
 		}
 		if (id != 0) 
-		{
 			System.out.println("User created successfully");  	
-		}
-		
+	
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public AppUser getUser(String mail, String password) throws UserExceptionHandler 
+	{
+		 Session session = userFactory.getCurrentSession();
+	      List<AppUser> user = null;
+	      try{
+	    	  session.beginTransaction();
+	          user = session.createQuery("from " + AppUser.class.getName() + " user where user.mail ='" + mail +"'").list();
+	          if (user != null)
+	        	  session.getTransaction().commit();
+	      }catch (HibernateException e) 
+	      {
+				if (session.beginTransaction() !=null) session.beginTransaction().rollback();
+	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
+	      }finally 
+	      {
+	    	 if (session != null){
+	    		 session.close();
+	    	 }
+	      }
+	      if (user.size() > 0) {
+		      return user.get(0);	
+	      }
+	      return null;
+	}
+	
+/*
 	@Override
 	public void deleteUser(String mail, String password) 
 	{
@@ -80,22 +141,23 @@ public class HibernateUserDAO implements IUserDAO
 		{
 			user = HibernateUserDAO.getInstance().getUser(mail, password);
 		} catch (UserExceptionHandler e1) {e1.printStackTrace();}
-		Session session = userFactory.openSession();
-		org.hibernate.Transaction tx = null;
+		
+		Session session = userFactory.getCurrentSession();
 
 		try
 		{
-			if (user!=null){
-			tx = session.beginTransaction();
-			Object ob = session.get(User.class, new Integer(user.getId()));
-			tx = session.beginTransaction();
-			session.delete(ob);
-			tx.commit();
+			if (user!=null)
+			{
+				session.beginTransaction();
+				Object ob = session.get(User.class, new Integer(user.getId()));
+				session.beginTransaction();
+				session.delete(ob);
+				session.getTransaction().commit();
 			}
 		}
 		catch  (HibernateException e) 
 		{
-			if (tx !=null) tx.rollback();
+			if (session.beginTransaction() !=null) session.beginTransaction().rollback();
 		}
 		finally
 		{
@@ -104,46 +166,20 @@ public class HibernateUserDAO implements IUserDAO
 	}
 	
 
-	@Override
-	public User getUser(String mail, String password) throws UserExceptionHandler 
-	{
-		  Session session = userFactory.openSession();
-		  Transaction tx = null;
-	      List<User> user = null;
-	      try{
-	    	  session.beginTransaction();
-	          user = session.createQuery("from " + User.class.getName() + " user where user.mail ='" + mail +"'").list();
-	          tx.commit();
-	      }catch (HibernateException e) {
-	         if (tx != null) tx.rollback();
-	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
-	      }finally {
-	    	 try {
-	    		session.close();
-	    	 } catch(HibernateException e){
-	    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
-	    	 }
-	      }
-	      if (user.size() > 0) {
-		      return user.get(0);	
-	      }
-	      return null;
-	}
+	
 
 	@Override
-	public void updateUser(String userId, User updateUser) throws UserExceptionHandler 
+	public void updateUser(int id, User updateUser) throws UserExceptionHandler 
 	{
-		  Session session = userFactory.openSession();
-		  Transaction tx = null;
+		  Session session = userFactory.getCurrentSession();
 
 		  System.out.println("im here!!!!!!!");
 	      try
 	      {
-	    	  tx = session.beginTransaction();
-	    	  User user = (User)session.get(User.class, new Integer(updateUser.getId())); 
+	    	  session.beginTransaction();
+	    	  User user = (User)session.get(User.class, new Integer(id)); 
 	    	  System.out.println("im here");
-	    	  if (updateUser.getUserId().equals(user.getUserId()) ) 
-	    	  {
+	    	  
 	    		 user.setAge(updateUser.getAge()); 
 	    		 user.setFamilyStatus(updateUser.getFamilyStatus());
 	    		 user.setFirstname(updateUser.getFirstname());
@@ -155,12 +191,11 @@ public class HibernateUserDAO implements IUserDAO
 	    		 user.setUserLocation(updateUser.getUserLocation());
 	    		 
 				 session.update(user); 
-		    	 tx.commit();
-	         }
-	         
+				 session.getTransaction().commit();
 	      }
-	      catch (HibernateException e) {
-	         if (tx!=null) tx.rollback();
+	      catch (HibernateException e) 
+	      {
+				if (session.beginTransaction() != null) session.beginTransaction().rollback();
 	         	throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
 	      }finally {
 	    	 try {
@@ -171,7 +206,21 @@ public class HibernateUserDAO implements IUserDAO
 	      }
 	
 	}
-	
+*/
+
+	@Override
+	public void deleteUser(String mail, String password) throws UserExceptionHandler {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void updateUser(int id, AppUser updateUser) throws UserExceptionHandler {
+		// TODO Auto-generated method stub
+		
+	}
 }
 	
 

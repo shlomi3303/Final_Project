@@ -8,13 +8,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.pretty.Printer;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.oracle.jrockit.jfr.RequestableEvent;
 import com.shenkar.finalProject.model.HibernateUserDAO;
-import com.shenkar.finalProject.model.User;
+import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 /**
@@ -33,61 +31,142 @@ public class UserServelt extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     //insert function trigger into doGet()
-	protected void doGet(HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
+    
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.getWriter().println("doGet function");
+		
+		response.getWriter().println("In getUser condition");
+		AppUser user = null;
+		String mail = request.getParameter("mail");
+		String password = request.getParameter("password");
+		try {
+			user = HibernateUserDAO.getInstance(response).getUser(mail, password);
+		} catch (Exception e1) 
+		{
+			response.getWriter().println(e1);
+			response.getWriter().println(e1.toString());
+			
+		}
+		response.getWriter().println("for Gal Hagever");
+		
+		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+		{
+		
+				//user = getUser(mail, password);
+				if (user!=null)
+				{
+					String arr =  new Gson().toJson(user).toString();
+					System.out.println(arr);
+					response.setContentType("application/json");
+					response.getWriter().write(arr);
+				}
+			
+		}
+		
 		
 		//functionTrigger.if(functionTrigger.equals("update_user"))
 			//updateUser(request);
 		
 		//else if(functionTrigger.equals("get_user"))
 		//{
-			User user = null;
+		
+			
+			/*
 			try {
-				user = getUser(request.getParameter("mail"), request.getParameter("password"));
+				//user = getUser(request.getParameter("mail"), request.getParameter("password"));
 			} catch (UserExceptionHandler e) {
 				e.printStackTrace();
 			}
+		*/	
 			
-			String arr =  new Gson().toJson(user).toString();
-			System.out.println(arr);
 			//String output = new Gson().toJson(user1).toString();
 			//response.getWriter().print("string:     " + request.getParameter("mail") +"\n"+ request.getParameter("password"));
 			//response.setContentType("application/json");
-			response.getWriter().write(arr);
 			//response.getWriter().write(new Gson().toJson(user));
 			
 		//}			
 	}
 
 	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		deleteUser(req);
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		deleteUser(request);
 	}
-	
-	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try {
-			updateUser(req);
-		} catch (UserExceptionHandler e) {
-			e.printStackTrace();
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		//response.getWriter().println("doPost function");
+		
+		String function = request.getParameter("function");
+		response.getWriter().println(function);
+		if (function.equals("create"))
+		{
+			response.getWriter().println("In create condition");
+			try 
+			{
+				addNewUser(request, response);
+			} catch (UserExceptionHandler e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if (function.equals("getUser"))
+		{
+			response.getWriter().println("In getUser condition");
+			AppUser user = null;
+			String mail = request.getParameter("mail");
+			String password = request.getParameter("password");
+			if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+			{
+				try {
+					user = getUser(mail, password);
+					if (user!=null)
+					{
+						String arr =  new Gson().toJson(user).toString();
+						System.out.println(arr);
+						response.setContentType("application/json");
+						response.getWriter().write(arr);
+					}
+				} catch (UserExceptionHandler e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		else if (function.equals("update"))
+		{
+			AppUser user = null;
+			String mail = request.getParameter("mail");
+			String password = request.getParameter("password");
+
+			if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty()) )
+			{
+				try 
+				{
+					user = getUser(mail, password);
+					if (user!=null)
+						updateUser(request, user.getId());
+					
+				} catch (UserExceptionHandler e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
-	/**
-	 * @throws UserExceptionHandler 
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response, String functionTrigger) throws ServletException, IOException, UserExceptionHandler 
+	private void addNewUser(HttpServletRequest request, HttpServletResponse response) throws UserExceptionHandler, IOException
 	{
-		addNewUser(request);
-	}
-	
-	private void addNewUser(HttpServletRequest request) throws UserExceptionHandler
-	{
-		User user = generateUser(request);
+		response.getWriter().println("in add new user first");
+		AppUser user = generateUser(request);
 		
 		if (user!=null)
-			HibernateUserDAO.getInstance().addNewUser(user);
+		{
+			response.getWriter().println("Add new user, hell yaa!!!! function second");
+			HibernateUserDAO.getInstance(response).addNewUser(user, response);
+			response.getWriter().println("User was created");
+
+		}
 
 	}
 	
@@ -95,35 +174,37 @@ public class UserServelt extends HttpServlet {
 	{
 		String mail = request.getParameter("mail");
 		String password = request.getParameter("password");
-		HibernateUserDAO.getInstance().deleteUser(mail, password);
+		/*
+		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+			HibernateUserDAO.getInstance().deleteUser(mail, password);
+			*/
 	}
 	
-	private void updateUser(HttpServletRequest request) throws UserExceptionHandler
+	private void updateUser(HttpServletRequest request, int id) throws UserExceptionHandler
 	{
+		System.out.println("here2: " + request);
+
+		AppUser user = generateUser(request);
 		
-		User user = generateUser(request);
 		if (user!=null)
 		{
-			String userId = request.getParameter("userId");
-			HibernateUserDAO.getInstance().updateUser(userId, user);
+			//HibernateUserDAO.getInstance().updateUser(id, user);
 		}
 	}
 	
-	private User getUser(String mail, String password) throws UserExceptionHandler
+	private AppUser getUser(String mail, String password) throws UserExceptionHandler
 	{
-		User user = null;
-		if (verification(mail, password))
-		{
-			user = HibernateUserDAO.getInstance().getUser(mail, password);
+		AppUser user = null;
+		
+			//user = HibernateUserDAO.getInstance().getUser(mail, password);
 			if (user!=null)
 				return user;
-		}
+		
 		return null;
 	}
 	
-	private User generateUser (HttpServletRequest request) throws UserExceptionHandler
+	private AppUser generateUser (HttpServletRequest request) throws UserExceptionHandler
 	{
-		String userId = request.getParameter("userId");
 		String fname = request.getParameter("firstname");
 		String lname = request.getParameter("lastname");
 		String mail = request.getParameter("mail");
@@ -131,19 +212,22 @@ public class UserServelt extends HttpServlet {
 		String phone = request.getParameter("phone");
 		String age = request.getParameter("age");
 		String familyStatus = request.getParameter("familyStatus");
+		//System.out.println(familyStatus);
 		String kids = request.getParameter("kids");
 		String userLocation = request.getParameter("userLocation");
 		String[] interests = request.getParameterValues("interests");
 		String interestString = "";
-		for (int i=0; i<interests.length; i++)
-		{
-			interestString +=interests[i] + ";"; 
-		}
-		System.out.println(interestString);
 		
-		if (verification(userId, password, mail)==true)
+		if (interests!=null && interests.length>0)
 		{
-
+			for (int i=0; i<interests.length; i++)
+			{
+				interestString +=interests[i] + ";"; 
+			}
+			//System.out.println(interestString);
+		}
+		
+		
 			int IntegerAge = Integer.parseInt(age);
 			
 			int IntegerKids;
@@ -152,27 +236,14 @@ public class UserServelt extends HttpServlet {
 			else
 				IntegerKids = Integer.parseInt(kids);
 
-			User user = new User(userId, fname, lname, mail, password, phone, IntegerAge, familyStatus, IntegerKids, userLocation, interestString);
+			AppUser user = new AppUser(fname, lname, mail, password, phone, IntegerAge, familyStatus, IntegerKids, userLocation, interestString);
 			return user;
-
-		}
-		return null;
+		
+		
 	}
 	
-	public boolean verification(String... strings)
-	{
-		boolean flag = true;
-	    for(String str : strings){
-    		System.out.println(str);
-	    	if(str!=null&&str.isEmpty()) 
-	    		flag = false;
-	    	else
-	    		System.out.println(str);
-	    }
-	    return flag;
-	}
 	
-	private String getJsonString(User user) {
+	private String getJsonString(AppUser user) {
 	    // Before converting to GSON check value of id
 	    Gson gson = null;
 	    gson = new Gson();
