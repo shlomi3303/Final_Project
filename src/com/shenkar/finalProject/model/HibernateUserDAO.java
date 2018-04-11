@@ -42,8 +42,8 @@ public class HibernateUserDAO implements IUserDAO
 		}
 		catch (Exception e)
 		{
-			response.getWriter().println(e);
-			response.getWriter().println(e.toString());
+			response.getWriter().println("in get instance: " + e);
+			response.getWriter().println("in get instance: " + e.toString());
 		}
 		response.getWriter().println("user factory was created");
 		
@@ -51,16 +51,6 @@ public class HibernateUserDAO implements IUserDAO
 		return instance;
 	}
 	
-	private static Connection getConnection() throws URISyntaxException, SQLException {
-	    URI jdbUri = new URI(System.getenv("mysql://jr3maktf4pdemcnl:n22nrh4y735ezfw4@i5x1cqhq5xbqtv00.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/gz1an2hjx3itd2un"));
-
-	    String username = "jr3maktf4pdemcnl";
-	    String password = "n22nrh4y735ezfw4";
-	    String port = "3306";
-	    String jdbUrl = "jdbc:mysql://i5x1cqhq5xbqtv00.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:" + port + "/gz1an2hjx3itd2un";
-
-	    return DriverManager.getConnection(jdbUrl, username, password);
-	}
 	
 	public void addNewUser(AppUser user, HttpServletResponse response) throws UserExceptionHandler, IOException 
 	{	
@@ -87,10 +77,9 @@ public class HibernateUserDAO implements IUserDAO
 
 		}catch (HibernateException e) 
 		{
-			response.getWriter().println(e);
+			response.getWriter().println("in add newUser: "+ e);
 			if (session.getTransaction() != null) session.getTransaction().rollback();
-			throw new HibernateException (e);
-			//("Unable to signup, duplicate User name or no network connection"); 
+			throw new HibernateException ("in add newUser: " + e);
 		}finally 
 		{
 			try 
