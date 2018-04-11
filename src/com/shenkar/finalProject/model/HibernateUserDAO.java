@@ -98,7 +98,8 @@ public class HibernateUserDAO implements IUserDAO
 
 		}catch (Exception e) 
 		{
-			response.getWriter().println("in add newUser: "+ e);
+			e.printStackTrace(response.getWriter());
+			response.getWriter().println(e);
 			if (session.getTransaction() != null) session.getTransaction().rollback();
 			throw new HibernateException ("in add newUser: " + e);
 		}finally 
