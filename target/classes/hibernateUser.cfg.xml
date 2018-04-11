@@ -16,12 +16,9 @@
     
     <property name="hibernate.default_schema">dess6n165jarrv</property>
     <property name= "hbm2ddl.auto">update</property>
-    <property name="hibernate.current_session_context_class">org.hibernate.context.ThreadLocalSessionContext</property>
-
     
-    <!-- Mapping files -->
-	<mapping class="com.shenkar.finalProject.model.AppUser"/>
-    
+	<property name="hibernate.current_session_context_class">thread</property>
+     
    </session-factory>
    
 </hibernate-configuration>
