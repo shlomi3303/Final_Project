@@ -41,7 +41,7 @@ public class HibernateUserDAO implements IUserDAO
 		if (instance == null){
 			
 			try{
-				userFactory = new AnnotationConfiguration.configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
+				userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
 				response.getWriter().println("in get instance: " + userFactory);
 	
 			}
