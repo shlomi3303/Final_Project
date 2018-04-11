@@ -33,6 +33,17 @@ public class UserServelt extends HttpServlet {
     //insert function trigger into doGet()
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
+		response.getWriter().println("In create condition");
+		try 
+		{
+			addNewUser(request, response);
+		} catch (UserExceptionHandler e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
+		
 		response.getWriter().println("doGet function");
 		
 		response.getWriter().println("In getUser condition");
