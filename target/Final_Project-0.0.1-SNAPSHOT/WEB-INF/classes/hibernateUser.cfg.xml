@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE hibernate-configuration SYSTEM 
-"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<!DOCTYPE hibernate-configuration PUBLIC 
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 
 
 <hibernate-configuration>
@@ -8,17 +8,17 @@
    <session-factory>
    
     <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-    <property name="hibernate.connection.url">jdbc:postgresql://ec2-54-243-213-188.compute-1.amazonaws.com:5432/dess6n165jarrv</property>
     <property name="hibernate.connection.username">hlhygnynybymyo</property>
     <property name="hibernate.connection.password">1aba6373e930fb5a338381d58606f1b7a8f83cb08b3b387e0ad2b7a9470f3bfb</property>
-    
-    <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+    <property name="hibernate.connection.url">jdbc:postgresql://ec2-54-243-213-188.compute-1.amazonaws.com:5432/dess6n165jarrv</property>    
+    <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL92Dialect</property>
     
     <property name="hibernate.default_schema">dess6n165jarrv</property>
     <property name= "hbm2ddl.auto">update</property>
-    
+    <property name="connection_pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
      
+     <mapping class="com.shenkar.finalProject.model.AppUser"/>
    </session-factory>
    
 </hibernate-configuration>

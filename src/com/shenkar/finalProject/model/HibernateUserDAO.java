@@ -36,26 +36,41 @@ public class HibernateUserDAO implements IUserDAO
 		
 		response.getWriter().println("instance is a null");
 		instance = new HibernateUserDAO();
-		response.getWriter().println("instance is not null now");
-		try{
-			userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
-		}
-		catch (Exception e)
-		{
-			response.getWriter().println("in get instance: " + e);
-			response.getWriter().println("in get instance: " + e.toString());
-		}
-		response.getWriter().println("user factory was created");
-		
-		response.getWriter().println("returning the instance");
+		response.getWriter().println("instance is not null now" + instance);
+		if (instance == null){
+			
+			try{
+				userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
+				response.getWriter().println("in get instance: " + userFactory);
+	
+			}
+			catch (Exception e)
+			{
+				response.getWriter().println("in get instance: " + e);
+				response.getWriter().println("in get instance: " + e.toString());
+			}
+			response.getWriter().println("user factory was created");
+			
+			response.getWriter().println("returning the instance");
+	}
 		return instance;
 	}
+	
+	public static Session getSession() throws HibernateException {         
+		   Session sess = null;       
+		   try {         
+		       sess = userFactory.getCurrentSession();  
+		   } catch (org.hibernate.HibernateException he) {  
+		       sess = userFactory.openSession();     
+		   }             
+		   return sess;
+		} 
 	
 	
 	public void addNewUser(AppUser user, HttpServletResponse response) throws UserExceptionHandler, IOException 
 	{	
 
-		response.getWriter().println("userfactory: ");
+		response.getWriter().println("userfactory: " + userFactory);
 		Session session = null; 
 		response.getWriter().println("session: ");	
 
@@ -63,7 +78,12 @@ public class HibernateUserDAO implements IUserDAO
 		try
 		{
 			response.getWriter().println("Before session");
-			session = userFactory.getCurrentSession();
+			if (userFactory==null)
+			{
+				userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
+				response.getWriter().println("not null");
+			}
+			session = getSession();
 			if (session != null)
 			{
 				response.getWriter().println("in the try stament");
@@ -75,7 +95,7 @@ public class HibernateUserDAO implements IUserDAO
 			
 			response.getWriter().println("the user is in the DB");
 
-		}catch (HibernateException e) 
+		}catch (Exception e) 
 		{
 			response.getWriter().println("in add newUser: "+ e);
 			if (session.getTransaction() != null) session.getTransaction().rollback();
