@@ -18,6 +18,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import com.fasterxml.classmate.AnnotationConfiguration;
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
 
 public class HibernateUserDAO implements IUserDAO 
@@ -40,7 +41,7 @@ public class HibernateUserDAO implements IUserDAO
 		if (instance == null){
 			
 			try{
-				userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
+				userFactory = new AnnotationConfiguration.configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
 				response.getWriter().println("in get instance: " + userFactory);
 	
 			}
@@ -80,7 +81,7 @@ public class HibernateUserDAO implements IUserDAO
 			response.getWriter().println("Before session");
 			if (userFactory==null)
 			{
-				userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
+				userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
 				response.getWriter().println("not null");
 			}
 			session = getSession();
