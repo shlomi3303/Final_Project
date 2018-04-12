@@ -3,19 +3,24 @@ package com.shenkar.finalProject.model;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.rmi.registry.Registry;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
 import com.fasterxml.classmate.AnnotationConfiguration;
@@ -27,6 +32,8 @@ public class HibernateUserDAO implements IUserDAO
 	private static HibernateUserDAO instance;
 	
 	private static SessionFactory userFactory;
+
+	private static StandardServiceRegistry registry;
 	
 
 	private HibernateUserDAO () {}
@@ -40,6 +47,7 @@ public class HibernateUserDAO implements IUserDAO
 		response.getWriter().println("instance is not null now" + instance);
 		if (instance == null){
 			
+		
 			try{
 				userFactory = new Configuration().configure("hibernateUser.cfg.xml").addAnnotatedClass(AppUser.class).buildSessionFactory();
 				response.getWriter().println("in get instance: " + userFactory);
@@ -53,6 +61,7 @@ public class HibernateUserDAO implements IUserDAO
 			response.getWriter().println("user factory was created");
 			
 			response.getWriter().println("returning the instance");
+			
 	}
 		return instance;
 	}
