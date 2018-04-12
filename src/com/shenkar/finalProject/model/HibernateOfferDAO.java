@@ -20,30 +20,49 @@ public class HibernateOfferDAO implements IOfferDAO
 	
 	public static HibernateOfferDAO getInstance() 
 	{	
-		if (instance == null) {
+		if (instance == null) 
+		{
 			instance = new HibernateOfferDAO();
-		
-			offerFactory =new Configuration().configure("hibernateOffer.cfg.xml").addAnnotatedClass(Offer.class).buildSessionFactory(); 
+			try
+			{
+				offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+			}
+			catch (Exception e){}
 		}
 		return instance;
 	}
 
+	public static Session getSession() throws HibernateException {         
+		   Session sess = null;       
+		   try {         
+		       sess = offerFactory.getCurrentSession();  
+		   } catch (org.hibernate.HibernateException he) {  
+		       sess = offerFactory.openSession();     
+		   }             
+		   return sess;
+	} 
+	
 	@Override
-	public void createOffer(Offer offer) throws OfferExceptionHandler {
-		Session session = offerFactory.openSession();
-		System.out.println("session: " + session);
-		Transaction tx = null;
-		int id = 0;
-		
+	public void createOffer(Offer offer) throws OfferExceptionHandler 
+	{
+		Session session = null;
 		try
 		{
-			tx = session.beginTransaction();
-			id = (Integer) session.save(offer); 
-			tx.commit();
-		}catch (HibernateException e) {
-			if (tx !=null) tx.rollback();
+			if (offerFactory==null)
+			{
+				offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+			}
+			session = getSession();
+			if (session != null)
+			{
+				session.beginTransaction();
+				session.save(offer); 
+				session.getTransaction().commit();
+			}
+		}catch (HibernateException e) 
+		{
+			if (session.getTransaction() != null) session.getTransaction().rollback();
 			throw new HibernateException (e);
-			//("Unable to signup, duplicate User name or no network connection"); 
 		}
 		finally 
 		{
@@ -56,37 +75,46 @@ public class HibernateOfferDAO implements IOfferDAO
 				throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");
 			} 
 		}
-		if (id != 0) 
-			System.out.println("Offer created successfully");  	
 	}
 
 	@Override
 	public void editOffer(int offerId, Offer updateOffer) throws OfferExceptionHandler 
 	{
-		Session session = offerFactory.openSession();
-		System.out.println(offerId);
-		Transaction tx = null;
+		Session session = null;
 		try
 		{
-			tx = session.beginTransaction();
-			Offer offer = (Offer)session.get(Offer.class, new Integer(offerId));
+			if (offerFactory==null)
+			{
+				offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+			}
+			session = getSession();
+			if (session != null)
+			{
+				
+				session.beginTransaction();
+				Offer offer = (Offer)session.get(Offer.class, new Integer(offerId));
 		
 				 offer.setLocation(updateOffer.getLocation());
 				 offer.setPeriod(updateOffer.getPeriod());
 				 offer.setPeriodic(updateOffer.getPeriodic());
 				 offer.setUrgency(updateOffer.getUrgency());
-				 offer.setTTL(updateOffer.getTTL());
+				 //offer.setTTL(updateOffer.getTTL());
 				 offer.setIsAprroved(updateOffer.getIsAprroved());
 				 offer.setDescription(updateOffer.getDescription());
 				 offer.setUserLocation(updateOffer.getUserLocation());
+				 offer.setGender(updateOffer.getGender());
+				 offer.setLanguage(updateOffer.getLanguage());
+				 offer.setEducationLevel(updateOffer.getEducationLevel());
+				 offer.setFieldOfStudy(updateOffer.getFieldOfStudy());
+				 
 				 
 				 session.update(offer); 
-		    	 tx.commit();
-			
+				 session.getTransaction().commit();
+			}
 		}
 		catch (HibernateException e)
 		{
-			if (tx !=null) tx.rollback();
+			if (session.getTransaction() != null) session.getTransaction().rollback();
 			throw new HibernateException (e);
 		}
 		finally 
@@ -106,26 +134,34 @@ public class HibernateOfferDAO implements IOfferDAO
 	public void deleteOffer(int offerId) throws OfferExceptionHandler 
 	{
 		Offer offer = null;
-		Transaction tx = null;
 		try 
 		{
 			offer = HibernateOfferDAO.getInstance().getOffer(offerId);
 		} catch (OfferExceptionHandler e1) {e1.printStackTrace();}
-		Session session = offerFactory.openSession();
+		
+		Session session = null;
 		
 		try
 		{
-			if (offer!=null){
-				tx = session.beginTransaction();
+			if (offer!=null)
+			{
+				if (offerFactory==null)
+		    	  {
+						offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+				  }
+				  session = getSession();
+				  
+		    	  session.beginTransaction();
+				
 				Object ob = session.get(Offer.class, new Integer(offer.getOfferId()));
-				tx = session.beginTransaction();
+				session.beginTransaction();
 				session.delete(ob);
-				tx.commit();
+	        	session.getTransaction().commit();
 			}
 		}
 		catch  (HibernateException e) 
 		{
-			if (tx !=null) tx.rollback();
+	         if (session.beginTransaction() != null) session.beginTransaction().rollback();
 		}
 		finally
 		{
@@ -133,30 +169,49 @@ public class HibernateOfferDAO implements IOfferDAO
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Offer getOffer(int offerId) throws OfferExceptionHandler {
 		
-		 Session session = offerFactory.openSession();
+		 Session session = null;
 		 List<Offer> offer = null;
-	     Transaction tx = null;
-	      
+		 
 	     try{
-	    	  tx = session.beginTransaction();
-	          offer = session.createQuery("from " + Offer.class.getName() + " offer where offer.offerId ='" + offerId +"'").list();
-	          tx.commit();
+	    	 if (offerFactory==null)
+	    	  {
+					offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+			  }
+			  session = getSession();
+			  
+	    	  session.beginTransaction();
+	    	  
+	          offer = session.createQuery("from " + Offer.class.getName() + " offer where offer.offerId ='" + offerId +"'").getResultList();
+	          
+	          if (offer != null && !offer.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (offer.size() > 0) {
+	    		      return offer.get(0);	
+	    	      }
+	          }
+
 	      }catch (HibernateException e) {
 	         if (session.beginTransaction() != null) session.beginTransaction().rollback();
 	         	throw new OfferExceptionHandler("Sorry, connection problem was detected");
-	      }finally {
-	    	 try {
+	      }finally 
+	     {
+	    	 try 
+	    	 {	    		 
 	    		session.close();
-	    	 } catch(HibernateException e){
+	    		
+	    	 } catch(HibernateException e)
+	    	 {
+	    		 
 	    		 throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");
+	    		 
 	    	 }
 	      }
-	      if (offer.size() > 0) {
-		      return offer.get(0);	
-	      }
+	      
 	      return null;
 	}
 
@@ -180,17 +235,29 @@ public class HibernateOfferDAO implements IOfferDAO
 
 	@Override
 	public List<Offer> getOffers(String userId) throws OfferExceptionHandler {
-		Session session = offerFactory.openSession();
+		Session session = null;
 		List <Offer> offers = null;
-	    Transaction tx = null;
 
-		try{
-			 tx=session.beginTransaction();
-	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId='" + userId+"'").list(); 
-			 tx.commit();
-			 
+		try
+		{
+			if (offerFactory==null)
+	    	  {
+					offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+			  }
+			  session = getSession();
+			  
+	    	  session.beginTransaction();
+			
+	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId='" + userId+"'").list();
+	         
+	         if (offers != null && !offers.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	    	      return offers;
+	          }
+	         
 	      }catch (HibernateException e) {
-	         if (tx != null) tx.rollback();
+				if (session.beginTransaction() !=null) session.beginTransaction().rollback();
 	         throw new OfferExceptionHandler("Offers list not avilable at the moment" + e.getMessage());
 	      }finally {
 	    	 try {
@@ -199,6 +266,6 @@ public class HibernateOfferDAO implements IOfferDAO
 	    		 throw new OfferExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
 	    	 } 
 	      }
-	      return offers;
+	      return null;
 	}
 }

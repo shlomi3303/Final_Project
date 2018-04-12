@@ -6,6 +6,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
@@ -22,25 +23,39 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	{	
 		if (instance == null) {
 			instance = new HibernateApplicationDAO();
-			//applicationFactory = new AnnotationConfiguration().configure("hibernateApplication.cfg.xml").buildSessionFactory();
+			applicationFactory = new Configuration().configure("hibernateApplication.cfg.xml").buildSessionFactory();
 		}
 		return instance;
 	}
 	
+	public static Session getSession() throws HibernateException {         
+		   Session sess = null;       
+		   try {         
+		       sess = applicationFactory.getCurrentSession();  
+		   } catch (org.hibernate.HibernateException he) {  
+		       sess = applicationFactory.openSession();     
+		   }             
+		   return sess;
+	} 
 	
 	@Override
-	public void createApplication(Application application) throws ApplicationExceptionHandler {
-		Session session = applicationFactory.openSession();
-		Transaction tx = null;
-		int id = 0;
+	public void createApplication(Application application) throws ApplicationExceptionHandler 
+	{
+		Session session =null;
 		
 		try
 		{
-			tx = session.beginTransaction();
-			id = (Integer) session.save(application); 
-			tx.commit();
+			if (applicationFactory==null)
+			{
+				applicationFactory = new Configuration().configure("hibernateApplication.cfg.xml").buildSessionFactory();
+			}
+			session = getSession();
+			
+			session.beginTransaction();
+			session.save(application); 
+			//tx.commit();
 		}catch (HibernateException e) {
-			if (tx !=null) tx.rollback();
+			if (session.beginTransaction() !=null) session.beginTransaction().rollback();
 			throw new HibernateException (e);
 		}
 		finally 
@@ -54,9 +69,6 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");
 			} 
 		}
-		if (id != 0) 
-			System.out.println("Offer created successfully");
-
 	}
 
 	@Override

@@ -18,7 +18,7 @@
     <property name="connection_pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
       
-     
+     <mapping class="com.shenkar.finalProject.model.AppUser"/>
    </session-factory>
    
 </hibernate-configuration>

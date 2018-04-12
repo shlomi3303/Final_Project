@@ -1,6 +1,8 @@
 package com.shenakr.finalProject.controllers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -30,7 +32,6 @@ public class UserServelt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-    //insert function trigger into doGet()
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -41,7 +42,7 @@ public class UserServelt extends HttpServlet {
 		String mail = request.getParameter("mail");
 		String password = request.getParameter("password");
 		try {
-			user = HibernateUserDAO.getInstance(response).getUser(mail, password);
+			user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
 		} catch (Exception e1) 
 		{
 			response.getWriter().println(e1);
@@ -63,23 +64,7 @@ public class UserServelt extends HttpServlet {
 				}
 			
 		}
-		
-		
-		//functionTrigger.if(functionTrigger.equals("update_user"))
-			//updateUser(request);
-		
-		//else if(functionTrigger.equals("get_user"))
-		//{
-		
-			
-			/*
-			try {
-				//user = getUser(request.getParameter("mail"), request.getParameter("password"));
-			} catch (UserExceptionHandler e) {
-				e.printStackTrace();
-			}
-		*/	
-			
+
 			//String output = new Gson().toJson(user1).toString();
 			//response.getWriter().print("string:     " + request.getParameter("mail") +"\n"+ request.getParameter("password"));
 			//response.setContentType("application/json");
@@ -88,17 +73,11 @@ public class UserServelt extends HttpServlet {
 		//}			
 	}
 
-	@Override
-	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		deleteUser(request);
-	}
-
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//response.getWriter().println("doPost function");
 		
 		String function = request.getParameter("function");
 		response.getWriter().println(function);
@@ -122,13 +101,14 @@ public class UserServelt extends HttpServlet {
 			if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 			{
 				try {
-					user = getUser(mail, password);
+					user = getUser(mail, password, response);
 					if (user!=null)
 					{
 						String arr =  new Gson().toJson(user).toString();
 						System.out.println(arr);
 						response.setContentType("application/json");
 						response.getWriter().write(arr);
+						response.getWriter().println(user.getMail());
 					}
 				} catch (UserExceptionHandler e) {
 					e.printStackTrace();
@@ -145,13 +125,24 @@ public class UserServelt extends HttpServlet {
 			{
 				try 
 				{
-					user = getUser(mail, password);
+					user = getUser(mail, password, response);
 					if (user!=null)
-						updateUser(request, user.getId());
+						updateUser(request, user.getId(), response);
 					
 				} catch (UserExceptionHandler e) {
 					e.printStackTrace();
 				}
+			}
+		}
+		else if (function.equals("delete"))
+		{
+			response.getWriter().println(function);
+			String mail = request.getParameter("mail");
+			String password = request.getParameter("password");
+			if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+			{
+				deleteUser(request, response);
+
 			}
 		}
 	}
@@ -171,33 +162,38 @@ public class UserServelt extends HttpServlet {
 
 	}
 	
-	private void deleteUser(HttpServletRequest request)
+	private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
+		response.getWriter().println("in delete");
 		String mail = request.getParameter("mail");
 		String password = request.getParameter("password");
-		/*
+		
 		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
-			HibernateUserDAO.getInstance().deleteUser(mail, password);
-			*/
+		{
+			HibernateUserDAO.getInstance(response).deleteUser(mail, password, response);
+			response.getWriter().println("deleted");
+
+		}				
 	}
 	
-	private void updateUser(HttpServletRequest request, int id) throws UserExceptionHandler
+	private void updateUser(HttpServletRequest request, int id, HttpServletResponse response) throws UserExceptionHandler, IOException
 	{
-		System.out.println("here2: " + request);
 
 		AppUser user = generateUser(request);
+		response.getWriter().println("User genet");
 		
 		if (user!=null)
 		{
-			//HibernateUserDAO.getInstance().updateUser(id, user);
+			response.getWriter().println("User is not a null in update");
+			HibernateUserDAO.getInstance(response).updateUser(id, user, response);
 		}
 	}
 	
-	private AppUser getUser(String mail, String password) throws UserExceptionHandler
+	private AppUser getUser(String mail, String password,HttpServletResponse response) throws UserExceptionHandler, IOException
 	{
 		AppUser user = null;
 		
-			//user = HibernateUserDAO.getInstance().getUser(mail, password);
+			user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
 			if (user!=null)
 				return user;
 		
@@ -213,7 +209,6 @@ public class UserServelt extends HttpServlet {
 		String phone = request.getParameter("phone");
 		String age = request.getParameter("age");
 		String familyStatus = request.getParameter("familyStatus");
-		//System.out.println(familyStatus);
 		String kids = request.getParameter("kids");
 		String userLocation = request.getParameter("userLocation");
 		String[] interests = request.getParameterValues("interests");
@@ -232,7 +227,8 @@ public class UserServelt extends HttpServlet {
 			int IntegerAge = Integer.parseInt(age);
 			
 			int IntegerKids;
-			if (kids.equals(""))
+			
+			if (kids.equals("") || kids.isEmpty())
 				IntegerKids = 0;
 			else
 				IntegerKids = Integer.parseInt(kids);
