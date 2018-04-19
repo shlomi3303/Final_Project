@@ -25,22 +25,9 @@ public class TestUser {
 		String familyStatus1 = "נשוי";
 		int kids1 = 3;
 		String userLocation1 = "תל אביב";
-		String[] interests1 = new String[3];
-		 for (int i=0; i<3; i++)
-		 {
-			 interests1[i] = "בדיקה";
-			// System.out.println(interests1[i] );
-		 }
+		
 		 
-		 String interestString1 = "";
-		 for (int j=0; j<interests1.length; j++)
-		 {
-			interestString1 += interests1[j] + ";"; 
-		 }
-		 //System.out.println(interestString1);
 		 
-		 AppUser user1 = new AppUser(firstname1, lastname1, mail1, password1, phone1, age1,
-					familyStatus1,kids1, userLocation1, interestString1);
 		 //HibernateUserDAO.getInstance().addNewUser(user1);
 		 /*
 		 
@@ -128,8 +115,24 @@ public class TestUser {
 		 //HibernateUserDAO.getInstance().deleteUser("TestMyApp@gmail.com", "checkNumber2");
 		 
 		 //HibernateUserDAO.getInstance().deleteUser
+					
+		/*			
+					
+					String[] interests1 = new String[3];
+					 for (int i=0; i<3; i++)
+					 {
+						 interests1[i] = "בדיקה";
+						// System.out.println(interests1[i] );
+					 }
+					 
+					 String interestString1 = "";
+					 for (int j=0; j<interests1.length; j++)
+					 {
+						interestString1 += interests1[j] + ";"; 
+					 }
+					 //System.out.println(interestString1);
 		 
-		 
+		*/ 
 	}
 
 }

@@ -1,7 +1,10 @@
 package Tests;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.google.gson.Gson;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.Offer;
@@ -38,11 +41,18 @@ public class TestOffer {
 		String description = "להגיע מהר";
 		String userLocation = "תל אביב";
 		boolean isAprroved = false;
+		String image = "www.test.co.il";
 		
 		
-		Offer offer1 = new Offer(userId, period, location, category, periodic,
-				urgency, TTL, description, "waiting", userLocation, isAprroved,"male", "english", "high", "math");
-		HibernateOfferDAO.getInstance().createOffer(offer1);
+		Offer offer1 = new Offer(123,userId, period, location, category, periodic,
+				urgency, TTL, description, "waiting", userLocation, isAprroved,"male", "english", "high", "math", image);
+		Offer offer2 = new Offer(123,userId, period, location, category, periodic,
+				urgency, TTL, description, "waiting", userLocation, isAprroved,"male", "english", "high", "math", image);
+		
+		String arr = new Gson().toJson(offer1, Offer[].class);
+		 System.out.println(arr);
+
+		//HibernateOfferDAO.getInstance().createOffer(offer1);
 		/*
 		/
 		//Offer upda = new Offer(offer1.getId(),offerId, userId, period, "רחובות", category, periodic,

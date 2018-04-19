@@ -1,13 +1,14 @@
 package com.shenakr.finalProject.controllers;
 
 import java.io.IOException;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.HibernateException;
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.Offer;
@@ -26,66 +27,75 @@ public class OfferServelt extends HttpServlet {
     public OfferServelt() {super();}
 
 	/**
-	 * @throws OfferExceptionHandler 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     
     //insert function trigger into doGet()
-	protected void doGet(HttpServletRequest request, HttpServletResponse response, String functionTrigger) throws ServletException, IOException, OfferExceptionHandler 
-	{
-		if(functionTrigger.equals("update_offer"))
-		{
-			updateOffer(request);
-		}
-		
-		else if(functionTrigger.equals("get_user"))
-		{
-			String StringOfferId = request.getParameter("offerId");
-			Offer offer = null;
-			
-			try
-			{
-				offer = getOffer(StringOfferId);
-			}catch (OfferExceptionHandler e){
-				e.printStackTrace();
-			}
-			String strOffer = new Gson().toJson(offer).toString();
-			response.getWriter().write(strOffer);
-		}
-		//response.getWriter().append("Served at: ").append(request.getContextPath());
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		try {
-			addNewOffer(request);
-		} catch (OfferExceptionHandler e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		String function = request.getParameter("function");
+
+		if (function!=null && !function.isEmpty()){
+	
+			if (function.equals("create"))
+			{
+				try {addNewOffer(request);} 
+				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+				
+			}
+			
+			else if(function.equals("update"))
+			{
+				try {updateOffer(request);}
+				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}			
+			}
+			
+			else if(function.equals("getOffer"))
+			{
+				String StringOfferId = request.getParameter("offerId");
+				Offer offer = null;
+				try {offer = getOffer(StringOfferId);}
+				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+				//Type offerListType = new TypeToken<ArrayList<Offer>>(){}.getType();
+	
+				String strOffer = new Gson().toJson(offer).toString();
+				response.setContentType("application/json");
+				response.getWriter().write(strOffer);
+			}
+			
+			else if (function.equals("delete"))
+			{
+				try {deleteOffer(request);}
+				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}	
+			}
+			else if (function.equals("getAllOffersUser"))
+			{
+				String stringUserID = request.getParameter("userId");
+				if (stringUserID!=null && !stringUserID.isEmpty())
+				{
+					List<Offer> offers = null;
+					try 
+					{
+						offers = getAllOffersUser(stringUserID);
+						String offerArray = new Gson().toJson(offers).toString();
+						response.setContentType("application/json");
+						response.getWriter().write(offerArray);	
+					}
+					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}		
+				}
+			}
 		}
 	}
+
 	
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try {
-			deleteOffer(req);
-		} catch (OfferExceptionHandler e) {
-			e.printStackTrace();
-		}
+	private List<Offer> getAllOffersUser(String stringUserID) throws OfferExceptionHandler
+	{
+		int userId = Integer.parseInt(stringUserID);
+		return HibernateOfferDAO.getInstance().getOffers(userId);
 	}
 	
-	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try 
-		{
-			updateOffer(req);
-		} catch (HibernateException | OfferExceptionHandler e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	private void deleteOffer(HttpServletRequest req) throws OfferExceptionHandler
 	{
 		String offerid = req.getParameter("offerId");
@@ -95,18 +105,22 @@ public class OfferServelt extends HttpServlet {
 	
 	private void updateOffer(HttpServletRequest req) throws OfferExceptionHandler
 	{
-		Offer offer = generateOffer(req);
-		if (offer != null)
+		String stringOfferId = req.getParameter("offerId");
+		if (stringOfferId!=null && !stringOfferId.isEmpty())
 		{
-			//HibernateOfferDAO.getInstance().editOffer(offer);
-		}
-		
+			int offerId = Integer.parseInt(stringOfferId);
+			Offer offer = generateOffer(req);
+			if (offer != null)
+			{
+				HibernateOfferDAO.getInstance().editOffer(offerId, offer);
+			}
+		}	
 	}
 	
 	private Offer getOffer(String strOfferId) throws OfferExceptionHandler
 	{
 		Offer offer = null;
-		if (!strOfferId.isEmpty())
+		if (strOfferId != null && !strOfferId.isEmpty())
 		{
 			int offerId = Integer.parseInt(strOfferId);
 			offer = HibernateOfferDAO.getInstance().getOffer(offerId);
@@ -139,7 +153,5 @@ public class OfferServelt extends HttpServlet {
 		
 		return null;
 	}
-	
-	
 	
 }

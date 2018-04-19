@@ -21,6 +21,6 @@ public interface IOfferDAO
 	
 	public void notification (Offer offer) throws OfferExceptionHandler;
 	
-	public List<Offer> getOffers(String userId) throws OfferExceptionHandler;
+	public List<Offer> getOffers(int userId) throws OfferExceptionHandler;
 
 }

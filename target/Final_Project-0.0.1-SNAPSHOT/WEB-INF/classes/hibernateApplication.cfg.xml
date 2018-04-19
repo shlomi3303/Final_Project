@@ -5,21 +5,25 @@
 
 <hibernate-configuration>
 
-   <session-factory>
+  <session-factory>
    
-    <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-    <property name="hibernate.connection.username">aavwhgijjcmgmx</property>
-    <property name="hibernate.connection.password">f8e8442b04dd645c31499522835385386555823ac304a9ea8c50512ceb9bc92c</property>
-    <property name="hibernate.connection.url">jdbc:postgresql://ec2-54-83-1-94.compute-1.amazonaws.com:5432/dcub1fp1lucmd9</property>    
-    <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL92Dialect</property>
-    
-    <property name="hibernate.default_schema">dcub1fp1lucmd9</property>
-    <property name= "hbm2ddl.auto">update</property>
-    <property name="connection_pool_size">1</property>
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+	<property name="hibernate.connection.url">jdbc:mysql://i5x1cqhq5xbqtv00.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/gz1an2hjx3itd2un</property>
+	<property name="hibernate.connection.username">jr3maktf4pdemcnl</property>
+	<property name="connection.password">n22nrh4y735ezfw4</property>
+	<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+	
+	<property name="hibernate.default_schema">gz1an2hjx3itd2un</property>
+	
+	<property name="hibernate.hbm2ddl.auto">update</property>
+	    
+	<property name="connection.pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
-      
-     <mapping class="com.shenkar.finalProject.model.Application"/>
-   </session-factory>
+	    
+	<mapping class="com.shenkar.finalProject.model.Application"/>
+	
+   
+  </session-factory>
    
 </hibernate-configuration>
 

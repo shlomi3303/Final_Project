@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
@@ -98,7 +97,6 @@ public class HibernateOfferDAO implements IOfferDAO
 				 offer.setPeriod(updateOffer.getPeriod());
 				 offer.setPeriodic(updateOffer.getPeriodic());
 				 offer.setUrgency(updateOffer.getUrgency());
-				 //offer.setTTL(updateOffer.getTTL());
 				 offer.setIsAprroved(updateOffer.getIsAprroved());
 				 offer.setDescription(updateOffer.getDescription());
 				 offer.setUserLocation(updateOffer.getUserLocation());
@@ -106,7 +104,7 @@ public class HibernateOfferDAO implements IOfferDAO
 				 offer.setLanguage(updateOffer.getLanguage());
 				 offer.setEducationLevel(updateOffer.getEducationLevel());
 				 offer.setFieldOfStudy(updateOffer.getFieldOfStudy());
-				 
+				 offer.setImg(updateOffer.getImg());
 				 
 				 session.update(offer); 
 				 session.getTransaction().commit();
@@ -133,31 +131,21 @@ public class HibernateOfferDAO implements IOfferDAO
 	@Override
 	public void deleteOffer(int offerId) throws OfferExceptionHandler 
 	{
-		Offer offer = null;
-		try 
-		{
-			offer = HibernateOfferDAO.getInstance().getOffer(offerId);
-		} catch (OfferExceptionHandler e1) {e1.printStackTrace();}
-		
 		Session session = null;
 		
 		try
 		{
-			if (offer!=null)
-			{
 				if (offerFactory==null)
-		    	  {
-						offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
-				  }
-				  session = getSession();
+		    	{
+					offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+				}
+				session = getSession();
 				  
-		    	  session.beginTransaction();
+		    	session.beginTransaction();
 				
-				Object ob = session.get(Offer.class, new Integer(offer.getOfferId()));
-				session.beginTransaction();
+				Object ob = session.get(Offer.class, offerId);
 				session.delete(ob);
 	        	session.getTransaction().commit();
-			}
 		}
 		catch  (HibernateException e) 
 		{
@@ -215,26 +203,9 @@ public class HibernateOfferDAO implements IOfferDAO
 	      return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public int ttlCalc(int ttl) throws OfferExceptionHandler {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void status(String status, Offer offer) throws OfferExceptionHandler {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void notification(Offer offer) throws OfferExceptionHandler {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<Offer> getOffers(String userId) throws OfferExceptionHandler {
+	public List<Offer> getOffers(int userId) throws OfferExceptionHandler {
 		Session session = null;
 		List <Offer> offers = null;
 
@@ -248,7 +219,7 @@ public class HibernateOfferDAO implements IOfferDAO
 			  
 	    	  session.beginTransaction();
 			
-	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId='" + userId+"'").list();
+	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId = "+userId+"").getResultList();
 	         
 	         if (offers != null && !offers.isEmpty())
 	          {
@@ -267,5 +238,23 @@ public class HibernateOfferDAO implements IOfferDAO
 	    	 } 
 	      }
 	      return null;
+	}
+	
+	@Override
+	public int ttlCalc(int ttl) throws OfferExceptionHandler {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void status(String status, Offer offer) throws OfferExceptionHandler {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notification(Offer offer) throws OfferExceptionHandler {
+		// TODO Auto-generated method stub
+		
 	}
 }

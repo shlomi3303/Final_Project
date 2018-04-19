@@ -69,7 +69,7 @@ public class Offer
 	
 	public Offer(int userId, Date period, String location, String category, Date periodic, boolean urgency, int tTL,
 			String description, String status, String userLocation, boolean isAprroved, String gender, String language,
-			String educationLevel, String fieldOfStudy) 
+			String educationLevel, String fieldOfStudy, String img) 
 	{
 		super();
 		this.userId = userId;
@@ -87,9 +87,32 @@ public class Offer
 		this.language = language;
 		this.educationLevel = educationLevel;
 		this.fieldOfStudy = fieldOfStudy;
+		this.img = img;
 	}
 
-
+	public Offer(int offerid, int userId, Date period, String location, String category, Date periodic, boolean urgency, int tTL,
+			String description, String status, String userLocation, boolean isAprroved, String gender, String language,
+			String educationLevel, String fieldOfStudy, String img) 
+	{
+		super();
+		this.offerId = offerid;
+		this.userId = userId;
+		this.period = period;
+		this.location = location;
+		this.category = category;
+		this.periodic = periodic;
+		this.urgency = urgency;
+		TTL = tTL;
+		this.description = description;
+		this.status = status;
+		this.userLocation = userLocation;
+		this.isAprroved = isAprroved;
+		this.gender = gender;
+		this.language = language;
+		this.educationLevel = educationLevel;
+		this.fieldOfStudy = fieldOfStudy;
+		this.img = img;
+	}
 
 	/**
 	 * @return the offerId
@@ -293,20 +316,21 @@ public class Offer
 	public void setFieldOfStudy(String fieldOfStudy) {
 		this.fieldOfStudy = fieldOfStudy;
 	}
+
+	/**
+	 * @return the img
+	 */
+	public String getImg() {
+		return img;
+	}
+
+	/**
+	 * @param img the img to set
+	 */
+	public void setImg(String img) {
+		this.img = img;
+	}
 	
 
-	/*
-	get top 10 offers כלשהו
-	login -> user requset offers + details
-	
-	user{
-		detailes{
-		
-		},
-		offers{
-			
-		}
-	}
-	user.deta.name
-	*/
+
 }

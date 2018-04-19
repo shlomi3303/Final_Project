@@ -5,7 +5,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import com.google.gson.*;
 
 @Entity
 @Table (name="users")
@@ -44,13 +43,23 @@ public class AppUser
     @Column (name="User_Location")
 	 private String userLocation;
 	 
-    @Column (name="Interests")
-	 private String interests;
+    @Column (name="Help_For_Student")
+	 private boolean student;
+    
+    @Column (name="Help_For_Olders")
+	 private boolean olders;
+  
+    @Column (name="Handyman")
+  	 private boolean handyman;
 	 
+    @Column (name="Ride")
+ 	 private boolean ride;
+    
+    @Column (name="Admin")
+	 private boolean admin;
 	 
 	public AppUser() {} 
 
-	
 	/**
 	 * @param firstname
 	 * @param lastname
@@ -64,7 +73,8 @@ public class AppUser
 	 * @param interests
 	 */
 	public AppUser(String firstname, String lastname, String mail, String password, String phone, int age,
-			String familyStatus, int kids, String userLocation, String interests) 
+			String familyStatus, int kids, String userLocation, boolean student, boolean olders, boolean handyman,
+			boolean ride) 
 	{
 		super();
 		this.setFirstname(firstname);
@@ -76,7 +86,10 @@ public class AppUser
 		this.setFamilyStatus(familyStatus);
 		this.setKids(kids);
 		this.setUserLocation(userLocation);
-		this.setInterests(interests);
+		this.student = student;
+		this.olders = olders;
+		this.handyman = handyman;
+		this.ride = ride;
 	}
 	
 	public int getId() {
@@ -159,26 +172,48 @@ public class AppUser
 		this.userLocation = userLocation;
 	}
 
-	public String getInterests() 
-	{	
-		return this.interests ;
+	public boolean getStudent() {
+		return student;
 	}
 
-	public void setInterests(String interests) {
-		
-		this.interests = interests;
+	public void setStudent(boolean student) {
+		this.student = student;
 	}
-	
-	public String getJsonString(AppUser user) {
-	    // Before converting to GSON check value of id
-	    Gson gson = null;
-	    gson = new Gson();
-	    
-	    return gson.toJson(user);
+
+	public boolean getOlders() {
+		return olders;
+	}
+
+
+	public void setOlders(boolean olders) {
+		this.olders = olders;
+	}
+
+
+	public boolean getHandyman() {
+		return handyman;
+	}
+
+	public void setHandyman(boolean handyman) {
+		this.handyman = handyman;
+	}
+
+
+	public boolean getRide() {
+		return ride;
+	}
+
+
+	public void setRide(boolean ride) {
+		this.ride = ride;
+	}
+
+	public boolean getAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 	
 }
-	 
-	 
-	 
-	

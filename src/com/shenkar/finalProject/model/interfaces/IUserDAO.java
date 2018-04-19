@@ -20,5 +20,7 @@ public interface IUserDAO
 	public AppUser getUser(String mail, String password, HttpServletResponse response) throws UserExceptionHandler, IOException;
 	
 	public void updateUser(int id, AppUser updateUser, HttpServletResponse response) throws UserExceptionHandler, IOException;
+	
+	public void setUserToAdmin (int id, boolean bool) throws UserExceptionHandler;
 
 }

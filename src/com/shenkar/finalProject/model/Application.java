@@ -6,68 +6,77 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+@MappedSuperclass
 public class Application 
 {
-	private
+	protected
 		@Id
+		@Column (name="Application_Id")
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		int applicationID;
 	
+		@Column (name="User_Id")
 		int userId;
 		
-		@Column(name="CREATION_DATE")
+		@Column(name="Period")
 		@Temporal(TemporalType.TIMESTAMP)
 		Date period;
 		
+		@Column(name="Location")
 		String location;
-		String category;
 		
-		@Column(name="CREATION_DATE")
+		@Column(name="Periodic")
 		@Temporal(TemporalType.TIMESTAMP)
 		Date periodic;
 		
+		@Column(name="Urgency")
 		boolean urgency;
+		
+		@Column(name="TTL")
 		int TTL;
-		String description;
+		
+		@Column(name="User_Location")
 		String userLocation;
+		
+		@Column(name="Status")
 		String status;
+		
+		@Column(name="Is_Aprroved")
 		boolean isAprroved;
 		
+		@Column(name="Gender")
 		String gender;
+		
+		@Column(name="Language")
 		String language;
+		
+		@Column(name="Image")
 		String img;
 
-		
-		//Student Attribute
-		String educationLevel;
-		String fieldOfStudy;
-		
 		public Application(){}
 		
 
-		public Application(int userId, Date period, String location, String category, Date periodic, boolean urgency,
-				int tTL, String description, String userLocation, String status, boolean isAprroved, String gender,
-				String language, String educationLevel, String fieldOfStudy) 
+		public Application(int userId, Date period, String location, Date periodic, boolean urgency,
+				int tTL , String userLocation, String status, boolean isAprroved, String gender,
+				String language, String img) 
 		{
 			super();
 			this.userId = userId;
 			this.period = period;
 			this.location = location;
-			this.category = category;
 			this.periodic = periodic;
 			this.urgency = urgency;
 			TTL = tTL;
-			this.description = description;
 			this.userLocation = userLocation;
 			this.status = status;
 			this.isAprroved = isAprroved;
 			this.gender = gender;
 			this.language = language;
-			this.educationLevel = educationLevel;
-			this.fieldOfStudy = fieldOfStudy;
+			this.img = img;
 		}
 
 
@@ -128,19 +137,7 @@ public class Application
 			this.location = location;
 		}
 
-		/**
-		 * @return the category
-		 */
-		public String getCategory() {
-			return category;
-		}
 
-		/**
-		 * @param category the category to set
-		 */
-		public void setCategory(String category) {
-			this.category = category;
-		}
 
 		/**
 		 * @return the periodic
@@ -182,20 +179,6 @@ public class Application
 		 */
 		public void setTTL(int tTL) {
 			TTL = tTL;
-		}
-
-		/**
-		 * @return the description
-		 */
-		public String getDescription() {
-			return description;
-		}
-
-		/**
-		 * @param description the description to set
-		 */
-		public void setDescription(String description) {
-			this.description = description;
 		}
 
 		/**
@@ -268,32 +251,19 @@ public class Application
 			this.language = language;
 		}
 
-		/**
-		 * @return the educationLevel
-		 */
-		public String getEducationLevel() {
-			return educationLevel;
-		}
 
 		/**
-		 * @param educationLevel the educationLevel to set
+		 * @return the img
 		 */
-		public void setEducationLevel(String educationLevel) {
-			this.educationLevel = educationLevel;
+		public String getImg() {
+			return img;
 		}
 
-		/**
-		 * @return the fieldOfStudy
-		 */
-		public String getFieldOfStudy() {
-			return fieldOfStudy;
-		}
 
 		/**
-		 * @param fieldOfStudy the fieldOfStudy to set
+		 * @param img the img to set
 		 */
-		public void setFieldOfStudy(String fieldOfStudy) {
-			this.fieldOfStudy = fieldOfStudy;
+		public void setImg(String img) {
+			this.img = img;
 		}
-		
 }
