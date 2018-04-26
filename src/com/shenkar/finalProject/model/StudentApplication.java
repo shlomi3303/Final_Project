@@ -30,12 +30,12 @@ public class StudentApplication extends Application
 	
 	public StudentApplication() {super();}
 
-
-	public StudentApplication(int userId, Date period, String location, Date periodic, boolean urgency, int tTL,
-			String userLocation, String status, boolean isAprroved, String gender, String language, String img, 
+	public StudentApplication(int userId, Date period, String location, Date periodic, boolean urgency,
+			String userLocation,String gender, String language, String img, String title, String description, 
 			String educationLevel, String fieldOfStudy, boolean homeWorks, boolean testStudy, boolean practice) 
 	{
-		super(userId, period, location, periodic, urgency, 4, userLocation, status, false, gender, language, img);
+		super(userId, period, location, periodic, urgency, userLocation, "Waiting for approval", true, gender, language, img, title, description);
+		this.TTL = 4;
 		this.educationLevel = educationLevel;
 		this.fieldOfStudy = fieldOfStudy;
 		this.homeWorks = homeWorks;

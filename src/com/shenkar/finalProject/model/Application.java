@@ -56,27 +56,33 @@ public class Application
 		
 		@Column(name="Image")
 		String img;
+		
+		@Column(name="Title")
+		String title;
+		
+		@Column(name="Description")
+		String description;
 
 		public Application(){}
 		
 
 		public Application(int userId, Date period, String location, Date periodic, boolean urgency,
-				int tTL , String userLocation, String status, boolean isAprroved, String gender,
-				String language, String img) 
+				String userLocation, String status, boolean isAprroved, String gender,
+				String language, String img, String title, String description) 
 		{
-			super();
 			this.userId = userId;
 			this.period = period;
 			this.location = location;
 			this.periodic = periodic;
 			this.urgency = urgency;
-			TTL = tTL;
 			this.userLocation = userLocation;
 			this.status = status;
 			this.isAprroved = isAprroved;
 			this.gender = gender;
 			this.language = language;
 			this.img = img;
+			this.title = title;
+			this.description = description;
 		}
 
 
@@ -266,4 +272,27 @@ public class Application
 		public void setImg(String img) {
 			this.img = img;
 		}
+
+
+		public String getTitle() {
+			return title;
+		}
+
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+
+		public String getDescription() {
+			return description;
+		}
+
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+		
+		
+
 }

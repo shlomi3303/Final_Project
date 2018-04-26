@@ -4,8 +4,7 @@ import java.util.Date;
 
 import javax.persistence.*;
 
-@Entity
-@Table (name="offers")
+@MappedSuperclass
 public class Offer 
 {
 	
@@ -17,15 +16,12 @@ public class Offer
 	@Column (name="User_Id")
 	int userId;
 	
-	@Column(name="CREATION_DATE")
+	@Column(name="Period")
 	@Temporal(TemporalType.TIMESTAMP)
 	Date period;
 	
 	@Column(name="Location")
 	String location;
-	
-	@Column(name="Category")
-	String category;
 	
 	@Column(name="Periodic")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -36,9 +32,6 @@ public class Offer
 	
 	@Column(name="TTL")
 	int TTL;
-	
-	@Column(name="Description")
-	String description;
 	
 	@Column(name="Status")
 	String status;
@@ -58,61 +51,34 @@ public class Offer
 	@Column(name="Image")
 	String img;
 	
-	//Student Attribute
-	@Column(name="Education_Level")
-	String educationLevel;
+	@Column(name="Title")
+	String title;
 	
-	@Column(name="field_Of_Study")
-	String fieldOfStudy;
-	
+	@Column(name="Description")
+	String description;
+
 	public Offer(){}
 	
-	public Offer(int userId, Date period, String location, String category, Date periodic, boolean urgency, int tTL,
-			String description, String status, String userLocation, boolean isAprroved, String gender, String language,
-			String educationLevel, String fieldOfStudy, String img) 
+	public Offer(int userId, Date period, String location, Date periodic, boolean urgency,
+			String status, String userLocation, boolean isAprroved, 
+			String gender, String language, String img, String title, String description) 
 	{
 		super();
 		this.userId = userId;
 		this.period = period;
 		this.location = location;
-		this.category = category;
 		this.periodic = periodic;
 		this.urgency = urgency;
-		TTL = tTL;
-		this.description = description;
 		this.status = status;
 		this.userLocation = userLocation;
 		this.isAprroved = isAprroved;
 		this.gender = gender;
 		this.language = language;
-		this.educationLevel = educationLevel;
-		this.fieldOfStudy = fieldOfStudy;
 		this.img = img;
+		this.title = title;
+		this.description = description;
 	}
 
-	public Offer(int offerid, int userId, Date period, String location, String category, Date periodic, boolean urgency, int tTL,
-			String description, String status, String userLocation, boolean isAprroved, String gender, String language,
-			String educationLevel, String fieldOfStudy, String img) 
-	{
-		super();
-		this.offerId = offerid;
-		this.userId = userId;
-		this.period = period;
-		this.location = location;
-		this.category = category;
-		this.periodic = periodic;
-		this.urgency = urgency;
-		TTL = tTL;
-		this.description = description;
-		this.status = status;
-		this.userLocation = userLocation;
-		this.isAprroved = isAprroved;
-		this.gender = gender;
-		this.language = language;
-		this.educationLevel = educationLevel;
-		this.fieldOfStudy = fieldOfStudy;
-		this.img = img;
-	}
 
 	/**
 	 * @return the offerId
@@ -162,18 +128,7 @@ public class Offer
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	/**
-	 * @return the category
-	 */
-	public String getCategory() {
-		return category;
-	}
-	/**
-	 * @param category the category to set
-	 */
-	public void setCategory(String category) {
-		this.category = category;
-	}
+	
 	/**
 	 * @return the periodic
 	 */
@@ -210,18 +165,7 @@ public class Offer
 	public void setTTL(int tTL) {
 		TTL = tTL;
 	}
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
+
 	/**
 	 * @return the userLocation
 	 */
@@ -290,34 +234,6 @@ public class Offer
 	}
 
 	/**
-	 * @return the educationLevel
-	 */
-	public String getEducationLevel() {
-		return educationLevel;
-	}
-
-	/**
-	 * @param educationLevel the educationLevel to set
-	 */
-	public void setEducationLevel(String educationLevel) {
-		this.educationLevel = educationLevel;
-	}
-
-	/**
-	 * @return the fieldOfStudy
-	 */
-	public String getFieldOfStudy() {
-		return fieldOfStudy;
-	}
-
-	/**
-	 * @param fieldOfStudy the fieldOfStudy to set
-	 */
-	public void setFieldOfStudy(String fieldOfStudy) {
-		this.fieldOfStudy = fieldOfStudy;
-	}
-
-	/**
 	 * @return the img
 	 */
 	public String getImg() {
@@ -330,7 +246,21 @@ public class Offer
 	public void setImg(String img) {
 		this.img = img;
 	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	
-
-
 }

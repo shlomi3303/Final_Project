@@ -31,11 +31,12 @@ public class HandymanApplication extends Application
 	}
 
 
-	public HandymanApplication(int userId, Date period, String location, Date periodic, boolean urgency, int tTL,
-			String userLocation, String status, boolean isAprroved, String gender, String language, String img, boolean colorCorrections, boolean furniture, boolean generalHangingWorks,
+	public HandymanApplication(int userId, Date period, String location, Date periodic, boolean urgency,
+			String userLocation, String gender, String language, String img, String title, String description, boolean colorCorrections, boolean furniture, boolean generalHangingWorks,
 			boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints) 
 	{
-		super(userId, period, location, periodic, urgency, tTL, userLocation, status, isAprroved, gender, language, img);
+		super(userId, period, location, periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
+		this.TTL = 5;
 		this.colorCorrections = colorCorrections;
 		this.furniture = furniture;
 		this.generalHangingWorks = generalHangingWorks;

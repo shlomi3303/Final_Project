@@ -30,9 +30,7 @@ public class HibernateUserDAO implements IUserDAO
 				userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
 			}
 			catch (Exception e)
-			{
-				e.printStackTrace(response.getWriter());
-			}
+			{e.printStackTrace(response.getWriter());}
 			
 	}
 		return instance;
@@ -49,13 +47,11 @@ public class HibernateUserDAO implements IUserDAO
 			if (session != null)
 			{
 				response.getWriter().println("in the try stament");
+				session.beginTransaction();
+				session.save(user);
+				session.getTransaction().commit();
 			}
 			
-			session.beginTransaction();
-			session.save(user);
-			session.getTransaction().commit();
-			
-
 		}catch (Exception e) 
 		{
 			e.printStackTrace(response.getWriter());
@@ -85,7 +81,7 @@ public class HibernateUserDAO implements IUserDAO
 					userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
 			  }
 			  session = getSession();
-
+			  
 	    	  session.beginTransaction();
 	          user = session.createQuery("from " + AppUser.class.getName() + " user where user.mail ='" + mail +"'").getResultList();
 	          if (user != null && !user.isEmpty())
@@ -156,7 +152,6 @@ public class HibernateUserDAO implements IUserDAO
 	    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
 	    	 } 
 	      }
-	
 	}
 	
 	@Override
@@ -194,7 +189,6 @@ public class HibernateUserDAO implements IUserDAO
 	@Override
 	public void setUserToAdmin(int id, boolean bool) throws UserExceptionHandler 
 	{
-		
 		  Session session = null;
 
 	      try
@@ -227,14 +221,9 @@ public class HibernateUserDAO implements IUserDAO
 		try
 		{
 		 if (userFactory==null)
-		  {
-				userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
-		  }
+		  {userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();}
 		}
-		catch (Exception e)
-		{
-			
-		}
+		catch (Exception e){}
 	}
 	
 	private static Session getSession() throws HibernateException {         
@@ -247,7 +236,4 @@ public class HibernateUserDAO implements IUserDAO
 		   return sess;
 		} 
 	
-	
 }
-	
-

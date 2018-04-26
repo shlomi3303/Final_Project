@@ -23,16 +23,14 @@ public class RideApplication extends Application
 	@Temporal(TemporalType.TIMESTAMP)
 	Date timeRange;
 
-	public RideApplication() {
-		super();
-	}
-
+	public RideApplication() {super();}
 
 	public RideApplication(int userId, Date period, Date periodic, boolean urgency,
-			String userLocation, String status, String gender, String language, String img, 
-			String source, String destination, Date timeRange) 
+			String userLocation, String gender, String language, String img, 
+			String source, String destination, Date timeRange, String title, String description) 
 	{
-		super(userId, period, "", periodic, urgency, 0, userLocation, status, false, gender, language, img);
+		super(userId, period, "", periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
+		this.TTL = -1;
 		this.source = source;
 		this.destination = destination;
 		this.timeRange = timeRange;

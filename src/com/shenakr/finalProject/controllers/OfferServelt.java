@@ -36,56 +36,82 @@ public class OfferServelt extends HttpServlet {
 		
 		String function = request.getParameter("function");
 
-		if (function!=null && !function.isEmpty()){
-	
-			if (function.equals("create"))
+		if (function!=null && !function.isEmpty())
+		{
+			
+			switch (function)
 			{
-				try {addNewOffer(request);} 
-				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+		
+				case "create":
+					{
+						try {addNewOffer(request);} 
+						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					}
+					break;
 				
-			}
+				case "update":
+					{
+						try {updateOffer(request);}
+						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}			
+					}
+					break;
+					
+				case "getOffer":
+					{
+						String StringOfferId = request.getParameter("offerId");
+						String tableName = request.getParameter("tableName");
+
+						Offer offer = null;
+						try {offer = getOffer(StringOfferId, tableName);}
+						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 			
-			else if(function.equals("update"))
-			{
-				try {updateOffer(request);}
-				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}			
-			}
-			
-			else if(function.equals("getOffer"))
-			{
-				String StringOfferId = request.getParameter("offerId");
-				Offer offer = null;
-				try {offer = getOffer(StringOfferId);}
-				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
-				//Type offerListType = new TypeToken<ArrayList<Offer>>(){}.getType();
-	
-				String strOffer = new Gson().toJson(offer).toString();
-				response.setContentType("application/json");
-				response.getWriter().write(strOffer);
-			}
-			
-			else if (function.equals("delete"))
-			{
-				try {deleteOffer(request);}
-				catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}	
-			}
-			else if (function.equals("getAllOffersUser"))
-			{
-				String stringUserID = request.getParameter("userId");
-				if (stringUserID!=null && !stringUserID.isEmpty())
-				{
-					List<Offer> offers = null;
+						String strOffer = new Gson().toJson(offer).toString();
+						response.setContentType("application/json");
+						response.getWriter().write(strOffer);
+					}
+					break;
+				
+				case "delete":
+					{
+						try {deleteOffer(request);}
+						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}	
+					}
+					break;
+					
+				case "getAllOffersUser":
+					{
+						String stringUserID = request.getParameter("userId");
+						if (stringUserID!=null && !stringUserID.isEmpty())
+						{
+							List<Offer> offers = null;
+							try 
+							{
+								offers = getAllOffersUser(stringUserID);
+								String offerArray = new Gson().toJson(offers).toString();
+								response.setContentType("application/json");
+								response.getWriter().write(offerArray);	
+							}
+							catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}		
+						}
+					}
+					break;
+					
+				case "randomOffers":
 					try 
 					{
-						offers = getAllOffersUser(stringUserID);
-						String offerArray = new Gson().toJson(offers).toString();
+						String strOffersList = getRandomOffer(request);
 						response.setContentType("application/json");
-						response.getWriter().write(offerArray);	
+						response.getWriter().write(strOffersList);
 					}
-					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}		
-				}
+					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					break;
+					
+				default:
+					String str = "please insert a valid value into fucntion";
+					response.getWriter().write(str);
 			}
 		}
+		
 	}
 
 	
@@ -99,31 +125,34 @@ public class OfferServelt extends HttpServlet {
 	private void deleteOffer(HttpServletRequest req) throws OfferExceptionHandler
 	{
 		String offerid = req.getParameter("offerId");
+		String tableName = req.getParameter("tableName");
 		int OfferIdINT = Integer.parseInt(offerid);
-		HibernateOfferDAO.getInstance().deleteOffer(OfferIdINT);	
+		HibernateOfferDAO.getInstance().deleteOffer(OfferIdINT, tableName);	
 	}
 	
 	private void updateOffer(HttpServletRequest req) throws OfferExceptionHandler
 	{
 		String stringOfferId = req.getParameter("offerId");
+		String tableName = req.getParameter("tableName");
+
 		if (stringOfferId!=null && !stringOfferId.isEmpty())
 		{
 			int offerId = Integer.parseInt(stringOfferId);
 			Offer offer = generateOffer(req);
 			if (offer != null)
 			{
-				HibernateOfferDAO.getInstance().editOffer(offerId, offer);
+				HibernateOfferDAO.getInstance().editOffer(offerId, offer, tableName);
 			}
 		}	
 	}
 	
-	private Offer getOffer(String strOfferId) throws OfferExceptionHandler
+	private Offer getOffer(String strOfferId, String tableName) throws OfferExceptionHandler
 	{
 		Offer offer = null;
 		if (strOfferId != null && !strOfferId.isEmpty())
 		{
 			int offerId = Integer.parseInt(strOfferId);
-			offer = HibernateOfferDAO.getInstance().getOffer(offerId);
+			offer = HibernateOfferDAO.getInstance().getOffer(offerId, tableName);
 			if (offer!=null)
 				return offer;
 		}
@@ -140,12 +169,24 @@ public class OfferServelt extends HttpServlet {
 		}
 	}
 	
+	private String getRandomOffer(HttpServletRequest req) throws OfferExceptionHandler
+	{
+		String strNum = req.getParameter("number");
+		String tableName = req.getParameter("tableName");
+		int num = Integer.parseInt(strNum);
+		
+		return HibernateOfferDAO.getInstance().getRandomOffer(num, tableName);
+		
+	}
+	
 	private Offer generateOffer (HttpServletRequest req) throws OfferExceptionHandler
 	{
 		String offerString = req.getParameter("offer");
+		String tableName = req.getParameter("tableName");
+		Class <?> className = HibernateOfferDAO.getInstance().getTableMapping(tableName);
 		Offer Deserialization = null;
 		Gson gson = new Gson();
-		Deserialization = gson.fromJson(offerString, Offer.class);
+		Deserialization = (Offer) gson.fromJson(offerString, className);
 		
 		if (Deserialization != null){
 			return Deserialization;

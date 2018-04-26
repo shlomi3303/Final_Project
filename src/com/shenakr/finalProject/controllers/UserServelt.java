@@ -34,50 +34,6 @@ public class UserServelt extends HttpServlet {
     public UserServelt() {super();}
     
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-    
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		response.getWriter().println("doGet function");
-		
-		response.getWriter().println("In getUser condition");
-		AppUser user = null;
-		String mail = request.getParameter("mail");
-		String password = request.getParameter("password");
-		try {
-			user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
-		} catch (Exception e1) 
-		{
-			response.getWriter().println(e1);
-			response.getWriter().println(e1.toString());
-			
-		}
-		response.getWriter().println("for Gal Hagever");
-		
-		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
-		{
-		
-				//user = getUser(mail, password);
-				if (user!=null)
-				{
-					String arr =  new Gson().toJson(user).toString();
-					System.out.println(arr);
-					response.setContentType("application/json");
-					response.getWriter().write(arr);
-				}
-			
-		}
-
-			//String output = new Gson().toJson(user1).toString();
-			//response.getWriter().print("string:     " + request.getParameter("mail") +"\n"+ request.getParameter("password"));
-			//response.setContentType("application/json");
-			//response.getWriter().write(new Gson().toJson(user));
-			
-		//}			
-	}
-
-	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
@@ -85,62 +41,66 @@ public class UserServelt extends HttpServlet {
 		
 		String function = request.getParameter("function");
 		
-		if (function!=null && !function.isEmpty()){
-
-			if (function.equals("create"))
+		if (function!=null && !function.isEmpty())
+		{
+			
+			switch (function)
 			{
-				response.getWriter().println("In create condition");
-				try {addNewUser(request, response);} 
-				catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
-			}
-			else if (function.equals("getUser"))
-			{
-				AppUser user = null;
-				String mail = request.getParameter("mail");
-				String password = request.getParameter("password");
-				if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+			
+			case "create":
 				{
-					try {
-						user = getUser(mail, password, response);
-						if (user!=null)
-						{
-							String arr =  new Gson().toJson(user).toString();
-							response.setContentType("application/json");
-							response.getWriter().write(arr);
-						}
-					} catch (UserExceptionHandler e) {
-						e.printStackTrace(response.getWriter());
-					}
+					response.getWriter().println("In create condition");
+					try {addNewUser(request, response);} 
+					catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 				}
-			}
-			else if (function.equals("update"))
-			{
-				AppUser user = null;
-				String mail = request.getParameter("mail");
-				String password = request.getParameter("password");
-	
-				if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty()) )
+				break;
+				
+			case "getUser":
 				{
-					try 
+					AppUser user = null;
+					String mail = request.getParameter("mail");
+					String password = request.getParameter("password");
+					if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 					{
-						user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
-						if (user!=null)
-							updateUser(request, user.getId(), response);
-						
-					} catch (UserExceptionHandler e) {
-						e.printStackTrace();
+						try {
+							user = getUser(mail, password, response);
+							if (user!=null)
+							{
+								String arr =  new Gson().toJson(user).toString();
+								response.setContentType("application/json");
+								response.getWriter().write(arr);
+							}
+						} 
+						catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					}
+				 }
+				break;
+				
+			case "update":
+				{
+					AppUser user = null;
+					String mail = request.getParameter("mail");
+					String password = request.getParameter("password");
+		
+					if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty()) )
+					{
+						try 
+						{
+							user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
+							if (user!=null)
+								updateUser(request, user.getId(), response);
+							
+						} 
+						catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					}
 				}
-			}
-			else if (function.equals("delete"))
-			{
-				response.getWriter().println(function);
-				String mail = request.getParameter("mail");
-				String password = request.getParameter("password");
-				if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+				break;
+			case "delete":
 				{
-					deleteUser(request, response);
-	
+					String mail = request.getParameter("mail");
+					String password = request.getParameter("password");
+					if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
+					{deleteUser(request, response);}
 				}
 			}
 		}
@@ -158,15 +118,12 @@ public class UserServelt extends HttpServlet {
 	
 	private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		response.getWriter().println("in delete");
 		String mail = request.getParameter("mail");
 		String password = request.getParameter("password");
 		
 		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 		{
 			HibernateUserDAO.getInstance(response).deleteUser(mail, password, response);
-			response.getWriter().println("deleted");
-
 		}				
 	}
 	

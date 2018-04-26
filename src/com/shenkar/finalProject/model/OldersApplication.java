@@ -28,12 +28,12 @@ public class OldersApplication extends Application
 	}
 
 
-	public OldersApplication(int userId, Date period, String location, Date periodic, boolean urgency, int tTL,
-			String userLocation, String status, boolean isAprroved, String gender, String language, String img,
+	public OldersApplication(int userId, Date period, String location, Date periodic, boolean urgency,
+			String userLocation, String gender, String language, String img, String title, String description,
 			boolean shopping, boolean cooking, boolean escortedAged,
 			boolean conversation) 
 	{
-		super(userId, period, location, periodic, urgency, tTL, userLocation, status, isAprroved, gender, language, img);
+		super(userId, period, location, periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
 		this.shopping = shopping;
 		this.cooking = cooking;
 		this.escortedAged = escortedAged;

@@ -24,4 +24,6 @@ public interface IApplicationDAO
 	
 	public List<Application> getApplications(int userId) throws ApplicationExceptionHandler;
 	
+	public String getRandomApplication(int num, String tableName) throws ApplicationExceptionHandler;
+	
 }

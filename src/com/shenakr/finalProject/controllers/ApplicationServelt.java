@@ -1,8 +1,7 @@
+
 package com.shenakr.finalProject.controllers;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,11 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
-import com.shenkar.finalProject.model.OfferExceptionHandler;
 
 /**
  * Servlet implementation class ApplicationServelt
@@ -41,59 +38,79 @@ public class ApplicationServelt extends HttpServlet
 		
 		if (function!=null && !function.isEmpty()){
 		
-			if (function.equals("create"))
+			switch (function)
 			{
-				try {
-					addNewApplication(request);
-					response.getWriter().println("apllication was created");
-				} 
-				catch (OfferExceptionHandler | ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
-			}
-			else if(function.equals("update"))
+			case "create":
 			{
-				try {updateApplication(request);}
-				catch (OfferExceptionHandler | ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}			
-			}
-			
-			else if(function.equals("getApplication"))
-			{
-				String StringApplicationId = request.getParameter("applicationId");				
-				String tableName = request.getParameter("tableName");
-				
-				Application application= null;
-				try {application = getApplication(StringApplicationId, tableName);} 
-				catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
-				//Type ApplicationListType = new TypeToken<ArrayList<Application>>(){}.getType();
-	
-				String strApplication = new Gson().toJson(application).toString();
-				response.setContentType("application/json");
-				response.getWriter().write(strApplication);
-			}
-			
-			else if (function.equals("delete"))
-			{
-				try {deleteApplication(request);}
-				catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}	
-			}
-			
-			else if (function.equals("getAllApplicationsUser"))
-			{
-				String stringUserID = request.getParameter("userId");
-				if (stringUserID!=null && !stringUserID.isEmpty())
-				{
-					List<Application> applications = null;
 					try 
 					{
-						
-						applications  = getAllApplicationsUser(stringUserID);
-						String applicationArray = new Gson().toJson(applications).toString();
-						response.setContentType("application/json");
-						response.getWriter().write(applicationArray);
-						
-					}
-					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}		
+						addNewApplication(request, response);
+						response.getWriter().println("apllication was created");
+					} 
+					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					break;
+			}	
+			case "update":
+			{	
+					try {updateApplication(request, response);}
+					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					break;
+				
+			}	
+			case "getApplication":
+				{
+					String StringApplicationId = request.getParameter("applicationId");				
+					String tableName = request.getParameter("tableName");
+					
+					Application application= null;
+					try {application = getApplication(StringApplicationId, tableName);} 
+					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+		
+					String strApplication = new Gson().toJson(application).toString();
+					response.setContentType("application/json");
+					response.getWriter().write(strApplication);
+					break;
 				}
 				
+			case "delete":
+				{
+					try {deleteApplication(request);}
+					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					break;
+				}
+				
+			case "getAllApplicationsUser":
+				{
+					String stringUserID = request.getParameter("userId");
+					if (stringUserID!=null && !stringUserID.isEmpty())
+					{
+						List<Application> applications = null;
+						try 
+						{
+							applications  = getAllApplicationsUser(stringUserID);
+							String applicationArray = new Gson().toJson(applications).toString();
+							response.setContentType("application/json");
+							response.getWriter().write(applicationArray);
+						}
+						catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}		
+					}
+					break;
+				}
+				
+			case "randomApplications":
+				{
+					try 
+					{
+						String strApplicationsList = getRandomApplication(request);
+						response.setContentType("application/json");
+						response.getWriter().write(strApplicationsList);
+					}
+					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					break;
+				}
+			default:
+				String str = "please insert a valid value into fucntion";
+				response.getWriter().write(str);
 			}
 		}
 	}
@@ -112,6 +129,16 @@ public class ApplicationServelt extends HttpServlet
 		HibernateApplicationDAO.getInstance().deleteApplication(applicationIdINT, tableName);
 	}
 	
+	private String getRandomApplication(HttpServletRequest req) throws ApplicationExceptionHandler
+	{
+		String strNum = req.getParameter("number");
+		String tableName = req.getParameter("tableName");
+		int num = Integer.parseInt(strNum);
+		
+		return HibernateApplicationDAO.getInstance().getRandomApplication(num, tableName);
+		
+	}
+	
 	private Application getApplication(String strApplicationId, String tableName) throws ApplicationExceptionHandler
 	{
 		Application application= null;
@@ -125,44 +152,51 @@ public class ApplicationServelt extends HttpServlet
 		return null;
 	}
 	
-	
-	private void addNewApplication(HttpServletRequest req) throws OfferExceptionHandler, ApplicationExceptionHandler
+	private void addNewApplication(HttpServletRequest req, HttpServletResponse response) throws ApplicationExceptionHandler, IOException
 	{
-		Application application = generateApplication(req);
+		Application application = generateApplication(req, response);
 		
 		if (application  != null)
 		{
+			response.getWriter().write("application is not a null");
 			HibernateApplicationDAO.getInstance().createApplication(application);
+			response.getWriter().write("after createApplication function");
 		}
 	}
 	
-	
-	private void updateApplication(HttpServletRequest req) throws OfferExceptionHandler, ApplicationExceptionHandler
+	private void updateApplication(HttpServletRequest req, HttpServletResponse response) throws ApplicationExceptionHandler, IOException
 	{
 		String stringApplicationId = req.getParameter("applicationId");
 		String tableName = req.getParameter("tableName");
 		
 		int applicationId = Integer.parseInt(stringApplicationId);
-		Application application = generateApplication(req);
-		if (application != null)
+		Application updateApplication = generateApplication(req, response);
+		if (updateApplication != null)
 		{
-			HibernateApplicationDAO.getInstance().editApplication(applicationId, application, tableName);
+			HibernateApplicationDAO.getInstance().editApplication(applicationId, updateApplication, tableName);
 		}
 
 	}
 	
-	private Application generateApplication (HttpServletRequest req) throws OfferExceptionHandler
+	private Application generateApplication (HttpServletRequest req, HttpServletResponse response) throws ApplicationExceptionHandler, IOException
 	{
 		String applicationString = req.getParameter("application");
+		response.getWriter().write("The json object is: " + applicationString);
+		String tableName = req.getParameter("tableName");
+		response.getWriter().write("The table name is: " + tableName);
+		Class <?> className = HibernateApplicationDAO.getInstance().getTableMapping(tableName);
 		Application Deserialization = null;
 		Gson gson = new Gson();
-		Deserialization = gson.fromJson(applicationString, Application.class);
 		
+		Deserialization = (Application) gson.fromJson(applicationString, className);
+		response.getWriter().write("i'm after Deserialization");
 		if (Deserialization != null){
+			System.out.println(Deserialization.getIsAprroved() + Deserialization.getStatus());
+			response.getWriter().write(Deserialization.getApplicationID());
 			return Deserialization;
 		}
-		
+		response.getWriter().write("returing null");		
 		return null;
 	}
-
+	
 }

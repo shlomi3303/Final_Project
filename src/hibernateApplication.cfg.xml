@@ -21,10 +21,10 @@
 	<property name="hibernate.current_session_context_class">thread</property>
 	    
 	<!-- Mapping files -->
-	    <mapping class="com.shenkar.finalProject.model.HandymanApplication"/>
-	    <mapping class="com.shenkar.finalProject.model.OldersApplication"/>
-	    <mapping class="com.shenkar.finalProject.model.RideApplication"/>
-	    <mapping class="com.shenkar.finalProject.model.StudentApplication"/>
+	<mapping class="com.shenkar.finalProject.model.HandymanApplication"/>
+	<mapping class="com.shenkar.finalProject.model.OldersApplication"/>
+	<mapping class="com.shenkar.finalProject.model.RideApplication"/>
+	<mapping class="com.shenkar.finalProject.model.StudentApplication"/>
 	
    
   </session-factory>
