@@ -19,21 +19,21 @@ public class RideApplication extends Application
 	@Column (name="Destination")
 	String destination;
 	
-	@Column(name="Time_Range")
+	@Column(name="End_Period")
 	@Temporal(TemporalType.TIMESTAMP)
-	Date timeRange;
+	Date endPeriod;
 
 	public RideApplication() {super();}
 
 	public RideApplication(int userId, Date period, Date periodic, boolean urgency,
 			String userLocation, String gender, String language, String img, 
-			String source, String destination, Date timeRange, String title, String description) 
+			String source, String destination, Date endPeriod, String title, String description) 
 	{
 		super(userId, period, "", periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
 		this.TTL = -1;
 		this.source = source;
 		this.destination = destination;
-		this.timeRange = timeRange;
+		this.endPeriod = endPeriod;
 	}
 
 
@@ -72,16 +72,16 @@ public class RideApplication extends Application
 	/**
 	 * @return the timeRange
 	 */
-	public Date getTimeRange() {
-		return timeRange;
+	public Date getEndPeriod() {
+		return endPeriod;
 	}
 
 
 	/**
 	 * @param timeRange the timeRange to set
 	 */
-	public void setTimeRange(Date timeRange) {
-		this.timeRange = timeRange;
+	public void setEndPeriod(Date endPeriod) {
+		this.endPeriod = endPeriod;
 	}
 	
 	

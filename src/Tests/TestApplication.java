@@ -29,18 +29,21 @@ public class TestApplication {
 
 	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler 
 	{
-		String testDateString2 = "02/04/2014 23:37";
-	    DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		String testDateString2 = "2018-04-30 18:00";
+	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	    //DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	    
 	    Date period  = (Date) df.parse(testDateString2);
 		
 		HandymanApplication ob = new HandymanApplication(1, period, "wsedrs", period, true, "sd", "ssd", "male",
 				"asd", "check", "check", true, true, true, true, true);
+		//HibernateApplicationDAO.getInstance().createApplication(ob);
 		
 		StudentApplication ob4 = new StudentApplication(1, period, "wsedrs", period, true, "sd", "male", "hebrew",
 				"2", "math", "sports","check", "check", true, true, true);
 		
 		String strApplication = new Gson().toJson(ob4).toString();
+		System.out.println(strApplication);
 		JsonElement je = new JsonParser().parse(strApplication);
 		//JsonArray myArray = je.getAsJsonArray();
 	    JsonObject jo = je.getAsJsonObject();
@@ -58,11 +61,9 @@ public class TestApplication {
 
 
 		
-		System.out.println(strApplication);
 		Application Deserialization = null;
 		//Gson gson = new Gson();
 		//Deserialization = (Application)gson.fromJson(new Gson().toJson(ob).toString(),HandymanApplication.class);
-		//HibernateApplicationDAO.getInstance().createApplication(ob);
 		
 		System.out.println(new Gson().toJson(ob).toString());
 
@@ -72,9 +73,10 @@ public class TestApplication {
 			//	"test", true, true, true, true);
 		//System.out.println(new Gson().toJson(ob2).toString());
 
-		//RideApplication ob3 = new RideApplication(1, period, period, true, "sd", "ssd", "male",
-			//	"test", "test", "rishon", period);
-		//System.out.println(new Gson().toJson(ob3).toString());
+		
+		RideApplication ob3 = new RideApplication(1, period, period, true, "sd", "ssd", "male",
+				"test", "test", "rishon", period, "test", "test");
+		System.out.println(new Gson().toJson(ob3).toString());
 
 		
 		//HibernateApplicationDAO.getInstance().createApplication(ob);

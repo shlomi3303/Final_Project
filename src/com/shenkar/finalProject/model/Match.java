@@ -1,22 +1,35 @@
 package com.shenkar.finalProject.model;
 
-import java.util.Date;
-
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
-public abstract class Match 
+@MappedSuperclass
+public class Match 
 {	
 	@Id
+    @Column (name="Match_Id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	int matchId;
 	
+    @Column (name="Offer_Id")
 	int offerId;
+    
+	@Column (name="Application_Id")
 	int applicationID;
+	
+	@Column (name="Offer_Aproved")
 	boolean offerAproved;
+	
+	@Column (name="Application_Aproved")
 	boolean applicationAproved;
+	
+	@Column (name="Status")
 	String status;
+	
+	@Column (name="TTL")
 	int TTL;
 	
 	public Match(){}

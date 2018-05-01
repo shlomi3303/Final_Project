@@ -216,14 +216,16 @@ public class HibernateOfferDAO implements IOfferDAO
 			 session = getSession();
 	    	 session.beginTransaction();
 			
-	         offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId = "+userId+"").getResultList();
+	    	 if (userId>0)
+	    		 offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId = "+userId+"").getResultList();
+	    	 else if(userId==-1)
+	    		 offers = session.createQuery ("from " + Offer.class.getName()).getResultList();
 	         
 	         if (offers != null && !offers.isEmpty())
 	          {
 	        	  session.getTransaction().commit();
 	    	      return offers;
 	          }
-	         
 	      }
 		catch (HibernateException e) {
 			if (session.getTransaction() !=null) session.getTransaction().rollback();
@@ -344,7 +346,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	{
 		ride.setDestination(updateRide.getDestination());
 		ride.setSource(updateRide.getSource());
-		ride.setTimeRange(updateRide.getTimeRange());
+		ride.setEndPeriod(updateRide.getEndPeriod());
 	}
 	
 	private void editHandyman (HandymanOffer handyman, HandymanOffer updateHandyman)

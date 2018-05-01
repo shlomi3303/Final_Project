@@ -20,7 +20,7 @@ import com.shenkar.finalProject.model.OfferExceptionHandler;
 @WebServlet(value="/OfferServelt")
 public class OfferServelt extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -44,7 +44,9 @@ public class OfferServelt extends HttpServlet {
 		
 				case "create":
 					{
-						try {addNewOffer(request);} 
+						try {addNewOffer(request);
+							response.getWriter().println(Thread.currentThread().getName());
+						} 
 						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					}
 					break;
@@ -67,6 +69,7 @@ public class OfferServelt extends HttpServlet {
 			
 						String strOffer = new Gson().toJson(offer).toString();
 						response.setContentType("application/json");
+			        	response.setCharacterEncoding("utf-8");
 						response.getWriter().write(strOffer);
 					}
 					break;
@@ -89,6 +92,7 @@ public class OfferServelt extends HttpServlet {
 								offers = getAllOffersUser(stringUserID);
 								String offerArray = new Gson().toJson(offers).toString();
 								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
 								response.getWriter().write(offerArray);	
 							}
 							catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}		
@@ -101,6 +105,7 @@ public class OfferServelt extends HttpServlet {
 					{
 						String strOffersList = getRandomOffer(request);
 						response.setContentType("application/json");
+			        	response.setCharacterEncoding("utf-8");
 						response.getWriter().write(strOffersList);
 					}
 					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}

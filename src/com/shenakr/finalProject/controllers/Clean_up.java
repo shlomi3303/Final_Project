@@ -17,15 +17,21 @@ import org.hibernate.cfg.Configuration;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
+import com.shenkar.finalProject.model.HibernateOfferDAO;
+import com.shenkar.finalProject.model.Offer;
+import com.shenkar.finalProject.model.OfferExceptionHandler;
 
 @WebListener
 public class Clean_up implements ServletContextListener
 {
 
-	private static SessionFactory cleanUpFactory;
+	private static SessionFactory cleanUpFactoryApplication;
+	private static SessionFactory cleanUpFactoryOffer;
+
 
 	Timer timer = new Timer();
-   // private final static long ONCE_PER_DAY = 1000*60*60*24;
+	private final static long ONCE_PER_DAY = 1000*60*60*24;
+	private final static int GET_ALL_DB = -1;
     private final static long TEST = 1000*30; 
 	public Clean_up() {
 		// TODO Auto-generated constructor stub
@@ -42,18 +48,18 @@ public class Clean_up implements ServletContextListener
 	{
         System.out.println("On start web app");
 
-        timer.scheduleAtFixedRate(new cleanUp(), 0, TEST);
+        timer.scheduleAtFixedRate(new cleanUp(), 0, ONCE_PER_DAY);
 	}
 	
 	private static void updateTTLApplication () throws ApplicationExceptionHandler
 	{
 		
-		List <Application> list = HibernateApplicationDAO.getInstance().getApplications(-1);
+		List <Application> list = HibernateApplicationDAO.getInstance().getApplications(GET_ALL_DB);
 		
 		if (list!=null)
 		{
 			initCleanUpFactory();
-			Session session = getSession();
+			Session session = getSessionApplication();
 			if (session != null)
 			{
 				session.beginTransaction();
@@ -66,7 +72,37 @@ public class Clean_up implements ServletContextListener
 					}
 					else if (list.get(i).getTTL()==0)
 					{
-						session.delete(list.get(i));
+						//session.delete(list.get(i));
+					}
+				}
+				session.getTransaction().commit();
+			}	
+		}
+	}
+	
+	
+	private static void updateTTLOffer () throws OfferExceptionHandler
+	{
+		
+		List <Offer> list = HibernateOfferDAO.getInstance().getOffers(GET_ALL_DB);
+		
+		if (list!=null)
+		{
+			initCleanUpFactory();
+			Session session = getSessionOffer();
+			if (session != null)
+			{
+				session.beginTransaction();
+				for (int i=0; i<list.size(); i++)
+				{
+					if (list.get(i).getTTL()>0)
+					{
+						list.get(i).setTTL(list.get(i).getTTL()-1);
+						session.update(list.get(i));
+					}
+					else if (list.get(i).getTTL()==0)
+					{
+						//session.delete(list.get(i));
 					}
 				}
 				session.getTransaction().commit();
@@ -77,34 +113,47 @@ public class Clean_up implements ServletContextListener
 	private static void initCleanUpFactory ()
 	{
 		try{
-		 if (cleanUpFactory==null)
-		  {cleanUpFactory = new Configuration().configure("hibernateU.cfg.xml").buildSessionFactory();}
+		 if (cleanUpFactoryApplication==null || cleanUpFactoryOffer==null)
+		  {
+			 cleanUpFactoryApplication = new Configuration().configure("hibernateApplication.cfg.xml").buildSessionFactory();
+			 cleanUpFactoryOffer = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();
+		  }
 		}
 		catch (Exception e){}
 	}
 	
-	private static Session getSession() throws HibernateException {         
+	private static Session getSessionApplication() throws HibernateException {         
 		   Session sess = null;       
 		   try {         
-		       sess = cleanUpFactory.getCurrentSession();  
+		       sess = cleanUpFactoryApplication.getCurrentSession();  
 		   } catch (org.hibernate.HibernateException he) {  
-		       sess = cleanUpFactory.openSession();     
+		       sess = cleanUpFactoryApplication.openSession();     
 		   }             
 		   return sess;
 	} 
 	
+	private static Session getSessionOffer() throws HibernateException {         
+		   Session sess = null;       
+		   try {         
+		       sess = cleanUpFactoryOffer.getCurrentSession();  
+		   } 
+		   catch (org.hibernate.HibernateException he) {  
+		       sess = cleanUpFactoryOffer.openSession();     
+		   }             
+		   return sess;
+	} 
 	
 	class cleanUp extends TimerTask
 	{
-
 		@Override
 		public void run() {
-			try {
+		try {
 				Date date = new Date();
 
 				System.out.println("The current date and time is: " + date);
 				updateTTLApplication();
-			} catch (ApplicationExceptionHandler e) {
+				updateTTLOffer();
+			} catch (ApplicationExceptionHandler | OfferExceptionHandler e) {
 				e.printStackTrace();
 			}		
 		}

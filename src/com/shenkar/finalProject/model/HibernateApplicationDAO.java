@@ -336,7 +336,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	{
 		ride.setDestination(updateRide.getDestination());
 		ride.setSource(updateRide.getSource());
-		ride.setTimeRange(updateRide.getTimeRange());
+		ride.setEndPeriod(updateRide.getEndPeriod());
 	}
 	
 	private void editHandyman (HandymanApplication handyman, HandymanApplication updateHandyman)
@@ -352,7 +352,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	{
 		try{
 		 if (applicationFactory==null)
-		  {applicationFactory = new Configuration().configure("hibernateU.cfg.xml").buildSessionFactory();}
+		  {applicationFactory = new Configuration().configure("hibernateApplication.cfg.xml").buildSessionFactory();}
 		}
 		catch (Exception e){}
 	}

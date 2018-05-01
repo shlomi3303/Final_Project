@@ -46,6 +46,8 @@ public class ApplicationServelt extends HttpServlet
 					{
 						addNewApplication(request, response);
 						response.getWriter().println("apllication was created");
+						response.getWriter().println(Thread.currentThread().getName());
+
 					} 
 					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
@@ -68,6 +70,7 @@ public class ApplicationServelt extends HttpServlet
 		
 					String strApplication = new Gson().toJson(application).toString();
 					response.setContentType("application/json");
+		        	response.setCharacterEncoding("utf-8");
 					response.getWriter().write(strApplication);
 					break;
 				}
@@ -90,6 +93,7 @@ public class ApplicationServelt extends HttpServlet
 							applications  = getAllApplicationsUser(stringUserID);
 							String applicationArray = new Gson().toJson(applications).toString();
 							response.setContentType("application/json");
+				        	response.setCharacterEncoding("utf-8");
 							response.getWriter().write(applicationArray);
 						}
 						catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}		
@@ -103,6 +107,7 @@ public class ApplicationServelt extends HttpServlet
 					{
 						String strApplicationsList = getRandomApplication(request);
 						response.setContentType("application/json");
+			        	response.setCharacterEncoding("utf-8");
 						response.getWriter().write(strApplicationsList);
 					}
 					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
@@ -184,18 +189,29 @@ public class ApplicationServelt extends HttpServlet
 		response.getWriter().write("The json object is: " + applicationString);
 		String tableName = req.getParameter("tableName");
 		response.getWriter().write("The table name is: " + tableName);
-		Class <?> className = HibernateApplicationDAO.getInstance().getTableMapping(tableName);
+		Class <?> className = null;
+		try{
+			className = HibernateApplicationDAO.getInstance().getTableMapping(tableName);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace(response.getWriter());
+		}
 		Application Deserialization = null;
 		Gson gson = new Gson();
+		if (className!=null){
+			Deserialization = (Application) gson.fromJson(applicationString, className);
+			
+			response.getWriter().write("i'm after Deserialization");
+			if (Deserialization != null)
+			{
+				System.out.println(Deserialization.getIsAprroved() + Deserialization.getStatus());
+				response.getWriter().write(Deserialization.getApplicationID());
+				return Deserialization;
+			}
 		
-		Deserialization = (Application) gson.fromJson(applicationString, className);
-		response.getWriter().write("i'm after Deserialization");
-		if (Deserialization != null){
-			System.out.println(Deserialization.getIsAprroved() + Deserialization.getStatus());
-			response.getWriter().write(Deserialization.getApplicationID());
-			return Deserialization;
 		}
-		response.getWriter().write("returing null");		
+		response.getWriter().write("returing null");
 		return null;
 	}
 	

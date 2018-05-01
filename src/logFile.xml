@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="WARN">
+	
+	<appender name="AIRBRAKE" class="airbrake.AirbrakeAppender">
+     	<param name="api_key" value="93ff535c605870fb8b97dbb9d611764f"/>
+    	<param name="env" value="test"/>
+    	<param name="enabled" value="true"/>
+		<!-- param name="noticesUrl" value="http://api.airbrake.io/notifier_api/v2/notices" / -->
+	</appender>
+
+	<root>
+    	<appender-ref ref="AIRBRAKE"/>
+	</root>
+
+</Configuration>

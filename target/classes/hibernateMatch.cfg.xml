@@ -1,0 +1,31 @@
+<!DOCTYPE hibernate-configuration PUBLIC 
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+
+<hibernate-configuration>
+
+  <session-factory>
+   
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+	<property name="hibernate.connection.url">jdbc:mysql://i5x1cqhq5xbqtv00.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/gz1an2hjx3itd2un</property>
+	<property name="hibernate.connection.username">jr3maktf4pdemcnl</property>
+	<property name="connection.password">n22nrh4y735ezfw4</property>
+	<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+	
+	<property name="hibernate.default_schema">gz1an2hjx3itd2un</property>
+	
+	<property name="hibernate.hbm2ddl.auto">update</property>
+	    
+	<property name="connection.pool_size">1</property>
+	<property name="hibernate.current_session_context_class">thread</property>
+	    
+	<mapping class="com.shenkar.finalProject.model.ManualMatch"/>
+	
+   
+  </session-factory>
+   
+</hibernate-configuration>
+
+
+
