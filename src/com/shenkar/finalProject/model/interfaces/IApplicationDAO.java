@@ -18,9 +18,9 @@ public interface IApplicationDAO
 	
 	public int ttlCalc(int ttl, String tableName) throws ApplicationExceptionHandler;
 	
-	public void status (String status, Application application) throws ApplicationExceptionHandler;
+	public void status (String status, int applicationId) throws ApplicationExceptionHandler;
 	
-	public void notification (Application application) throws ApplicationExceptionHandler;
+	public void notification (int applicationId, String tableName) throws ApplicationExceptionHandler;
 	
 	public List<Application> getApplications(int userId) throws ApplicationExceptionHandler;
 	

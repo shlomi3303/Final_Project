@@ -376,18 +376,15 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	}
 
 	@Override
-	public void status(String status, Application application) throws ApplicationExceptionHandler 
+	public void status(String status, int applicationId) throws ApplicationExceptionHandler 
 	{
-		// TODO Auto-generated method stub
+		
+		
+		
 
 	}
 
-	@Override
-	public void notification(Application application) throws ApplicationExceptionHandler 
-	{
-		// TODO Auto-generated method stub
-
-	}
+	
 	
 	public Class<?>  getTableMapping (String tableName)
 	{
@@ -404,6 +401,12 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			className = StudentApplication.class;
 		
 		return className;
+		
+	}
+
+	@Override
+	public void notification(int applicationId, String tableName) throws ApplicationExceptionHandler 
+	{
 		
 	}
 }

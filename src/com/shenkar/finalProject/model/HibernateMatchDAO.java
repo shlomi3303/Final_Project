@@ -25,7 +25,7 @@ public class HibernateMatchDAO implements IManualMatch {
 	}
 	
 	@Override
-	public void createMatch(Match match, String matchInitiator) 
+	public void createMatch(Match match, String matchInitiator, String tableName) throws ApplicationExceptionHandler 
 	{
 		Session session = null;
 		
@@ -37,12 +37,21 @@ public class HibernateMatchDAO implements IManualMatch {
 			{
 				if (match.getClass().equals(ManualMatch.class))
 					{
-						if (matchInitiator.equals("offer")){
-							match.setOfferAproved(true);
-							match.setApplicationAproved(false);
-							match.setStatus("Waiting for application user approval");
+						if (matchInitiator.equals("offer"))
+						{
+							try 
+							{
+									match.setOfferAproved(true);
+									match.setApplicationAproved(false);
+									match.setStatus("Waiting for application user approval");
+									HibernateApplicationDAO.getInstance().notification(match.getApplicationID(), tableName);
+							
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
-						else{
+						else
+						{
 							match.setApplicationAproved(true);
 							match.setOfferAproved(false);
 							match.setStatus("Waiting for offer user approval");
@@ -99,5 +108,4 @@ public class HibernateMatchDAO implements IManualMatch {
 	}
 
 	
-
 }
