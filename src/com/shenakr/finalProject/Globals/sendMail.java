@@ -19,16 +19,12 @@ public class sendMail {
 		Content content = new Content("text/plain", body);
 		Mail mail = new Mail(from, subject, to, content);
 	
-		SendGrid sg = new SendGrid("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");
 		Request request = new Request();
 		try {
 		      request.method = Method.POST;
 		      request.endpoint = "mail/send";
 		      request.body = mail.build();
-		      Response response = sg.api(request);
-		      System.out.println(response.statusCode);
-		      System.out.println(response.body);
-		      System.out.println(response.headers);
+		    
 	   } 
 		catch (IOException ex) 
 		{}
