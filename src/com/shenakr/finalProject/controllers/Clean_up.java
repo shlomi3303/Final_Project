@@ -54,7 +54,7 @@ public class Clean_up implements ServletContextListener
 	private static void updateTTLApplication () throws ApplicationExceptionHandler
 	{
 		
-		List <Application> list = HibernateApplicationDAO.getInstance().getApplications(GET_ALL_DB);
+		List <Application> list = HibernateApplicationDAO.getInstance().getUserApplications(GET_ALL_DB);
 		
 		if (list!=null)
 		{
@@ -84,7 +84,7 @@ public class Clean_up implements ServletContextListener
 	private static void updateTTLOffer () throws OfferExceptionHandler
 	{
 		
-		List <Offer> list = HibernateOfferDAO.getInstance().getOffers(GET_ALL_DB);
+		List <Offer> list = HibernateOfferDAO.getInstance().getUserOffers(GET_ALL_DB);
 		
 		if (list!=null)
 		{

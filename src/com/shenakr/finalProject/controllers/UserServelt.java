@@ -12,12 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
+import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
+import com.shenkar.finalProject.model.HibernateManualMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -68,10 +70,36 @@ public class UserServelt extends HttpServlet {
 							{
 								String arr =  new Gson().toJson(user).toString();
 								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
 								response.getWriter().write(arr);
+								
+								List<Application> applicationsList = HibernateApplicationDAO.getInstance().getUserApplications(user.getId());
+								
+								String strApplicationList = new Gson().toJson(applicationsList).toString();
+								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
+								response.getWriter().write(strApplicationList);
+								
+								List <Offer> offersList = HibernateOfferDAO.getInstance().getUserOffers(user.getId());
+								
+								String strOfferList = new Gson().toJson(offersList).toString();
+								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
+								response.getWriter().write(strOfferList);
+								
+								/*
+								List <Match> matches = HibernateManualMatchDAO.getInstance().getAllUserToInform(user.getId());
+								if (matches!=null)
+								{
+									String matchJson = new Gson().toJson(matches).toString();
+									response.setContentType("application/json");
+						        	response.setCharacterEncoding("utf-8");
+									response.getWriter().write(matchJson);
+								}
+								*/
 							}
 						} 
-						catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
+						catch (UserExceptionHandler | ApplicationExceptionHandler | OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					}
 				 }
 				break;
@@ -86,7 +114,7 @@ public class UserServelt extends HttpServlet {
 					{
 						try 
 						{
-							user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
+							user = HibernateUserDAO.getInstance().getUser(mail, password, response);
 							if (user!=null)
 								updateUser(request, user.getId(), response);
 							
@@ -95,13 +123,20 @@ public class UserServelt extends HttpServlet {
 					}
 				}
 				break;
+				
 			case "delete":
 				{
 					String mail = request.getParameter("mail");
 					String password = request.getParameter("password");
 					if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 					{deleteUser(request, response);}
+					break;
 				}
+				
+			default:
+				String str = "please insert a valid value into fucntion";
+				response.getWriter().write(str);
+				break;
 			}
 		}
 	}
@@ -112,7 +147,7 @@ public class UserServelt extends HttpServlet {
 		
 		if (user!=null)
 		{
-			HibernateUserDAO.getInstance(response).addNewUser(user, response);
+			HibernateUserDAO.getInstance().addNewUser(user, response);
 		}
 	}
 	
@@ -123,7 +158,7 @@ public class UserServelt extends HttpServlet {
 		
 		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 		{
-			HibernateUserDAO.getInstance(response).deleteUser(mail, password, response);
+			HibernateUserDAO.getInstance().deleteUser(mail, password, response);
 		}				
 	}
 	
@@ -134,7 +169,7 @@ public class UserServelt extends HttpServlet {
 		
 		if (user!=null)
 		{
-			HibernateUserDAO.getInstance(response).updateUser(id, user, response);
+			HibernateUserDAO.getInstance().updateUser(id, user, response);
 		}
 	}
 	
@@ -142,43 +177,18 @@ public class UserServelt extends HttpServlet {
 	{
 		AppUser user = null;
 		
-		user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
+		user = HibernateUserDAO.getInstance().getUser(mail, password, response);
 		if (user!=null)
 			return user;
 		
 		return null;
 	}
 	
-	private List<Object> getUserInforamtin(String mail, String password,HttpServletResponse response) throws UserExceptionHandler, IOException, OfferExceptionHandler, ApplicationExceptionHandler
-	{
-			AppUser user = null;
-		
-			user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
-			if (user!=null)
-			{
-				
-				List <Object> list = new ArrayList<Object>();
-				String arr =  new Gson().toJson(user, AppUser.class).toString();
-				list.add(arr);
-				
-				List <Offer> offers= HibernateOfferDAO.getInstance().getOffers(user.getId());
-				String offerArray = new Gson().toJson(offers, Offer.class).toString();
-				list.add(offerArray);
-
-				List <Application> applications = HibernateApplicationDAO.getInstance().getApplications(user.getId());
-				String applicationArray = new Gson().toJson(applications, Application.class).toString();
-				list.add(applicationArray);
-				 
-				return list;
-			}
-		
-		return null;
-	}
 	
 	private AppUser generateUser (HttpServletRequest request) throws UserExceptionHandler
 	{
-		String fname = request.getParameter("firstname");
-		String lname = request.getParameter("lastname");
+		String fname = request.getParameter("firstName");
+		String lname = request.getParameter("lastName");
 		String mail = request.getParameter("mail");
 		String password = request.getParameter("password");
 		String phone = request.getParameter("phone");

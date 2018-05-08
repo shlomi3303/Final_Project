@@ -100,6 +100,29 @@ public class OfferServelt extends HttpServlet {
 					}
 					break;
 					
+					
+				case "getAllSpecificTable":
+				{
+					String tableName = request.getParameter("tableName");
+
+					List<Offer> offers = null;
+					
+					try 
+					{
+						offers  = getAllSpecificTable(tableName);
+						if (offers!=null)
+						{
+							String applicationArray = new Gson().toJson(offers).toString();
+							response.setContentType("application/json");
+							response.setCharacterEncoding("utf-8");
+							response.getWriter().write(applicationArray);
+						}
+					} 
+					catch (OfferExceptionHandler e) 
+					{e.printStackTrace(response.getWriter());}
+					break;
+				}
+					
 				case "randomOffers":
 					try 
 					{
@@ -114,6 +137,7 @@ public class OfferServelt extends HttpServlet {
 				default:
 					String str = "please insert a valid value into fucntion";
 					response.getWriter().write(str);
+					break;
 			}
 		}
 		
@@ -123,7 +147,7 @@ public class OfferServelt extends HttpServlet {
 	private List<Offer> getAllOffersUser(String stringUserID) throws OfferExceptionHandler
 	{
 		int userId = Integer.parseInt(stringUserID);
-		return HibernateOfferDAO.getInstance().getOffers(userId);
+		return HibernateOfferDAO.getInstance().getUserOffers(userId);
 	}
 	
 
@@ -182,6 +206,11 @@ public class OfferServelt extends HttpServlet {
 		
 		return HibernateOfferDAO.getInstance().getRandomOffer(num, tableName);
 		
+	}
+	
+	private List <Offer> getAllSpecificTable (String tableName) throws OfferExceptionHandler
+	{
+		return HibernateOfferDAO.getInstance().getAllSpecificOfferTable(tableName);
 	}
 	
 	private Offer generateOffer (HttpServletRequest req) throws OfferExceptionHandler

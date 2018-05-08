@@ -1,5 +1,6 @@
 package com.shenkar.finalProject.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,6 +15,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
+import com.shenakr.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
 
 public class HibernateOfferDAO implements IOfferDAO
@@ -206,7 +208,7 @@ public class HibernateOfferDAO implements IOfferDAO
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Offer> getOffers(int userId) throws OfferExceptionHandler {
+	public List<Offer> getUserOffers(int userId) throws OfferExceptionHandler {
 		Session session = null;
 		List <Offer> offers = null;
 
@@ -286,8 +288,12 @@ public class HibernateOfferDAO implements IOfferDAO
 	}
 
 	@Override
-	public void notification(Offer offer) throws OfferExceptionHandler {
-		// TODO Auto-generated method stub
+	public void notification(Offer offer, String subject, String body) throws OfferExceptionHandler, UserExceptionHandler, IOException 
+	{
+		AppUser user = HibernateUserDAO.getInstance().getUserInfo(offer.getUserId());
+		
+		if (user!=null)
+			sendMail.sendEmail(user.getMail(), subject, body);
 		
 	}
 	private static void initOfferFactory ()
@@ -387,6 +393,46 @@ public class HibernateOfferDAO implements IOfferDAO
 		
 		return className;
 		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Offer> getAllSpecificOfferTable(String tableName) throws OfferExceptionHandler 
+	{
+		Session session = null;
+		List <Offer> offers = null;
+		
+		try
+		{
+	    	String strTableName = getTableName(tableName);
+			initOfferFactory();
+			session = getSession();
+	    	session.beginTransaction();
+		
+	    	offers = session.createQuery ("from " + strTableName).getResultList();
+				
+	         if (offers != null && !offers.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (offers.size() > 0) {
+	    		      return offers;	
+	    	      }
+	          }
+	    }
+		catch (HibernateException e) 
+		  {
+		         if (session.getTransaction() != null) session.getTransaction().rollback();
+	         throw new OfferExceptionHandler("Offers list not avilable at the moment" + e.getMessage());
+	      }
+		finally {
+	    	 try {
+	    		 session.close();
+	    	 } catch (HibernateException e){
+	    		 throw new OfferExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
+	    	 } 
+	      }
+		
+	    return null;
 	}
 	
 }

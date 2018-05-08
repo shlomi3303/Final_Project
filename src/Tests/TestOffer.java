@@ -49,9 +49,16 @@ public class TestOffer {
 		Offer offer2 = new Offer(123,period, location, periodic,
 				urgency, description, "waiting", isAprroved,"male", "english", "high", "math", image);
 		
-		String arr = new Gson().toJson(offer1, Offer[].class);
-		 System.out.println(arr);
+		//String arr = new Gson().toJson(offer1, Offer[].class);
+		// System.out.println(arr);
 
+		String body1 = "!נמצאה התאמה לאחת מבקשות העזרה שלך";
+		String body2 = "נא כנס לאלפליקציה בכדי להשלים את תהליך העזרה";
+		String body = body1 + System.lineSeparator() + body2;
+		 
+		 
+		 System.out.println(body);
+		 
 		//HibernateOfferDAO.getInstance().createOffer(offer1);
 		/*
 		/

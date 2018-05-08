@@ -20,7 +20,7 @@ public class HibernateUserDAO implements IUserDAO
 
 	private HibernateUserDAO () {}
 		
-	public static HibernateUserDAO getInstance(HttpServletResponse response) throws IOException 
+	public static HibernateUserDAO getInstance() throws IOException 
 	{	
 		instance = new HibernateUserDAO();
 		if (instance == null)
@@ -30,7 +30,7 @@ public class HibernateUserDAO implements IUserDAO
 				userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
 			}
 			catch (Exception e)
-			{e.printStackTrace(response.getWriter());}
+			{}
 			
 	}
 		return instance;
@@ -161,7 +161,7 @@ public class HibernateUserDAO implements IUserDAO
 		Session session = null;
 		try 
 		{
-			user = HibernateUserDAO.getInstance(response).getUser(mail, password, response);
+			user = HibernateUserDAO.getInstance().getUser(mail, password, response);
 			if (user!=null && !user.getMail().isEmpty() )
 			{
 				if (userFactory==null)
@@ -234,6 +234,46 @@ public class HibernateUserDAO implements IUserDAO
 		       sess = userFactory.openSession();     
 		   }             
 		   return sess;
-		} 
+		}
+
+	@SuppressWarnings("unchecked") 
+	public AppUser getUserInfo(int userId) throws UserExceptionHandler 
+	{
+		 Session session = null; 
+	      List<AppUser> user = null;
+	      try
+	      {
+	    	  initUserFactory();
+			  session = getSession();
+			  
+	    	  session.beginTransaction();
+	          user = session.createQuery("from " + AppUser.class.getName() + " user where user.id = " + userId +"").getResultList();
+	          if (user != null && !user.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (user.size() > 0) 
+	        	  {
+	    		      return user.get(0);
+	    	      }
+	        	  
+	          }
+	        	  
+	      }catch (HibernateException e) 
+	      {
+				if (session.beginTransaction() !=null) session.beginTransaction().rollback();
+	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
+	      }finally 
+	      {
+	    	 if (session != null){
+	    		 session.close();
+	    	 }
+	      }
+	      if (user.size() > 0) {
+		      return user.get(0);	
+	      }
+		
+		
+		return null;
+	} 
 	
 }

@@ -20,7 +20,8 @@
 	<property name="connection.pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
 	    
-	<mapping class="com.shenkar.finalProject.model.ManualMatch"/>
+	<mapping class="com.shenkar.finalProject.model.ManualMatchOffer"/>
+	<mapping class="com.shenkar.finalProject.model.ManualMatchApplication"/>
 	
    
   </session-factory>

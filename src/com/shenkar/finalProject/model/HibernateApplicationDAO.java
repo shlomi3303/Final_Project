@@ -1,5 +1,6 @@
 package com.shenkar.finalProject.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,6 +15,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
+import com.shenakr.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
 public class HibernateApplicationDAO implements IApplicationDAO 
@@ -209,7 +211,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Application> getApplications(int userId) throws ApplicationExceptionHandler 
+	public List<Application> getUserApplications(int userId) throws ApplicationExceptionHandler 
 	{
 		Session session = null;
 		List <Application> applications = null;
@@ -309,7 +311,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		application.setImg(updateApplication.getImg());
 		application.setDescription(updateApplication.getDescription());
 		application.setTitle(updateApplication.getTitle());
-		//change into function?
+		//change into status function?
 		application.setStatus(updateApplication.getStatus());
 		application.setTTL(updateApplication.getTTL());
 		application.setIsAprroved(updateApplication.getIsAprroved());
@@ -376,11 +378,17 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	}
 
 	@Override
-	public void status(String status, int applicationId) throws ApplicationExceptionHandler 
+	public void status(String status, Application application) throws ApplicationExceptionHandler 
 	{
+		application.setStatus(status);
+	
+		Session session = null;
 		
-		
-		
+		initApplicationFactory();
+		session = getSession();
+   	  	session.beginTransaction();
+   	  	session.update(application);
+        session.getTransaction().commit();
 
 	}
 
@@ -405,8 +413,55 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	}
 
 	@Override
-	public void notification(int applicationId, String tableName) throws ApplicationExceptionHandler 
+	public void notification(Application application, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException 
 	{
+		
+		AppUser user = HibernateUserDAO.getInstance().getUserInfo(application.getUserId());
+		
+		if (user!=null)
+			sendMail.sendEmail(user.getMail(), subject, body);
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Application> getAllSpecificApplicationTable(String tableName) throws ApplicationExceptionHandler 
+	{
+		
+		Session session = null;
+		List <Application> applications = null;
+		
+		try
+		{
+	    	String strTableName = getTableName(tableName);
+			initApplicationFactory();
+			session = getSession();
+	    	session.beginTransaction();
+		
+	    	applications = session.createQuery ("from " + strTableName).getResultList();
+				
+	         if (applications != null && !applications.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (applications.size() > 0) {
+	    		      return applications;	
+	    	      }
+	          }
+	    }
+		catch (HibernateException e) 
+		  {
+		         if (session.getTransaction() != null) session.getTransaction().rollback();
+	         throw new ApplicationExceptionHandler("Applications list not avilable at the moment" + e.getMessage());
+	      }
+		finally {
+	    	 try {
+	    		 session.close();
+	    	 } catch (HibernateException e){
+	    		 throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
+	    	 } 
+	      }
+		
+	    return null;
 		
 	}
 }

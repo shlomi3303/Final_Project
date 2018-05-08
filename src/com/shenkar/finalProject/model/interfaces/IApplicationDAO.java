@@ -1,9 +1,11 @@
 package com.shenkar.finalProject.model.interfaces;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
+import com.shenkar.finalProject.model.UserExceptionHandler;
 
 
 public interface IApplicationDAO 
@@ -18,11 +20,13 @@ public interface IApplicationDAO
 	
 	public int ttlCalc(int ttl, String tableName) throws ApplicationExceptionHandler;
 	
-	public void status (String status, int applicationId) throws ApplicationExceptionHandler;
+	public void status (String status, Application application) throws ApplicationExceptionHandler;
 	
-	public void notification (int applicationId, String tableName) throws ApplicationExceptionHandler;
+	public void notification (Application app, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException;
 	
-	public List<Application> getApplications(int userId) throws ApplicationExceptionHandler;
+	public List<Application> getUserApplications(int userId) throws ApplicationExceptionHandler;
+	
+	public List<Application> getAllSpecificApplicationTable(String tableName) throws ApplicationExceptionHandler;
 	
 	public String getRandomApplication(int num, String tableName) throws ApplicationExceptionHandler;
 	

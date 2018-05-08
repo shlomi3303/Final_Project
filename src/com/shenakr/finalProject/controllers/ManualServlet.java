@@ -7,12 +7,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
-import com.shenkar.finalProject.model.HibernateApplicationDAO;
-import com.shenkar.finalProject.model.HibernateMatchDAO;
-import com.shenkar.finalProject.model.ManualMatch;
+import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.ManualMatchApplication;
+import com.shenkar.finalProject.model.ManualMatchOffer;
+import com.shenkar.finalProject.model.Match;
+import com.shenkar.finalProject.model.OfferExceptionHandler;
+import com.shenkar.finalProject.model.UserExceptionHandler;
 
 /**
  * Servlet implementation class ManualServlet
@@ -55,6 +56,10 @@ public class ManualServlet extends HttpServlet {
 						catch (Exception e) {e.printStackTrace(response.getWriter());}
 						break;
 				}
+				case "match":
+				{
+					
+				}
 				default:
 					String str = "please insert a valid value into fucntion";
 					response.getWriter().write(str);
@@ -63,22 +68,46 @@ public class ManualServlet extends HttpServlet {
 	}
 			
 
-	private void addNewManualMatch(HttpServletRequest request, HttpServletResponse response) throws IOException, ApplicationExceptionHandler
+	private void addNewManualMatch(HttpServletRequest request, HttpServletResponse response) throws IOException, ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler
 	{
-		ManualMatch match = generateManualMatch(request, response);
+		Match match = generateManualMatch(request, response);
 		if (match != null)
 		{
 			String matchInitiator = request.getParameter("matchInitiator");
 			String tableName = request.getParameter("tableName");
-			HibernateMatchDAO.getInstance().createMatch(match, matchInitiator, tableName);
+			HibernateManualMatchDAO.getInstance().createMatch(match, matchInitiator, tableName);
 		}
 		
 	}	
 
 	
 	
-	private ManualMatch generateManualMatch (HttpServletRequest req, HttpServletResponse response) throws IOException
+	private Match generateManualMatch (HttpServletRequest req, HttpServletResponse response) throws IOException
 	{
+		String strUserId = req.getParameter("userId");
+		String strOfferId = req.getParameter("offerId");
+		String strApplicationId = req.getParameter("applicationId");
+		
+		int offerId;
+		int applicationId;
+		int userId = Integer.parseInt(strUserId);
+		Match manual = null;
+		if (strOfferId==null)
+		{
+			 applicationId = Integer.parseInt(strApplicationId);
+			 manual = new ManualMatchOffer(applicationId,false, false, userId); 
+
+		}
+		else if (strApplicationId==null)
+		{
+			offerId = Integer.parseInt(strOfferId);
+			manual = new ManualMatchApplication(offerId,false, false, userId); 
+
+		}
+			
+		return manual;
+		
+		/*
 		String matchString = req.getParameter("matchString");
 		response.getWriter().write("The json object is: " + matchString);
 		String tableName = req.getParameter("tableName");
@@ -94,9 +123,7 @@ public class ManualServlet extends HttpServlet {
 		{
 			return Deserialization;
 		}
-		
-		response.getWriter().write("returing null");
-		return null;
+		*/
 	}
 	
 }
