@@ -28,14 +28,18 @@ public class Match
 	@Column (name="TTL")
 	int TTL;
 	
+	@Column (name = "Reminder_Counter")
+	int reminderCount;
+	
 	public Match(){}
 	
 	public Match(boolean offerAproved, boolean applicationAproved, String status,
-			int tTL) 
+			int tTL, int reminderCount) 
 	{
 		this.offerAproved = offerAproved;
 		this.applicationAproved = applicationAproved;
 		this.status = status;
+		this.reminderCount = reminderCount;
 		TTL = tTL;
 	}
 
@@ -99,4 +103,14 @@ public class Match
 		TTL = tTL;
 	}
 
+	public int getReminderCount() {
+		return reminderCount;
+	}
+
+	public void setReminderCount(int reminderCount) {
+		this.reminderCount = reminderCount;
+	}
+	
+	
+	
 }

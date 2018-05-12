@@ -29,6 +29,10 @@ public class TestApplication {
 
 	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler 
 	{
+		
+		List <Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
+		
+		
 		String testDateString2 = "2018-04-30 18:00";
 	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	    //DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");

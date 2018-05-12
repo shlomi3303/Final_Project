@@ -15,7 +15,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
-import com.shenakr.finalProject.Globals.sendMail;
+import com.shenkar.finalProject.Globals.ConstantVariables;
+import com.shenkar.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
 public class HibernateApplicationDAO implements IApplicationDAO 
@@ -369,14 +370,6 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		   return sess;
 	} 
 	
-	
-	@Override
-	public int ttlCalc(int ttl, String tableName) throws ApplicationExceptionHandler 
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	@Override
 	public void status(String status, Application application) throws ApplicationExceptionHandler 
 	{
@@ -391,8 +384,6 @@ public class HibernateApplicationDAO implements IApplicationDAO
         session.getTransaction().commit();
 
 	}
-
-	
 	
 	public Class<?>  getTableMapping (String tableName)
 	{
@@ -413,10 +404,10 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	}
 
 	@Override
-	public void notification(Application application, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException 
+	public void notification(int userId, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException 
 	{
 		
-		AppUser user = HibernateUserDAO.getInstance().getUserInfo(application.getUserId());
+		AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 		
 		if (user!=null)
 			sendMail.sendEmail(user.getMail(), subject, body);
@@ -438,7 +429,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			session = getSession();
 	    	session.beginTransaction();
 		
-	    	applications = session.createQuery ("from " + strTableName).getResultList();
+	    	applications = session.createQuery ("from " + strTableName + " as table where table.status like :searchkey").setParameter("searchkey",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
 				
 	         if (applications != null && !applications.isEmpty())
 	          {

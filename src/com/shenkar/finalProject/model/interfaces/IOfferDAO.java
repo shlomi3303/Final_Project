@@ -16,12 +16,10 @@ public interface IOfferDAO
 	public void deleteOffer(int offerId, String tableName) throws OfferExceptionHandler;
 	
 	public Offer getOffer(int offerId, String tableName) throws OfferExceptionHandler;
-	
-	public int ttlCalc(int ttl) throws OfferExceptionHandler;
-	
+		
 	public void status (String status, Offer offer) throws OfferExceptionHandler;
 	
-	public void notification (Offer offer, String subject, String body) throws OfferExceptionHandler, UserExceptionHandler, IOException;
+	public void notification (int userId, String subject, String body) throws OfferExceptionHandler, UserExceptionHandler, IOException;
 	
 	public List<Offer> getUserOffers(int userId) throws OfferExceptionHandler;
 	

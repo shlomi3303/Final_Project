@@ -17,12 +17,10 @@ public interface IApplicationDAO
 	public void deleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler;
 	
 	public Application getApplication(int applicationId, String tableName) throws ApplicationExceptionHandler;
-	
-	public int ttlCalc(int ttl, String tableName) throws ApplicationExceptionHandler;
-	
+		
 	public void status (String status, Application application) throws ApplicationExceptionHandler;
 	
-	public void notification (Application app, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException;
+	public void notification (int userId, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException;
 	
 	public List<Application> getUserApplications(int userId) throws ApplicationExceptionHandler;
 	

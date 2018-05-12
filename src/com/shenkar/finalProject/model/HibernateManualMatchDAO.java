@@ -3,16 +3,20 @@ package com.shenkar.finalProject.model;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.HttpResponse;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
-import com.shenakr.finalProject.Globals.ConstantVariables;
+import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.model.interfaces.IManualMatch;
 
 public class HibernateManualMatchDAO implements IManualMatch {
+//public class HibernateManualMatchDAO{
 
 	private static HibernateManualMatchDAO instance;
 	private static SessionFactory matchFactory;
@@ -30,6 +34,93 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	}
 	
 	@Override
+	public void acceptMatch(String user, int userRequestId, String tableName) 
+	{
+		Session session = null;
+		try
+		{
+				if (user.equals("offer"))
+				{
+					int offerId = userRequestId;
+					ManualMatchUserApplication manualApp = (ManualMatchUserApplication) HibernateManualMatchDAO.getInstance().getManualMatch(offerId, "User Application");
+					
+					if (manualApp!=null)
+					{
+					
+						initMatchFactory();
+						session = getSession();
+						session.beginTransaction();
+
+						
+						//notify the both user
+						HibernateApplicationDAO.getInstance().notification(manualApp.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
+						HibernateOfferDAO.getInstance().notification(manualApp.getUserToInform(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
+						
+						
+						manualApp.setOfferAproved(true);
+						manualApp.setStatus(ConstantVariables.bothSideApproved);
+						manualApp.setUserToInform(0);
+						
+						if (!session.getTransaction().isActive())
+							session.beginTransaction();
+						session.update(manualApp); 
+						session.getTransaction().commit();
+						
+						//delete the offer from the table and sending it to the archive
+						Offer offer = HibernateOfferDAO.getInstance().getOffer(offerId, tableName);
+						HibernateOfferDAO.getInstance().status(ConstantVariables.bothSideApproved, offer);
+					}
+				}
+				
+				else if (user.equals("application"))
+				{
+					int applicationId = userRequestId;
+					ManualMatchUserOffer manualOffer = (ManualMatchUserOffer) getManualMatch(applicationId, "User Offer");
+					
+					if (manualOffer != null)
+					{
+						initMatchFactory();
+						session = getSession();
+						session.beginTransaction();
+
+						if (session!=null){
+							
+							//notify the both user
+							HibernateApplicationDAO.getInstance().notification(manualOffer.getUserToInform(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
+							HibernateOfferDAO.getInstance().notification(manualOffer.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
+							
+							manualOffer.setApplicationAproved(true);
+							manualOffer.setStatus(ConstantVariables.bothSideApproved);
+							manualOffer.setUserToInform(0);
+							
+							if (!session.getTransaction().isActive())
+								session.beginTransaction();
+								
+							session.update(manualOffer); 
+							session.getTransaction().commit();
+							
+							Application application = HibernateApplicationDAO.getInstance().getApplication(applicationId, tableName);
+							HibernateApplicationDAO.getInstance().status(ConstantVariables.bothSideApproved, application);
+						}
+				}
+			}
+			
+			
+		}
+		catch(Exception e){
+			throw new HibernateException (e);
+		}
+		
+		finally 
+		{
+			try 
+			{session.close();} 
+			catch (HibernateException e){}
+		}
+	}
+	
+	
+	@Override
 	public void createMatch(Match match, String matchInitiator, String tableName) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException 
 	{
 		Session session = null;
@@ -40,31 +131,27 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			session = getSession();
 			if (session != null && match!=null)
 			{
-				if (match.getClass().equals(ManualMatchOffer.class))
+				if (match.getClass().equals(ManualMatchUserOffer.class))
 					{
 						//if (matchInitiator.equals("offer"))
 						
 							match.setTTL(7);
 							try 
 							{
-								ManualMatchOffer offer = (ManualMatchOffer)match;
+								ManualMatchUserOffer offer = (ManualMatchUserOffer)match;
 								offer.setOfferAproved(true);
 								offer.setApplicationAproved(false);
 								offer.setStatus(ConstantVariables.waitingForAppApproval);
 								
 								Application application = HibernateApplicationDAO.getInstance().getApplication(offer.getApplicationID(), tableName);
+								
 								HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForAppApproval, application);
 								offer.setUserToInform(application.getUserId());
 								
 								//String strApplication = new Gson().toJson(application).toString();
 								//WebSocket.sendMessage(strApplication);
-								String subject = "!מחוברים לחיים: מישהו/י מוכנ/ה לעזור לך";
 								
-								String body1 = "!נמצאה התאמה לאחת מבקשות העזרה שלך";
-								String body2 = "נא כנס לאלפליקציה בכדי להשלים את תהליך העזרה";
-								String body = body1 + System.lineSeparator() + body2;
-								
-								HibernateApplicationDAO.getInstance().notification(application, subject, body);
+								HibernateApplicationDAO.getInstance().notification(application.getUserId(), ConstantVariables.subjectMailApplication, ConstantVariables.bodyMailApplication);
 								
 								session.beginTransaction();
 								session.save(offer); 
@@ -74,9 +161,9 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							{e.printStackTrace();}
 					}
 						
-				else if (match.getClass().equals(ManualMatchApplication.class))
+				else if (match.getClass().equals(ManualMatchUserApplication.class))
 						{
-							ManualMatchApplication application = (ManualMatchApplication)match;
+							ManualMatchUserApplication application = (ManualMatchUserApplication)match;
 							application.setApplicationAproved(true);
 							application.setOfferAproved(false);
 							application.setStatus(ConstantVariables.waitingForOfferApproval);
@@ -92,7 +179,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							
 							String body = body1 + System.lineSeparator() + body2;
 							
-							HibernateOfferDAO.getInstance().notification(offer, subject, body);
+							HibernateOfferDAO.getInstance().notification(offer.getUserId(), subject, body);
 							
 							session.beginTransaction();
 							session.save(application); 
@@ -118,10 +205,52 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			{//throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");
 				 
 			}
-		
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public Match getManualMatch(int Id, String tableName) {
+		
+		 Session session = null;
+		 List<Match> manualMatch = null;
+		 
+		 initMatchFactory();
+		 session = getSession();
+		 
+		 if (!session.getTransaction().isActive())
+			 session.beginTransaction();
+
+		 try{
+	    	  if (tableName.equals("User Application"))
+	    	  {
+		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where matchId = " + Id +"").getResultList();
+	    	  }
+	    	  else if (tableName.equals("User Offer"))
+	    	  {
+	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + Id +"").getResultList();
+	    	  }
+	    	  
+	    	  if (manualMatch != null && !manualMatch.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (manualMatch.size() > 0) {
+	    		      return manualMatch.get(0);	
+	    	      }
+	          }
+
+	      }catch (HibernateException e) {
+	         if (session.getTransaction() != null) session.getTransaction().rollback();
+	         	
+	      }
+	     finally 
+	     {
+	    	 try {session.close();} 
+	    	 catch(HibernateException e) {}
+	     }
+	     return null;
+	}
+	
+	
 	
 	private static void initMatchFactory ()
 	{
@@ -179,5 +308,15 @@ public class HibernateManualMatchDAO implements IManualMatch {
 		
 	}
 
+	private String getTableName(String tableName) 
+	{
+		if (tableName.equals("User Application"))
+			return ManualMatchUserApplication.class.getName();
+		else if (tableName.equals("User Offer"))
+			return ManualMatchUserOffer.class.getName();
+		
+		
+		return "";
+	}
 	
 }
