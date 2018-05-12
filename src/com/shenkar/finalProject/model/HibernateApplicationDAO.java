@@ -429,7 +429,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			session = getSession();
 	    	session.beginTransaction();
 		
-	    	applications = session.createQuery ("from " + strTableName + " as table where table.status like :searchkey").setParameter("searchkey",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
+	    	applications = session.createQuery ("from " + strTableName + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
 				
 	         if (applications != null && !applications.isEmpty())
 	          {
