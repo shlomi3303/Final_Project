@@ -31,15 +31,19 @@ public class Match
 	@Column (name = "Reminder_Counter")
 	int reminderCount;
 	
+	@Column (name = "Category")
+	String category;
+	
 	public Match(){}
 	
 	public Match(boolean offerAproved, boolean applicationAproved, String status,
-			int tTL, int reminderCount) 
+			int tTL, int reminderCount, String category) 
 	{
 		this.offerAproved = offerAproved;
 		this.applicationAproved = applicationAproved;
 		this.status = status;
 		this.reminderCount = reminderCount;
+		this.category = category;
 		TTL = tTL;
 	}
 
@@ -109,6 +113,14 @@ public class Match
 
 	public void setReminderCount(int reminderCount) {
 		this.reminderCount = reminderCount;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 	
 	

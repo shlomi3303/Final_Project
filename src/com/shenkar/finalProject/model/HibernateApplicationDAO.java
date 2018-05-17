@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -228,7 +229,8 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    	 else if (userId==-1)
 	    		 applications = session.createQuery ("from " + Application.class.getName()).getResultList();
 				
-			
+	    	 System.out.println(applications);
+
 	         if (applications != null && !applications.isEmpty())
 	          {
 	        	  session.getTransaction().commit();
@@ -355,7 +357,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	{
 		try{
 		 if (applicationFactory==null)
-		  {applicationFactory = new Configuration().configure("hibernateApplication.cfg.xml").buildSessionFactory();}
+		  {applicationFactory = new Configuration().configure("hibernateTest.cfg.xml").buildSessionFactory();}
 		}
 		catch (Exception e){}
 	}

@@ -316,7 +316,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	{
 		try{
 		 if (offerFactory==null)
-		  {offerFactory = new Configuration().configure("hibernateOffer.cfg.xml").buildSessionFactory();}
+		  {offerFactory = new Configuration().configure("hibernateTest.cfg.xml").buildSessionFactory();}
 		}
 		catch (Exception e){}
 	}

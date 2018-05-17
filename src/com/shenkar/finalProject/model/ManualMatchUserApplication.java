@@ -19,9 +19,9 @@ public class ManualMatchUserApplication extends Match {
 	
 	public ManualMatchUserApplication() {}
 
-	public ManualMatchUserApplication(int offerId, boolean offerAproved, boolean applicationAproved, int userId) 
+	public ManualMatchUserApplication(int offerId, boolean offerAproved, boolean applicationAproved, int userId, String category) 
 	{
-		super(offerAproved, applicationAproved, "", 0, 0);
+		super(offerAproved, applicationAproved, "", 0, 0, category);
 		this.offerId = offerId;
 		this.userId = userId;
 	}

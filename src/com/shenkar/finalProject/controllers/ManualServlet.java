@@ -61,14 +61,11 @@ public class ManualServlet extends HttpServlet {
 				{
 					
 					acceptManualMatch(request, response);
-					//response.getWriter().println("Accept ");
-
-					
 					break;
 				}
 				case "decline":
 				{
-					
+					declineManualMatch(response, request);
 					
 					break;
 				}
@@ -79,6 +76,29 @@ public class ManualServlet extends HttpServlet {
 		}
 	}
 			
+	private void declineManualMatch (HttpServletResponse res, HttpServletRequest req)
+	{
+		String user = req.getParameter("user");
+		String tableName = req.getParameter("tableName");
+
+		if (user!=null && tableName!=null){
+			if (user.equals("offer"))
+			{
+				String strOfferId = req.getParameter("offerId");
+				int offerId = Integer.parseInt(strOfferId);
+				HibernateManualMatchDAO.getInstance().acceptMatch(user, offerId, tableName);
+			}
+			
+			else if (user.equals("application"))
+			{
+				String strApplicationId = req.getParameter("applicationId");
+				int applicationId = Integer.parseInt(strApplicationId);
+				HibernateManualMatchDAO.getInstance().acceptMatch(user, applicationId, tableName);
+			}
+		}
+	}
+
+	
 	
 	private void acceptManualMatch (HttpServletRequest req, HttpServletResponse res)
 	{
@@ -91,7 +111,6 @@ public class ManualServlet extends HttpServlet {
 			{
 				String strOfferId = req.getParameter("offerId");
 				int offerId = Integer.parseInt(strOfferId);
-				
 				HibernateManualMatchDAO.getInstance().acceptMatch(user, offerId, tableName);
 			}
 			
@@ -125,6 +144,7 @@ public class ManualServlet extends HttpServlet {
 		String strUserId = req.getParameter("userId");
 		String strOfferId = req.getParameter("offerId");
 		String strApplicationId = req.getParameter("applicationId");
+		String tableName = req.getParameter("tableName");
 		
 		int offerId;
 		int applicationId;
@@ -133,13 +153,13 @@ public class ManualServlet extends HttpServlet {
 		if (strOfferId==null)
 		{
 			 applicationId = Integer.parseInt(strApplicationId);
-			 manual = new ManualMatchUserOffer(applicationId,false, false, userId); 
+			 manual = new ManualMatchUserOffer(applicationId,false, false, userId, tableName); 
 
 		}
 		else if (strApplicationId==null)
 		{
 			offerId = Integer.parseInt(strOfferId);
-			manual = new ManualMatchUserApplication(offerId,false, false, userId); 
+			manual = new ManualMatchUserApplication(offerId,false, false, userId, tableName); 
 
 		}
 			

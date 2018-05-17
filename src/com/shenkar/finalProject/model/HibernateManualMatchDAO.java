@@ -34,6 +34,100 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	}
 	
 	@Override
+	public void declineMatch(String user, int userRequestId, String tableName) 
+	{	
+		Session session = null;
+		try
+		{
+				if (user.equals("offer"))
+				{
+					int offerId = userRequestId;
+					ManualMatchUserApplication manualApp = (ManualMatchUserApplication) HibernateManualMatchDAO.getInstance().getManualMatch(offerId, "User Application");
+					
+					if (manualApp!=null)
+					{
+						initMatchFactory();
+						session = getSession();
+						session.beginTransaction();
+						
+						//notify the both user
+						HibernateApplicationDAO.getInstance().notification(manualApp.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
+						//HibernateOfferDAO.getInstance().notification(manualApp.getUserToInform(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
+						
+						manualApp.setOfferAproved(false);
+						manualApp.setApplicationAproved(false);
+						manualApp.setStatus(ConstantVariables.offerDeclined);
+						manualApp.setUserToInform(0);
+						
+						//save the match in the archive
+						
+						if (!session.getTransaction().isActive())
+							session.beginTransaction();
+						session.update(manualApp);
+						//sending the offer to the archive
+						//delete the offer from the table 
+						//session.delete(manualApp);
+						session.getTransaction().commit();
+						
+						
+						Offer offer = HibernateOfferDAO.getInstance().getOffer(offerId, tableName);
+						HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
+					}
+				}
+				
+				else if (user.equals("application"))
+				{
+					int applicationId = userRequestId;
+					ManualMatchUserOffer manualOffer = (ManualMatchUserOffer) getManualMatch(applicationId, "User Offer");
+					
+					if (manualOffer != null)
+					{
+						initMatchFactory();
+						session = getSession();
+						session.beginTransaction();
+
+						if (session!=null){
+							
+							//notify the both user
+							//HibernateApplicationDAO.getInstance().notification(manualOffer.getUserToInform(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
+							HibernateOfferDAO.getInstance().notification(manualOffer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailBothSideApproved);
+							
+							manualOffer.setApplicationAproved(false);
+							manualOffer.setOfferAproved(false);
+							manualOffer.setStatus(ConstantVariables.applicationDeclined);
+							manualOffer.setUserToInform(0);
+							
+							if (!session.getTransaction().isActive())
+								session.beginTransaction();
+								
+							session.update(manualOffer); 
+							//session.delete(manualOffer);
+							session.getTransaction().commit();
+							
+							Application application = HibernateApplicationDAO.getInstance().getApplication(applicationId, tableName);
+							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, application);
+						}
+				}
+			}
+			
+			
+		}
+		catch(Exception e){
+			throw new HibernateException (e);
+		}
+		
+		finally 
+		{
+			try 
+			{session.close();} 
+			catch (HibernateException e){}
+		}
+		
+		
+	}
+	
+	
+	@Override
 	public void acceptMatch(String user, int userRequestId, String tableName) 
 	{
 		Session session = null;
@@ -287,7 +381,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	    	 if (userToInform>0)
 	    		 matches = session.createQuery("from "+ Match.class.getName() + " manual where manual.userToInform = "+userToInform+"").getResultList();
 	    	 else if(userToInform==-1)
-	    		 matches = session.createQuery ("from " + Match.class.getName()).getResultList();
+	    		 matches = session.createQuery ("from " + Match.class.getName() + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
 	         
 	    	 
 	         if (matches != null && !matches.isEmpty())
@@ -318,5 +412,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 		
 		return "";
 	}
+
+	
 	
 }

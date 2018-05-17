@@ -1,0 +1,42 @@
+<!DOCTYPE hibernate-configuration PUBLIC 
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+
+<hibernate-configuration>
+
+  <session-factory>
+   
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+	<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/finalproject?useSSL=false</property>
+	<property name="connection.username">root</property>
+	<property name="connection.password">997451</property>
+	<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+	
+	<property name="hibernate.default_schema">gz1an2hjx3itd2un</property>
+	
+	<property name="hibernate.hbm2ddl.auto">update</property>
+	    
+	<property name="connection.pool_size">1</property>
+	<property name="hibernate.current_session_context_class">thread</property>
+	    
+	<mapping class="com.shenkar.finalProject.model.ManualMatchUserOffer"/>
+	<mapping class="com.shenkar.finalProject.model.ManualMatchUserApplication"/>
+	<mapping class="com.shenkar.finalProject.model.HandymanApplication"/>
+	<mapping class="com.shenkar.finalProject.model.OldersApplication"/>
+	<mapping class="com.shenkar.finalProject.model.RideApplication"/>
+	<mapping class="com.shenkar.finalProject.model.StudentApplication"/>
+	<mapping class="com.shenkar.finalProject.model.RideOffer"/>
+	<mapping class="com.shenkar.finalProject.model.OldersOffer"/>	
+	<mapping class="com.shenkar.finalProject.model.StudentOffer"/>
+	<mapping class="com.shenkar.finalProject.model.HandymanOffer"/>
+	<mapping class="com.shenkar.finalProject.model.AppUser"/>
+		
+	
+   
+  </session-factory>
+   
+</hibernate-configuration>
+
+
+

@@ -15,6 +15,8 @@ public interface IManualMatch
 	
 	public void acceptMatch (String user, int userRequestId, String tableName);
 	
+	public void declineMatch (String user, int userRequestId, String tableName);
+
 	public Match getManualMatch(int Id, String tableName);
 	
 	public List<Match> getAllUserToInform(int userToInform);
