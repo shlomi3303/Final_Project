@@ -37,7 +37,7 @@ public class Application
 		boolean urgency;
 		
 		@Column(name="TTL")
-		int TTL;
+		protected int TTL;
 		
 		@Column(name="User_Location")
 		String userLocation;

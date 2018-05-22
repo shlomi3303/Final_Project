@@ -51,7 +51,7 @@ public class CleanUp implements ServletContextListener
         System.out.println("Clean Up model is On");
         System.out.println("clean up thread: " +Thread.currentThread().getName());
 
-        timer.scheduleAtFixedRate(new cleanUp(), 0, ConstantVariables.TEST);
+        //timer.scheduleAtFixedRate(new cleanUp(), 0, ConstantVariables.TEST);
 	}
 	
 	private static void updateTTLApplication () throws ApplicationExceptionHandler

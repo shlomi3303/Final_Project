@@ -10,13 +10,11 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.apache.tomcat.jni.Mmap;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import com.shenkar.finalProject.Globals.CleanUp.cleanUp;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
@@ -42,6 +40,7 @@ public class FollowUp implements ServletContextListener
         System.out.println("Follow Up model is Closed");
         if (timer!=null)
         	timer.cancel();
+
 	}
 
 	@Override
@@ -50,14 +49,14 @@ public class FollowUp implements ServletContextListener
         System.out.println("Follow Up model is On");
         System.out.println("follow up thread: " +Thread.currentThread().getName());
         
-        timer.scheduleAtFixedRate(new followUpRunner(), 0, ConstantVariables.TEST);
+       // timer.scheduleAtFixedRate(new followUpRunner(), 0, ConstantVariables.TEST);
 
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void reminderScanner()
 	{
-		Date date = new Date();
+		//Date date = new Date();
 		Session session = null;
 		
 		List <ManualMatchUserOffer> mmOffer = null;
@@ -75,19 +74,59 @@ public class FollowUp implements ServletContextListener
 			{
 				for (int i=0; i<mmOffer.size(); i++)
 				{
-					if (mmOffer.get(i).getReminderCount()>3)
+					if (mmOffer.get(i).getReminderCount()<3)
 					{
 						mmOffer.get(i).setReminderCount(mmOffer.get(i).getReminderCount()+1);
-						//notify the user application
-						HibernateApplicationDAO.getInstance().notification(mmOffer.get(i).getUserToInform(), subject, body);
+						session.update(mmOffer.get(i));
+						//notify the user application that he needs to approve or decline the match
+						HibernateApplicationDAO.getInstance().notification(mmOffer.get(i).getUserToInform(), ConstantVariables.subjectReminderApplication, ConstantVariables.bodyMailReminderApplication);
 					}
 					else if (mmOffer.get(i).getReminderCount()==3)
 					{
+						//send the match to the archive
 						
+						
+						//notify the offer user that the match is not relevant
+						HibernateOfferDAO.getInstance().notification(mmOffer.get(i).getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
+						
+						//delete the match from the table
+						//session.delete(mmOffer.get(i));
 					}
 				}
 			}
 			
+			mmApp = session.createQuery ("from " + ManualMatchUserApplication.class.getName() + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForOfferApproval + "%").getResultList();
+			
+			if (mmApp!=null)
+			{
+				
+				for (int j=0; j<mmApp.size(); j++)
+				{
+					if (mmApp.get(j).getReminderCount()<3)
+					{
+						mmApp.get(j).setReminderCount(mmApp.get(j).getReminderCount()+1);
+						session.update(mmApp.get(j));
+						//notify the offer user that he needs to approve or decline the match
+						HibernateOfferDAO.getInstance().notification(mmApp.get(j).getUserToInform(), ConstantVariables.subjectReminderOffer, ConstantVariables.bodyMailReminderOffer);
+						
+					}
+					else if (mmApp.get(j).getReminderCount()==3)
+					{
+						
+						//send the match to the archive
+						
+						HibernateApplicationDAO.getInstance().notification(mmApp.get(j).getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
+						
+						//delete the match from the table
+						//session.delete(mmApp.get(j));
+						
+					}
+					
+					
+				}
+			}
+			if (mmApp != null || mmOffer !=null)
+				session.getTransaction().commit();
 		}
 		catch (Exception e)
 		{
@@ -201,6 +240,7 @@ public class FollowUp implements ServletContextListener
 
 				System.out.println("Activate Follow Up Methods at: " + date);
 				sendSurvey();
+				reminderScanner();
 			} catch (ApplicationExceptionHandler | UserExceptionHandler | IOException | OfferExceptionHandler e) {
 				e.printStackTrace();
 			}

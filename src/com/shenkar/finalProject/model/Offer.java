@@ -31,7 +31,7 @@ public class Offer
 	boolean urgency;
 	
 	@Column(name="TTL")
-	int TTL;
+	protected int TTL;
 	
 	@Column(name="Status")
 	String status;

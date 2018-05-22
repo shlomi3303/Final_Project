@@ -2,14 +2,22 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>Final_Project</groupId>
   <artifactId>Final_Project</artifactId>
+  
   <version>0.0.1-SNAPSHOT</version>
   
  
-  <packaging>war</packaging>
+<packaging>war</packaging>
   
-  
-  	  
-   <dependencies>
+<dependencies>
+   
+   
+   <dependency>
+    	<groupId>org.apache.tomcat.embed</groupId>
+    	<artifactId>tomcat-embed-websocket</artifactId>
+    	<version>8.5.31</version>
+	</dependency>
+
+   
    
  <dependency>
             <groupId>javax.servlet</groupId>

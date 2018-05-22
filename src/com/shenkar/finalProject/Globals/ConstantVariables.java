@@ -6,6 +6,9 @@ public class ConstantVariables
     public final static long TEST = 1000*60; 
 	public final static long ONCE_PER_DAY = 1000*60*60*24;
 
+	public final static String userName = "root";
+	public final static String password = "root";
+	public final static String URL = "jdbc:mysql://localhost:3306/finalproject?useSSL=false";
 	
 	public final static String waitingForAppApproval = "ממתין לאישור מבקש העזרה";	
 	public final static String waitingForOfferApproval = "ממתין לאישור מציע העזרה";
@@ -33,13 +36,18 @@ public class ConstantVariables
 
 	public final static String bodyMailBothSideApproved = body1MailBothApproved + System.lineSeparator() + body2MailBothApproved;
 	
-	//subject and body for case that one of the side decline
+	//subject for case that one of the side decline
 	public final static String subjectMailDecline= "מחוברים לחיים: ההתאמה נדחתה!";
 	
+	//body for case that the offer user decline the match
 	private static String body1MailOfferDecline = "מתנצלים, מציע העזרה דחה את ההתאמה";
 	private static String body2MailOfferDecline = "אנו מציעים לך לנסות ולמצוא התאמה לבקשת העזרה דרך האתר";
-
 	public final static String bodyMailOfferDecline = body1MailOfferDecline + System.lineSeparator() + body2MailOfferDecline;
+	
+	//body for case that the application user decline the match
+	private static String body1MailApplicationDecline = "מתנצלים, מבקש העזרה דחה את ההתאמה";
+	private static String body2MailApplicationDecline = "אנו מציעים לך לנסות ולמצוא התאמה להצעת העזרה דרך האתר";
+	public final static String bodyMailApplicationDecline = body1MailApplicationDecline + System.lineSeparator() + body2MailApplicationDecline;
 	
 	//subject and body for survey form
 	public final static String subjectMailSurvey= "מחוברים לחיים: סקר קצר על חווית העזרה!";
@@ -47,12 +55,25 @@ public class ConstantVariables
 	private static String body1MailSurvey = "נודה לך אם תשיב/י על שאלון קצר על חווית העזרה שבוצעה";
 	private static String body2MailSurvey = "יש לציין שלא יעשה כל שימוש בנתונים, מלבד לצרכי הסקר ושיפור השירות";
 	private static String body3MailSurvey = "תשובותיך יסייעו לנו רבות בהמשך שיפור ושימור שאר צרכי המתמשים";
-
 	public final static String bodyMailSurvey = body1MailSurvey + System.lineSeparator() + body2MailSurvey + body3MailSurvey;
 	
-	//subject and body for send reminder to the application user that did'nt approve the match yet
+	//subject and body for send reminder to the application user that did'nt approve/decline the match yet
+	public final static String subjectReminderApplication = "מחוברים לחיים: טרם השלמת את תהליך אישור ההתאמה לבקשת העזרה שלך";
 
+	private static String body1MailReminderApplication = "טרם השלמת את תהליך אישור ההתאמה לבקשת העזרה שהעלאת לאתר";
+	private static String body2MailReminderApplication = "אנא היכנס/י לאתר בכדי להשלים את תהליך ההתאמה";
+
+	public final static String bodyMailReminderApplication = body1MailReminderApplication + System.lineSeparator() + body2MailReminderApplication;
+
+	//subject and body for send reminder to the application user that did'nt approve/decline the match yet
+	public final static String subjectReminderOffer = "מחוברים לחיים: טרם השלמת את תהליך אישור ההתאמה להצעת העזרה שלך";
+
+	private static String body1MailReminderOffer = "טרם השלמת את תהליך אישור ההתאמה להצעת העזרה שהעלאת לאתר";
+	private static String body2MailReminderOffer = "אנא היכנס/י לאתר בכדי להשלים את תהליך ההתאמה";
+
+	public final static String bodyMailReminderOffer = body1MailReminderOffer + System.lineSeparator() + body2MailReminderOffer;
 	
-
+	
+	
 	
 }

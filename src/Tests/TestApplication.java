@@ -30,7 +30,7 @@ public class TestApplication {
 	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler 
 	{
 		
-		List <Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
+		//List <Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
 		
 		
 		String testDateString2 = "2018-04-30 18:00";
@@ -41,7 +41,7 @@ public class TestApplication {
 		
 		HandymanApplication ob = new HandymanApplication(1, period, "wsedrs", period, true, "sd", "ssd", "male",
 				"asd", "check", "check", true, true, true, true, true);
-		//HibernateApplicationDAO.getInstance().createApplication(ob);
+		HibernateApplicationDAO.getInstance().createApplication(ob);
 		
 		StudentApplication ob4 = new StudentApplication(1, period, "wsedrs", period, true, "sd", "male", "hebrew",
 				"2", "math", "sports","check", "check", true, true, true);

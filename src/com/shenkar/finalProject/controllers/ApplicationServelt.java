@@ -20,6 +20,7 @@ import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
+import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
@@ -159,9 +160,11 @@ public class ApplicationServelt extends HttpServlet
 				}
 			case "test":
 			{
-				//WebSocket.sendMessage("shlomi", response);
+				WebSocket.onTextMessage("test");
+				/*
 				String to = request.getParameter("mail");
 				sendMail.sendEmail(to, "Hello to you Yossi!!", "sending from Heruko using sendGrid");
+				*/
 				break;
 			}
 			default:
