@@ -12,10 +12,10 @@ import javax.persistence.criteria.Root;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
+import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
 
@@ -70,7 +70,10 @@ public class HibernateOfferDAO implements IOfferDAO
 		finally 
 		{
 			try 
-			{session.close();} 
+			{
+				if (session!=null)
+					session.close();
+			} 
 			catch (HibernateException e)
 			{throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");} 
 		}
@@ -139,7 +142,10 @@ public class HibernateOfferDAO implements IOfferDAO
 		finally 
 		{
 			try 
-			{session.close();} 
+			{
+				if (session!=null)
+				session.close();
+			} 
 			catch (HibernateException e)
 			{throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");} 
 		}
@@ -166,7 +172,10 @@ public class HibernateOfferDAO implements IOfferDAO
 			catch  (HibernateException e) 
 			{if (session.getTransaction() != null) session.getTransaction().rollback();}
 			finally
-			{session.close();}
+			{
+				if (session!=null)
+				session.close();
+			}
 		}
 	}
 
@@ -201,7 +210,11 @@ public class HibernateOfferDAO implements IOfferDAO
 	      }
 	     finally 
 	     {
-	    	 try {session.close();} 
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+					session.close();
+	    	 } 
 	    	 catch(HibernateException e) {throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");}
 	     }
 	     return null;
@@ -236,7 +249,11 @@ public class HibernateOfferDAO implements IOfferDAO
 	    }
 		finally 
 		{
-	    	 try {session.close();} 
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+					session.close();
+	    	 } 
 	    	 catch (HibernateException e){throw new OfferExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());} 
 	    }
 	    return null;
@@ -260,7 +277,6 @@ public class HibernateOfferDAO implements IOfferDAO
         idList = session.createQuery(criteriaQuery).getResultList();
         session.getTransaction().commit();
         int maxId = idList.get(0);
-        //System.out.println("Max Id = " + maxId);
 
         while (offersList.size() !=num )
         {
@@ -298,7 +314,8 @@ public class HibernateOfferDAO implements IOfferDAO
 		}
 		finally
 		{
-			session.close();
+			if (session!=null)
+				session.close();
 		}
 			
 	}
@@ -314,11 +331,17 @@ public class HibernateOfferDAO implements IOfferDAO
 	}
 	private static void initOfferFactory ()
 	{
-		try{
-		 if (offerFactory==null)
-		  {offerFactory = new Configuration().configure("hibernateTest.cfg.xml").buildSessionFactory();}
+		try
+		{
+			if (offerFactory==null)
+			{
+				offerFactory = GlobalsFunctions.initSessionFactory(offerFactory, "hibernateOffer.cfg.xml");
+			}
 		}
-		catch (Exception e){}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	private static Session getSession() throws HibernateException {         
 		   Session sess = null;       
@@ -410,9 +433,12 @@ public class HibernateOfferDAO implements IOfferDAO
 	         throw new OfferExceptionHandler("Offers list not avilable at the moment" + e.getMessage());
 	      }
 		finally {
-	    	 try {
-	    		 session.close();
-	    	 } catch (HibernateException e){
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+						session.close();
+	    	 }
+	    	 catch (HibernateException e){
 	    		 throw new OfferExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
 	    	 } 
 	      }

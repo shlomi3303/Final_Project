@@ -13,7 +13,7 @@ import com.shenkar.finalProject.model.UserExceptionHandler;
 public interface IUserDAO
 {
 	
-	public void addNewUser(AppUser user, HttpServletResponse response) throws UserExceptionHandler, IOException; 
+	public void addNewUser(AppUser user) throws UserExceptionHandler, IOException; 
 	
 	public void deleteUser (String mail, String password, HttpServletResponse response) throws UserExceptionHandler, IOException;
 	

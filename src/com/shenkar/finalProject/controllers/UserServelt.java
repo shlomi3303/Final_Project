@@ -1,7 +1,6 @@
 package com.shenkar.finalProject.controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,14 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
-import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
-import com.shenkar.finalProject.model.HibernateManualMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -52,7 +49,7 @@ public class UserServelt extends HttpServlet {
 			case "create":
 				{
 					response.getWriter().println("In create condition");
-					try {addNewUser(request, response);} 
+					try {addNewUser(request);} 
 					catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 				}
 				break;
@@ -68,10 +65,10 @@ public class UserServelt extends HttpServlet {
 							user = getUser(mail, password, response);
 							if (user!=null)
 							{
-								String arr =  new Gson().toJson(user).toString();
+								String strUserInfo =  new Gson().toJson(user).toString();
 								response.setContentType("application/json");
 					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(arr);
+								response.getWriter().write(strUserInfo);
 								
 								List<Application> applicationsList = HibernateApplicationDAO.getInstance().getUserApplications(user.getId());
 								
@@ -141,13 +138,13 @@ public class UserServelt extends HttpServlet {
 		}
 	}
 	
-	private void addNewUser(HttpServletRequest request, HttpServletResponse response) throws UserExceptionHandler, IOException
+	private void addNewUser(HttpServletRequest request) throws UserExceptionHandler, IOException
 	{
 		AppUser user = generateUser(request);
 		
 		if (user!=null)
 		{
-			HibernateUserDAO.getInstance().addNewUser(user, response);
+			HibernateUserDAO.getInstance().addNewUser(user);
 		}
 	}
 	

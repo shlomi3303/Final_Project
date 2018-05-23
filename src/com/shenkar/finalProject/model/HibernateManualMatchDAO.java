@@ -13,6 +13,7 @@ import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
+import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.model.interfaces.IManualMatch;
 
 public class HibernateManualMatchDAO implements IManualMatch {
@@ -119,8 +120,13 @@ public class HibernateManualMatchDAO implements IManualMatch {
 		finally 
 		{
 			try 
-			{session.close();} 
-			catch (HibernateException e){}
+			{
+				if (session!=null)
+					session.close();
+			} 
+			catch (HibernateException e){
+				e.printStackTrace();
+			}
 		}
 		
 		
@@ -338,8 +344,14 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	      }
 	     finally 
 	     {
-	    	 try {session.close();} 
-	    	 catch(HibernateException e) {}
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+						session.close();
+	    	 } 
+	    	 catch(HibernateException e) {
+	    		 e.printStackTrace();
+	    	 }
 	     }
 	     return null;
 	}
@@ -348,11 +360,17 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	
 	private static void initMatchFactory ()
 	{
-		try{
-		 if (matchFactory==null)
-		  {matchFactory = new Configuration().configure("hibernateMatch.cfg.xml").buildSessionFactory();}
+		try
+		{
+			if (matchFactory==null)
+			{
+				matchFactory = GlobalsFunctions.initSessionFactory(matchFactory,"hibernateMatch.cfg.xml");
+			}
 		}
-		catch (Exception e){}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private static Session getSession() throws HibernateException {         
@@ -395,8 +413,14 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	    }
 		finally 
 		{
-	    	 try {session.close();} 
-	    	 catch (HibernateException e){} 
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+						session.close();
+	    	 } 
+	    	 catch (HibernateException e){
+	    		 e.printStackTrace();
+	    	 } 
 	    }
 	    return null;
 		

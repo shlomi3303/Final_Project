@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -13,10 +12,10 @@ import javax.persistence.criteria.Root;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
+import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
@@ -70,7 +69,10 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		finally 
 		{
 			try 
-			{session.close();} 
+			{
+				 if (session!=null)
+	    			 session.close();
+			} 
 			catch (HibernateException e)
 			{throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");} 
 		}
@@ -139,7 +141,10 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		finally 
 		{
 			try 
-			{session.close();}
+			{
+				 if (session!=null)
+	    			 session.close();
+			}
 			catch (HibernateException e)
 			{throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");} 
 		}
@@ -168,7 +173,10 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			catch (Exception e) {if (session.getTransaction() !=null) session.getTransaction().rollback();}
 			
 			finally
-			{session.close();}
+			{
+				 if (session!=null)
+	    			 session.close();
+			}
 		}
 	}
 
@@ -205,7 +213,11 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    }
 	    finally 
 	    {
-	    	 try {session.close();} 
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+	    			 session.close();
+	    	 } 
 	    	 catch(HibernateException e){throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");}
 	    } 
 	    return null;
@@ -245,7 +257,9 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	      }
 		finally {
 	    	 try {
-	    		 session.close();
+	    		 if (session!=null)
+	    			 session.close();
+	    		 
 	    	 } catch (HibernateException e){
 	    		 throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
 	    	 } 
@@ -355,11 +369,17 @@ public class HibernateApplicationDAO implements IApplicationDAO
 
 	private static void initApplicationFactory ()
 	{
-		try{
-		 if (applicationFactory==null)
-		  {applicationFactory = new Configuration().configure("hibernateTest.cfg.xml").buildSessionFactory();}
+		try
+		{
+			if (applicationFactory==null)
+			{
+				applicationFactory = GlobalsFunctions.initSessionFactory(applicationFactory, "hibernateApplication.cfg.xml");
+			}
 		}
-		catch (Exception e){}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private static Session getSession() throws HibernateException {         
@@ -447,8 +467,10 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	         throw new ApplicationExceptionHandler("Applications list not avilable at the moment" + e.getMessage());
 	      }
 		finally {
-	    	 try {
-	    		 session.close();
+	    	 try 
+	    	 {	
+	    		 if (session!=null)
+	    			 session.close();
 	    	 } catch (HibernateException e){
 	    		 throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
 	    	 } 

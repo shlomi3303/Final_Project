@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 
+import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
 
 public class HibernateUserDAO implements IUserDAO 
@@ -22,21 +22,15 @@ public class HibernateUserDAO implements IUserDAO
 		
 	public static HibernateUserDAO getInstance() throws IOException 
 	{	
-		instance = new HibernateUserDAO();
 		if (instance == null)
 		{
-			try
-			{
-				userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
-			}
-			catch (Exception e)
-			{}
-			
-	}
+			instance = new HibernateUserDAO();
+			initUserFactory();
+		}
 		return instance;
 	}
 	
-	public void addNewUser(AppUser user, HttpServletResponse response) throws UserExceptionHandler, IOException 
+	public void addNewUser(AppUser user) throws UserExceptionHandler, IOException 
 	{	
 
 		Session session = null; 
@@ -46,21 +40,25 @@ public class HibernateUserDAO implements IUserDAO
 			session = getSession();
 			if (session != null)
 			{
-				response.getWriter().println("in the try stament");
 				session.beginTransaction();
 				session.save(user);
 				session.getTransaction().commit();
 			}
 			
-		}catch (Exception e) 
+		}
+		catch (Exception e) 
 		{
-			e.printStackTrace(response.getWriter());
+			e.printStackTrace();
 			if (session.getTransaction() != null) session.getTransaction().rollback();
 			throw new HibernateException ("in add newUser: " + e);
-		}finally 
+		}
+		finally 
 		{
 			try 
-			{session.close();} 
+			{
+				 if (session!=null)
+	    			 session.close();
+			} 
 			catch (HibernateException e)
 			{
 				throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
@@ -76,10 +74,7 @@ public class HibernateUserDAO implements IUserDAO
 	      List<AppUser> user = null;
 	      try
 	      {
-	    	  if (userFactory==null)
-	    	  {
-					userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
-			  }
+	    	  initUserFactory();
 			  session = getSession();
 			  
 	    	  session.beginTransaction();
@@ -94,15 +89,16 @@ public class HibernateUserDAO implements IUserDAO
 	        	  
 	          }
 	        	  
-	      }catch (HibernateException e) 
+	      }
+	      catch (HibernateException e) 
 	      {
-				if (session.beginTransaction() !=null) session.beginTransaction().rollback();
+				if (session.getTransaction() !=null) session.getTransaction().rollback();
 	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
-	      }finally 
+	      }
+	      finally 
 	      {
-	    	 if (session != null){
+	    	 if (session != null)
 	    		 session.close();
-	    	 }
 	      }
 	      if (user.size() > 0) {
 		      return user.get(0);	
@@ -117,13 +113,10 @@ public class HibernateUserDAO implements IUserDAO
 
 	      try
 	      {
-	    	  if (userFactory==null)
-			  {
-					userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
-			  }
-	    	  session =  getSession();
-	    	  session.beginTransaction();
-	    	  AppUser user = (AppUser)session.get(AppUser.class, new Integer(id)); 
+	    	 initUserFactory();
+	    	 session =  getSession();
+	    	 session.beginTransaction();
+	    	 AppUser user = (AppUser)session.get(AppUser.class, new Integer(id)); 
 	    	  
     		 user.setAge(updateUser.getAge()); 
     		 user.setFamilyStatus(updateUser.getFamilyStatus());
@@ -143,12 +136,15 @@ public class HibernateUserDAO implements IUserDAO
 	      }
 	      catch (HibernateException e) 
 	      {
-				if (session.beginTransaction() != null) session.beginTransaction().rollback();
+				if (session.getTransaction() != null) session.getTransaction().rollback();
 	         	throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
 	      }finally {
-	    	 try {
-	    		 session.close();
-	    	 } catch (HibernateException e){
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+	    			 session.close();
+	    	 } 
+	    	 catch (HibernateException e){
 	    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
 	    	 } 
 	      }
@@ -164,25 +160,23 @@ public class HibernateUserDAO implements IUserDAO
 			user = HibernateUserDAO.getInstance().getUser(mail, password, response);
 			if (user!=null && !user.getMail().isEmpty() )
 			{
-				if (userFactory==null)
-				{
-					userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();
-				}
-				
+				initUserFactory();
 				session = getSession();
+				
 		    	session.beginTransaction();
-	
 				session.createQuery("delete from " + AppUser.class.getName() + " where id = " + user.getId()).executeUpdate();
 				session.getTransaction().commit();
 			}
-		} catch (Exception e1) {
-			if (session.beginTransaction() !=null) session.beginTransaction().rollback();
+		} 
+		catch (Exception e1) {
+			if (session.getTransaction() !=null) session.getTransaction().rollback();
 			e1.printStackTrace(response.getWriter());
 			}
 		
 		finally
 		{
-			session.close();
+			 if (session!=null)
+    			 session.close();
 		}
 	}
 
@@ -205,25 +199,33 @@ public class HibernateUserDAO implements IUserDAO
 		  }
 		  catch (HibernateException e) 
 		      {
-					if (session.beginTransaction() != null) session.beginTransaction().rollback();
+					if (session.getTransaction() != null) session.getTransaction().rollback();
 		         	throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
 		      }finally {
-		    	 try {
-		    		 session.close();
-		    	 } catch (HibernateException e){
+		    	 try 
+		    	 {
+		    		 if (session!=null)
+		    			 session.close();
+		    	 }
+		    	 catch (HibernateException e){
 		    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
 		    	 } 
 		      }	  
 	}
 	
-	private void initUserFactory ()
+	private static void initUserFactory ()
 	{
 		try
 		{
 		 if (userFactory==null)
-		  {userFactory = new Configuration().configure("hibernateUser.cfg.xml").buildSessionFactory();}
+		  {
+			 userFactory = GlobalsFunctions.initSessionFactory(userFactory, "hibernateUser.cfg.xml");
+		  }
 		}
-		catch (Exception e){}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private static Session getSession() throws HibernateException {         
@@ -260,20 +262,16 @@ public class HibernateUserDAO implements IUserDAO
 	        	  
 	      }catch (HibernateException e) 
 	      {
-				if (session.beginTransaction() !=null) session.beginTransaction().rollback();
+				if (session.getTransaction() !=null) session.getTransaction().rollback();
 	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
 	      }finally 
 	      {
-	    	 if (session != null){
+	    	 if (session != null)
 	    		 session.close();
-	    	 }
 	      }
-	      if (user.size() > 0) {
+	      if (user.size() > 0)
 		      return user.get(0);	
-	      }
-		
-		
-		return null;
-	} 
-	
+	      
+	      return null;
+	}	
 }
