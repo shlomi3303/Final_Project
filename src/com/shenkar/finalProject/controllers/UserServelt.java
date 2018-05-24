@@ -65,6 +65,7 @@ public class UserServelt extends HttpServlet {
 							user = getUser(mail, password, response);
 							if (user!=null)
 							{
+								
 								String strUserInfo =  new Gson().toJson(user).toString();
 								response.setContentType("application/json");
 					        	response.setCharacterEncoding("utf-8");

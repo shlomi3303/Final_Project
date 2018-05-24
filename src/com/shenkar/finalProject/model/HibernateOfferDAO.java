@@ -16,7 +16,6 @@ import org.hibernate.SessionFactory;
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
-import com.shenkar.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
 
 public class HibernateOfferDAO implements IOfferDAO
@@ -326,7 +325,7 @@ public class HibernateOfferDAO implements IOfferDAO
 		AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 		
 		if (user!=null)
-			sendMail.sendEmail(user.getMail(), subject, body);
+			GlobalsFunctions.sendEmail(user.getMail(), subject, body);
 		
 	}
 	private static void initOfferFactory ()

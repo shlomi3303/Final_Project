@@ -10,18 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpResponse;
-
 import com.google.gson.Gson;
-import com.sendgrid.Content;
-import com.sendgrid.Email;
-import com.sendgrid.Mail;
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.SendGrid;
 import com.shenkar.finalProject.Globals.WebSocket;
-import com.shenkar.finalProject.Globals.sendMail;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
@@ -160,7 +150,9 @@ public class ApplicationServelt extends HttpServlet
 				}
 			case "test":
 			{
-				WebSocket.onTextMessage("test");
+				String userId = request.getParameter("userId");
+				System.out.println("the user id from post man is: " + userId);
+				WebSocket.sendMessageToClient("test", userId);
 				/*
 				String to = request.getParameter("mail");
 				sendMail.sendEmail(to, "Hello to you Yossi!!", "sending from Heruko using sendGrid");
