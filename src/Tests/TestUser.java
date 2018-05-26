@@ -1,5 +1,9 @@
 package Tests;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -7,27 +11,41 @@ import javax.persistence.Id;
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.AppUser;
+import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.model.ApplicationExceptionHandler;
+import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 import com.sun.istack.internal.NotNull;
 import com.sun.xml.internal.fastinfoset.util.StringArray;
 
 public class TestUser {
 
-	public static void main(String[] args) throws UserExceptionHandler 
+	public static void main(String[] args) throws UserExceptionHandler, ApplicationExceptionHandler
 	{
 		 
 		String firstname1 = "יהודה";
 		String lastname1 = "ישראלי";
-		String mail1 = "check1234@gmail.com";
-		String password1 = "test123";
+		String mail1 = "shlomi3303@walla.com";
+		String password1 = "123456";
 		String phone1 = "0642342313";
 		int age1 = 12;
 		String familyStatus1 = "נשוי";
 		int kids1 = 3;
 		String userLocation1 = "תל אביב";
 		
+		List <AppUser> user = HibernateUserDAO.getInstance().getUser(mail1, password1);
 		 
-		 
+		List <Application> app = HibernateApplicationDAO.getInstance().getUserApplications(1);
+		
+		List <Object> obj = new ArrayList<>();
+		
+		obj.add(user);
+		obj.add(app);
+		
+		String json = new Gson().toJson(obj);
+		
+		System.out.println(json);
+		
 		 //HibernateUserDAO.getInstance().addNewUser(user1);
 		 /*
 		 

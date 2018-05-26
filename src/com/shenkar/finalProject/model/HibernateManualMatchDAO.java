@@ -61,6 +61,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							session.beginTransaction();
 						session.update(manualApp);
 						//sending the offer to the archive
+						
 						//delete the offer from the table 
 						//session.delete(manualApp);
 						session.getTransaction().commit();
@@ -105,8 +106,6 @@ public class HibernateManualMatchDAO implements IManualMatch {
 						}
 				}
 			}
-			
-			
 		}
 		catch(Exception e){
 			throw new HibernateException (e);
@@ -123,8 +122,6 @@ public class HibernateManualMatchDAO implements IManualMatch {
 				e.printStackTrace();
 			}
 		}
-		
-		
 	}
 	
 	
@@ -216,7 +213,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	
 	
 	@Override
-	public void createMatch(Match match, String matchInitiator, String tableName) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException 
+	public void createMatch(Match match, String tableName) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException 
 	{
 		Session session = null;
 		
@@ -227,65 +224,63 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			if (session != null && match!=null)
 			{
 				if (match.getClass().equals(ManualMatchUserOffer.class))
-					{
-						//if (matchInitiator.equals("offer"))
-						
-							match.setTTL(7);
-							try 
-							{
-								ManualMatchUserOffer offer = (ManualMatchUserOffer)match;
-								offer.setOfferAproved(true);
-								offer.setApplicationAproved(false);
-								offer.setStatus(ConstantVariables.waitingForAppApproval);
-								
-								Application application = HibernateApplicationDAO.getInstance().getApplication(offer.getApplicationID(), tableName);
-								
-								HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForAppApproval, application);
-								offer.setUserToInform(application.getUserId());
-								
-								//String strApplication = new Gson().toJson(application).toString();
-								//WebSocket.sendMessage(strApplication);
-								
-								HibernateApplicationDAO.getInstance().notification(application.getUserId(), ConstantVariables.subjectMailApplication, ConstantVariables.bodyMailApplication);
-								
-								session.beginTransaction();
-								session.save(offer); 
-								session.getTransaction().commit();
-							
-							} catch (Exception e) 
-							{e.printStackTrace();}
-					}
-						
-				else if (match.getClass().equals(ManualMatchUserApplication.class))
+				{						
+						match.setTTL(7);
+						try 
 						{
-							ManualMatchUserApplication application = (ManualMatchUserApplication)match;
-							application.setApplicationAproved(true);
-							application.setOfferAproved(false);
-							application.setStatus(ConstantVariables.waitingForOfferApproval);
+							ManualMatchUserOffer offer = (ManualMatchUserOffer)match;
+							offer.setOfferAproved(true);
+							offer.setApplicationAproved(false);
+							offer.setStatus(ConstantVariables.waitingForAppApproval);
 							
-							Offer offer = HibernateOfferDAO.getInstance().getOffer(application.getOfferId(), tableName);
-							HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForOfferApproval, offer);
-							application.setUserToInform(offer.getUserId());
-
-							String subject = "!מחוברים לחיים: מישהו מעוניין בעזרה שלך";
+							Application application = HibernateApplicationDAO.getInstance().getApplication(offer.getApplicationID(), tableName);
 							
-							String body1 = "מישהו מעוניין בסיוע לאחת מהצעות שהעלאת למחוברים לחיים";
-							String body2 = "נא כנס לאלפליקציה בכדי להשלים את תהליך העזרה";
+							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForAppApproval, application);
+							offer.setUserToInform(application.getUserId());
 							
-							String body = body1 + System.lineSeparator() + body2;
+							//String strApplication = new Gson().toJson(application).toString();
+							//WebSocket.sendMessage(strApplication);
 							
-							HibernateOfferDAO.getInstance().notification(offer.getUserId(), subject, body);
+							HibernateApplicationDAO.getInstance().notification(application.getUserId(), ConstantVariables.subjectMailApplication, ConstantVariables.bodyMailApplication);
 							
 							session.beginTransaction();
-							session.save(application); 
+							session.save(offer); 
 							session.getTransaction().commit();
-						}
-					
-					}
+						
+						} 
+						catch (Exception e) 
+						{e.printStackTrace();}
+				}
+						
+				else if (match.getClass().equals(ManualMatchUserApplication.class))
+				{
+						ManualMatchUserApplication application = (ManualMatchUserApplication)match;
+						application.setApplicationAproved(true);
+						application.setOfferAproved(false);
+						application.setStatus(ConstantVariables.waitingForOfferApproval);
+						
+						Offer offer = HibernateOfferDAO.getInstance().getOffer(application.getOfferId(), tableName);
+						HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForOfferApproval, offer);
+						application.setUserToInform(offer.getUserId());
+
+						String subject = "!מחוברים לחיים: מישהו מעוניין בעזרה שלך";
+						
+						String body1 = "מישהו מעוניין בסיוע לאחת מהצעות שהעלאת למחוברים לחיים";
+						String body2 = "נא כנס לאלפליקציה בכדי להשלים את תהליך העזרה";
+						
+						String body = body1 + System.lineSeparator() + body2;
+						
+						HibernateOfferDAO.getInstance().notification(offer.getUserId(), subject, body);
+						
+						session.beginTransaction();
+						session.save(application); 
+						session.getTransaction().commit();
+				}
+				
 				else if (match.getClass().equals(AutoMatch.class))
-					{match.setTTL(5);}
-								
-			
+				{match.setTTL(5);}
+			}
+				
 		}
 		catch (HibernateException e) 
 		{

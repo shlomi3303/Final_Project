@@ -1,9 +1,6 @@
 package com.shenkar.finalProject.model;
 
-import java.io.IOException;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -20,7 +17,7 @@ public class HibernateUserDAO implements IUserDAO
 
 	private HibernateUserDAO () {}
 		
-	public static HibernateUserDAO getInstance() throws IOException 
+	public static HibernateUserDAO getInstance()
 	{	
 		if (instance == null)
 		{
@@ -30,7 +27,7 @@ public class HibernateUserDAO implements IUserDAO
 		return instance;
 	}
 	
-	public void addNewUser(AppUser user) throws UserExceptionHandler, IOException 
+	public void addNewUser(AppUser user) throws UserExceptionHandler 
 	{	
 
 		Session session = null; 
@@ -68,7 +65,7 @@ public class HibernateUserDAO implements IUserDAO
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public AppUser getUser(String mail, String password, HttpServletResponse response) throws UserExceptionHandler, IOException 
+	public List <AppUser> getUser(String mail, String password) throws UserExceptionHandler
 	{
 		  Session session = null; 
 	      List<AppUser> user = null;
@@ -84,7 +81,7 @@ public class HibernateUserDAO implements IUserDAO
 	        	  session.getTransaction().commit();
 	        	  if (user.size() > 0) 
 	        	  {
-	    		      return user.get(0);
+	    		      return user;
 	    	      }
 	        	  
 	          }
@@ -100,14 +97,12 @@ public class HibernateUserDAO implements IUserDAO
 	    	 if (session != null)
 	    		 session.close();
 	      }
-	      if (user.size() > 0) {
-		      return user.get(0);	
-	      }
+	     
 	      return null;
 	}
 	
 	@Override
-	public void updateUser(int id, AppUser updateUser, HttpServletResponse response) throws UserExceptionHandler, IOException 
+	public void updateUser(int id, AppUser updateUser) throws UserExceptionHandler
 	{
 		  Session session = null;
 
@@ -151,26 +146,26 @@ public class HibernateUserDAO implements IUserDAO
 	}
 	
 	@Override
-	public void deleteUser(String mail, String password, HttpServletResponse response) throws IOException 
+	public void deleteUser(String mail, String password)
 	{
-		AppUser user = null;
+		List <AppUser> user = null;
 		Session session = null;
 		try 
 		{
-			user = HibernateUserDAO.getInstance().getUser(mail, password, response);
-			if (user!=null && !user.getMail().isEmpty() )
+			user = HibernateUserDAO.getInstance().getUser(mail, password);
+			if (user!=null && !user.get(0).getMail().isEmpty() )
 			{
 				initUserFactory();
 				session = getSession();
 				
 		    	session.beginTransaction();
-				session.createQuery("delete from " + AppUser.class.getName() + " where id = " + user.getId()).executeUpdate();
+				session.createQuery("delete from " + AppUser.class.getName() + " where id = " + user.get(0).getId()).executeUpdate();
 				session.getTransaction().commit();
 			}
 		} 
 		catch (Exception e1) {
 			if (session.getTransaction() !=null) session.getTransaction().rollback();
-			e1.printStackTrace(response.getWriter());
+			e1.printStackTrace();
 			}
 		
 		finally
@@ -238,7 +233,8 @@ public class HibernateUserDAO implements IUserDAO
 		   return sess;
 		}
 
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
+	@Override
 	public AppUser getUserInfo(int userId) throws UserExceptionHandler 
 	{
 		 Session session = null; 
@@ -268,10 +264,9 @@ public class HibernateUserDAO implements IUserDAO
 	      {
 	    	 if (session != null)
 	    		 session.close();
-	      }
-	      if (user.size() > 0)
-		      return user.get(0);	
+	      }	
 	      
 	      return null;
 	}	
+	
 }

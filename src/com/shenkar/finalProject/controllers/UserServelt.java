@@ -1,6 +1,7 @@
 package com.shenkar.finalProject.controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -56,34 +57,30 @@ public class UserServelt extends HttpServlet {
 				
 			case "getUser":
 				{
-					AppUser user = null;
+					List<AppUser> user = null;
 					String mail = request.getParameter("mail");
 					String password = request.getParameter("password");
 					if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 					{
 						try {
-							user = getUser(mail, password, response);
+							user = getUser(mail, password);
 							if (user!=null)
 							{
+																
+								List<Application> applicationsList = HibernateApplicationDAO.getInstance().getUserApplications(user.get(0).getId());
 								
-								String strUserInfo =  new Gson().toJson(user).toString();
+								List <Offer> offersList = HibernateOfferDAO.getInstance().getUserOffers(user.get(0).getId());
+								
+								List<Object> userInfo = new ArrayList<Object>();
+								
+								userInfo.add(user);
+								userInfo.add(applicationsList);
+								userInfo.add(offersList);
+								
+								String strUserInfoJson = new Gson().toJson(userInfo).toString();
 								response.setContentType("application/json");
 					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(strUserInfo);
-								
-								List<Application> applicationsList = HibernateApplicationDAO.getInstance().getUserApplications(user.getId());
-								
-								String strApplicationList = new Gson().toJson(applicationsList).toString();
-								response.setContentType("application/json");
-					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(strApplicationList);
-								
-								List <Offer> offersList = HibernateOfferDAO.getInstance().getUserOffers(user.getId());
-								
-								String strOfferList = new Gson().toJson(offersList).toString();
-								response.setContentType("application/json");
-					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(strOfferList);
+								response.getWriter().write(strUserInfoJson);
 								
 								/*
 								List <Match> matches = HibernateManualMatchDAO.getInstance().getAllUserToInform(user.getId());
@@ -104,7 +101,7 @@ public class UserServelt extends HttpServlet {
 				
 			case "update":
 				{
-					AppUser user = null;
+					List<AppUser> user = null;
 					String mail = request.getParameter("mail");
 					String password = request.getParameter("password");
 		
@@ -112,9 +109,9 @@ public class UserServelt extends HttpServlet {
 					{
 						try 
 						{
-							user = HibernateUserDAO.getInstance().getUser(mail, password, response);
+							user = HibernateUserDAO.getInstance().getUser(mail, password);
 							if (user!=null)
-								updateUser(request, user.getId(), response);
+								updateUser(request, user.get(0).getId(), response);
 							
 						} 
 						catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
@@ -156,7 +153,7 @@ public class UserServelt extends HttpServlet {
 		
 		if ( (mail!=null && !mail.isEmpty()) && (password!=null &&  !password.isEmpty() ) )
 		{
-			HibernateUserDAO.getInstance().deleteUser(mail, password, response);
+			HibernateUserDAO.getInstance().deleteUser(mail, password);
 		}				
 	}
 	
@@ -167,15 +164,15 @@ public class UserServelt extends HttpServlet {
 		
 		if (user!=null)
 		{
-			HibernateUserDAO.getInstance().updateUser(id, user, response);
+			HibernateUserDAO.getInstance().updateUser(id, user);
 		}
 	}
 	
-	private AppUser getUser (String mail, String password,HttpServletResponse response) throws UserExceptionHandler, IOException
+	private List<AppUser> getUser (String mail, String password) throws UserExceptionHandler, IOException
 	{
-		AppUser user = null;
+		List<AppUser> user = null;
 		
-		user = HibernateUserDAO.getInstance().getUser(mail, password, response);
+		user = HibernateUserDAO.getInstance().getUser(mail, password);
 		if (user!=null)
 			return user;
 		

@@ -7,7 +7,6 @@ C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\fina
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\interfaces\IAutoMatch.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\ManualMatchUserApplication.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\StudentOffer.java
-C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\controllers\ManualServlet.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\UserExceptionHandler.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\Tests\TestApplication.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\ApplicationExceptionHandler.java
@@ -25,7 +24,6 @@ C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\fina
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\Archive\HandymanOfferArchive.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\Offer.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\OldersApplication.java
-C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\Globals\sendMail.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\Archive\StudentApplicationArchive.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\HibernateUserDAO.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\interfaces\IOfferDAO.java
@@ -49,4 +47,5 @@ C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\fina
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\StudentApplication.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\ManualMatchUserOffer.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\model\interfaces\IApplicationDAO.java
+C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\controllers\MatchServlet.java
 C:\Users\shlomi shlush\workspace_javaEE\year4\Final_Project\src\com\shenkar\finalProject\controllers\AutoMatchController.java
