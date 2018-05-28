@@ -9,7 +9,10 @@
 	var socket = new WebSocket(url);
 
 	socket.onopen = function () {
-    	console.log("WebSocket is connected!");
+		console.log("WebSocket is connected!");
+    	var id="1";
+    	sendMessage(id);
+    	console.log("id was sent to the client");
 	};
 	socket.onmessage = function (event) {
 		alert(event.data);
@@ -18,7 +21,11 @@
     	var demo = document.getElementById("demo");
     	demo.innerHTML = demo.innerHTML + "<br/>" + event.data;
 	};
-
+	
+	function sendMessage(message)
+	{
+		socket.send(message);
+	}
 
 </script>
 </head>

@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 
 @Entity
 @Table (name="Archive_Users")
-public class AppUserArchive 
+public class AppUserArchive
 {
     @Id
     @Column (name="id")

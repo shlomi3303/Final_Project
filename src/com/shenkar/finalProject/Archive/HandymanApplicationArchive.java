@@ -7,10 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.model.HandymanApplication;
 
 @Entity
 @Table (name="Archive_ApplicationsHandyman")
-public class HandymanApplicationArchive extends Application 
+public class HandymanApplicationArchive extends HandymanApplication 
 {
 
 	@Column (name="Des_colorCorrections")
@@ -37,7 +38,20 @@ public class HandymanApplicationArchive extends Application
 			String userLocation, String gender, String language, String img, String title, String description, boolean colorCorrections, boolean furniture, boolean generalHangingWorks,
 			boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints) 
 	{
-		super(userId, period, location, periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
+		//super(userId, period, location, periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
+		this.userId = userId;
+		/*
+		this.period = period;
+		this.location = location;
+		this.periodic = periodic;
+		this.urgency = urgency;
+		this.userLocation = userLocation;
+		this.gender = gender;
+		this.language = language;
+		this.img = img;
+		this.title=title;
+		this.description=description;
+		*/
 		this.TTL = 5;
 		this.colorCorrections = colorCorrections;
 		this.furniture = furniture;

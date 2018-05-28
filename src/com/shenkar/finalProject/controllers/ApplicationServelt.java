@@ -16,6 +16,11 @@ import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 
+import Tests.TestUser;
+import api.CoralogixLogger;
+
+import api.CoralogixLogger;
+
 /**
  * Servlet implementation class ApplicationServelt
  */
@@ -23,18 +28,31 @@ import com.shenkar.finalProject.model.HibernateApplicationDAO;
 public class ApplicationServelt extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
-       
+    
+	private static final String privateKey = System.getenv("CORALOGIX_privateKey");
+	private static final String appName = "Final Project";
+	private static final String subSystem = "Application Servlet";
+
+	
     /**
      * @see HttpServlet#HttpServlet()
      */
     public ApplicationServelt() {super();}
 
-	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+       // int companyId = 4092;
+
+        CoralogixLogger.configure(privateKey, appName, subSystem);
+        CoralogixLogger logger = new CoralogixLogger(TestUser.class.toString());
+
+        //logger.info("This is my serious test log 1");
+        //logger.info("This is my serious test log 2");
+		
+		
 		String function = request.getParameter("function");
 		
 		if (function!=null && !function.isEmpty()){
@@ -152,7 +170,9 @@ public class ApplicationServelt extends HttpServlet
 			{
 				String userId = request.getParameter("userId");
 				System.out.println("the user id from post man is: " + userId);
+				logger.info("The user id is: " + userId);
 				WebSocket.sendMessageToClient("test", userId);
+				//logger.info()
 				/*
 				String to = request.getParameter("mail");
 				sendMail.sendEmail(to, "Hello to you Yossi!!", "sending from Heruko using sendGrid");

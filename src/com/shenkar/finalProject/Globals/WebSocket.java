@@ -1,7 +1,6 @@
 package com.shenkar.finalProject.Globals;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,8 +20,6 @@ public class WebSocket {
 	
 	@OnOpen
     public void onOpen(Session session) {
-		//sessionServer = session;
-		//loginUsers.add(session);
         System.out.println("Open session " + session.getId());
     }
 	
@@ -44,6 +41,7 @@ public class WebSocket {
 	        		System.out.println("getUser: " + thisSession.getUserProperties().get("userId"));
 	        		userSession = thisSession;
 	        		System.out.println("the session is: " + userSession);
+	        		System.out.println("test");
 	        		break;
 	        	}
 	        	

@@ -13,13 +13,14 @@ import javax.persistence.TemporalType;
 @MappedSuperclass
 public class Application 
 {
-	protected
+		protected
 		@Id
 		@Column (name="Application_Id")
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		int applicationID;
 	
 		@Column (name="User_Id")
+		protected
 		int userId;
 		
 		@Column(name="Period")
@@ -62,6 +63,10 @@ public class Application
 		
 		@Column(name="Description")
 		String description;
+		
+		@Column (name = "Is_Archive")
+		boolean isArchive;
+		
 
 		public Application(){}
 		
@@ -83,6 +88,7 @@ public class Application
 			this.img = img;
 			this.title = title;
 			this.description = description;
+			this.isArchive = false;
 		}
 
 
@@ -291,6 +297,16 @@ public class Application
 
 		public void setDescription(String description) {
 			this.description = description;
+		}
+
+
+		public boolean getArchive() {
+			return isArchive;
+		}
+
+
+		public void setArchive(boolean isArchive) {
+			this.isArchive = isArchive;
 		}
 		
 		

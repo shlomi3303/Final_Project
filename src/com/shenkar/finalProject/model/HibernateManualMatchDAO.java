@@ -87,7 +87,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							
 							//notify the both user
 							//HibernateApplicationDAO.getInstance().notification(manualOffer.getUserToInform(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
-							HibernateOfferDAO.getInstance().notification(manualOffer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailBothSideApproved);
+							HibernateOfferDAO.getInstance().notification(manualOffer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
 							
 							manualOffer.setApplicationAproved(false);
 							manualOffer.setOfferAproved(false);
