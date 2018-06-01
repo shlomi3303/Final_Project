@@ -83,19 +83,28 @@ public class MatchServlet extends HttpServlet {
 			if (user.equals("offer"))
 			{
 				String strOfferId = req.getParameter("offerId");
-				int offerId = Integer.parseInt(strOfferId);
-				HibernateManualMatchDAO.getInstance().declineMatch(user, offerId, tableName);
+				if (strOfferId!=null&&strOfferId.matches("[0-9]"))
+				{
+					int offerId = Integer.parseInt(strOfferId);
+					HibernateManualMatchDAO.getInstance().declineMatch(user, offerId, tableName);
+				}
 			}
 			
 			else if (user.equals("application"))
 			{
 				String strApplicationId = req.getParameter("applicationId");
-				int applicationId = Integer.parseInt(strApplicationId);
-				HibernateManualMatchDAO.getInstance().declineMatch(user, applicationId, tableName);
+				if (strApplicationId!=null&&strApplicationId.matches("[0-9]"))
+				{
+					int applicationId = Integer.parseInt(strApplicationId);
+					HibernateManualMatchDAO.getInstance().declineMatch(user, applicationId, tableName);
+				}
+			}
+			else
+			{
+				System.out.println("please insert the correct values");
 			}
 		}
 	}
-
 	
 	
 	private void acceptManualMatch (HttpServletRequest req, HttpServletResponse res) throws IOException
@@ -119,6 +128,10 @@ public class MatchServlet extends HttpServlet {
 				int applicationId = Integer.parseInt(strApplicationId);
 				HibernateManualMatchDAO.getInstance().acceptMatch(user, applicationId, tableName);
 				res.getWriter().println("match was created");
+			}
+			else
+			{
+				System.out.println("please insert the correct values");
 			}
 		}
 	}

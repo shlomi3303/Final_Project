@@ -27,9 +27,9 @@ public class RideApplication extends Application
 
 	public RideApplication(int userId, Date period, Date periodic, boolean urgency,
 			String userLocation, String gender, String language, String img, 
-			String source, String destination, Date endPeriod, String title, String description) 
+			String source, String destination, Date endPeriod, String title, String description, String status) 
 	{
-		super(userId, period, "", periodic, urgency, userLocation, "Waiting for approval", false, gender, language, img, title, description);
+		super(userId, period, "", periodic, urgency, userLocation, status, false, gender, language, img, title, description);
 		this.TTL = -1;
 		this.source = source;
 		this.destination = destination;

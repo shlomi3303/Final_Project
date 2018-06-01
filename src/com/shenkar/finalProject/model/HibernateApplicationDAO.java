@@ -16,6 +16,7 @@ import org.hibernate.SessionFactory;
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
+import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
 public class HibernateApplicationDAO implements IApplicationDAO 
@@ -46,15 +47,28 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			if (session!=null && application!=null)
 			{
 				if (application.getClass().equals(HandymanApplication.class))
-					{application.setTTL(5);}
+				{
+					application.setTTL(5);
+					application.setCategory("handyman");
+				}
 				else if (application.getClass().equals(RideApplication.class))
-					{application.setTTL(-1);}
+				{
+					application.setTTL(-1);
+					application.setCategory("ride");
+				}
 				else if (application.getClass().equals(OldersApplication.class))
-					{application.setTTL(4);}
+				{
+					application.setTTL(4);
+					application.setCategory("olders");
+				}
 				else if (application.getClass().equals(StudentApplication.class))
-					{application.setTTL(6);}
+				{
+					application.setTTL(6);
+					application.setCategory("student");
+				}
 				application.setIsAprroved(false);
-				application.setStatus("Waiting for approval");
+				if (application.getStatus().equals(""))
+					application.setStatus(ConstantVariables.waitingForMatch);
 				
 				session.beginTransaction();
 				session.save(application); 
@@ -179,6 +193,39 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		}
 	}
 
+	@Override
+	public List<Application> getaAllApplicationMatches (List<Match> manApp)
+	{
+		Session session =null;
+		
+		List<Application> applicationList = new ArrayList<Application>();
+		
+		if (manApp!=null && manApp.size()>0)
+		try
+		{
+			for (int i=0; i<manApp.size(); i++)
+			{
+				ManualMatchUserOffer manMatchOffer = (ManualMatchUserOffer) manApp.get(i);
+				Application app = HibernateApplicationDAO.getInstance().getApplication(manMatchOffer.getApplicationID(), manMatchOffer.getCategory());
+				if (app!=null&&app.getUserId()!=manMatchOffer.getUserId())
+					applicationList.add(app);
+			}
+			return applicationList;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+
+   		 	if (session!=null)
+   			 session.close();
+		}
+		return null;
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Application getApplication(int applicationId, String tableName) throws ApplicationExceptionHandler 
@@ -195,7 +242,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				  session = getSession();
 		    	  session.beginTransaction();
 		    	  
-		    	  application = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + applicationId +"").getResultList();
+		    	  application = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + applicationId +" and isArchive = false").getResultList();
 			      if (application != null && !application.isEmpty())
 			      {
 			        session.getTransaction().commit();
@@ -236,7 +283,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    	 session.beginTransaction();
 		
 	    	 if (userId>0)
-	    		 applications = session.createQuery("from "+ Application.class.getName() + " applications where applications.userId = " + userId+"").getResultList();
+	    		 applications = session.createQuery("from "+ Application.class.getName() + " applications where applications.userId = " + userId+ " and isArchive = false").getResultList();
 	    	 else if (userId==-1)
 	    		 applications = session.createQuery ("from " + Application.class.getName()).getResultList();
 				
@@ -274,6 +321,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		
 		List <Application> applicationsList = new ArrayList<>();
 		
+	try{	
 		initApplicationFactory();
 		session = getSession();
    	  	session.beginTransaction();
@@ -285,8 +333,13 @@ public class HibernateApplicationDAO implements IApplicationDAO
         idList = session.createQuery(criteriaQuery).getResultList();
         session.getTransaction().commit();
         int maxId = idList.get(0);
-        //System.out.println("Max Id = " + maxId);
-
+    /*    
+        int maxId;
+        if (Id<num)
+        	maxId=Id;
+        else
+        	maxId=num;
+*/
         while (applicationsList.size() !=num )
         {
         	Application app = getApplication(new Random().nextInt(maxId)+1, tableName);
@@ -297,9 +350,20 @@ public class HibernateApplicationDAO implements IApplicationDAO
         			break;
         	}
         }
-        
 		return new Gson().toJson(applicationsList).toString();
 	}
+	catch (Exception e)
+	{
+		e.printStackTrace();
+	}
+        
+	   finally{ 
+	    if (session!=null)
+	    	session.close();
+	   }
+	return null;
+	}
+
 	
 	private String getTableName(String tableName) 
 	{
@@ -431,7 +495,11 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 		
 		if (user!=null)
+		{
 			GlobalsFunctions.sendEmail(user.getMail(), subject, body);
+			String strUserId = String.valueOf(userId);
+			WebSocket.sendMessageToClient(ConstantVariables.newMsgInPrivateZone, strUserId);
+		}
 		
 	}
 
@@ -450,7 +518,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			session = getSession();
 	    	session.beginTransaction();
 		
-	    	applications = session.createQuery ("from " + strTableName + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
+	    	applications = session.createQuery ("from " + strTableName + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
 				
 	         if (applications != null && !applications.isEmpty())
 	          {

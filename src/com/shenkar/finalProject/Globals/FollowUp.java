@@ -83,14 +83,14 @@ public class FollowUp implements ServletContextListener
 					}
 					else if (mmOffer.get(i).getReminderCount()==3)
 					{
-						//send the match to the archive
+						//change the match to archive
+						mmOffer.get(i).setArchive(true);
 						
+						session.update(mmOffer.get(i));
 						
 						//notify the offer user that the match is not relevant
 						HibernateOfferDAO.getInstance().notification(mmOffer.get(i).getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
 						
-						//delete the match from the table
-						//session.delete(mmOffer.get(i));
 					}
 				}
 			}
@@ -112,16 +112,13 @@ public class FollowUp implements ServletContextListener
 					}
 					else if (mmApp.get(j).getReminderCount()==3)
 					{
-						
-						//send the match to the archive
-						
+						//change the match to the archive
+						mmApp.get(j).setArchive(true);
+						session.update(mmApp.get(j));
+
 						HibernateApplicationDAO.getInstance().notification(mmApp.get(j).getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
 						
-						//delete the match from the table
-						//session.delete(mmApp.get(j));
-						
 					}
-					
 					
 				}
 			}
@@ -134,11 +131,9 @@ public class FollowUp implements ServletContextListener
 		}
 		finally
 		{
-			session.close();
+			if (session!=null)
+				session.close();
 		}
-		
-		
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -159,7 +154,7 @@ public class FollowUp implements ServletContextListener
 			session = getSessionManualMatch();
 			session.beginTransaction();
 			
-			mmOffer = session.createQuery ("from " + ManualMatchUserOffer.class.getName() + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.bothSideApproved + "%").getResultList();
+			mmOffer = session.createQuery ("from " + ManualMatchUserOffer.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.bothSideApproved + "%").getResultList();
 			
 			if (mmOffer!=null)
 			{
@@ -192,7 +187,7 @@ public class FollowUp implements ServletContextListener
 				}
 			}
 			
-			mmApp = session.createQuery ("from " + ManualMatchUserApplication.class.getName() + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.bothSideApproved + "%").getResultList();
+			mmApp = session.createQuery ("from " + ManualMatchUserApplication.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.bothSideApproved + "%").getResultList();
 			
 			if (mmApp !=null)
 			{
@@ -222,11 +217,11 @@ public class FollowUp implements ServletContextListener
 		}
 		finally
 		{
-			session.close();
+			if (session!=null)
+				session.close();
 		}
 		
 	}
-	
 	
 	class followUpRunner extends TimerTask
 	{
@@ -245,9 +240,6 @@ public class FollowUp implements ServletContextListener
 				e.printStackTrace();
 			}
 		}
-		
-		
-		
 	}
 	
 	

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
+import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 
@@ -28,4 +29,5 @@ public interface IApplicationDAO
 	
 	public String getRandomApplication(int num, String tableName) throws ApplicationExceptionHandler;
 	
+	public List<Application> getaAllApplicationMatches (List<Match> manApp);
 }

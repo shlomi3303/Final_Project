@@ -3,6 +3,7 @@ package com.shenkar.finalProject.model.interfaces;
 import java.io.IOException;
 import java.util.List;
 
+import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.UserExceptionHandler;
@@ -25,6 +26,8 @@ public interface IOfferDAO
 	
 	public List<Offer> getAllSpecificOfferTable(String tableName) throws OfferExceptionHandler;
 	
-	public String getRandomOffer(int num, String tableName) throws OfferExceptionHandler; 
+	public String getRandomOffer(int num, String tableName) throws OfferExceptionHandler;
+
+	public List<Offer> getaAllOfferMatches(List<Match> manApp); 
 
 }

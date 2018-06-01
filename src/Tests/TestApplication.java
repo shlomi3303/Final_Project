@@ -3,7 +3,11 @@ package Tests;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,12 +15,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import org.joda.time.Days;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HandymanApplication;
@@ -29,20 +36,46 @@ public class TestApplication {
 
 	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler 
 	{
+		/*
+		List <Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
 		
-		//List <Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
+		int ttl = GlobalsFunctions.calculateTTL(period2);
 		
-		
-		String testDateString2 = "2018-04-30 18:00";
-	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	    //DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		System.out.println("the ttl is: " + ttl);
+		*/
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+		//the application day
+		String testDateString2 = "2018-07-27";
+	    Date period2  = (Date) df.parse(testDateString2);
 	    
-	    Date period  = (Date) df.parse(testDateString2);
-		
-		HandymanApplication ob = new HandymanApplication(1, period, "wsedrs", period, true, "sd", "ssd", "male",
-				"asd", "check", "check", true, true, true, true, true);
-		HibernateApplicationDAO.getInstance().createApplication(ob);
-		
+	    //today
+		String testDateString3 = "2018-06-1";
+	    Date period1  = (Date) df.parse(testDateString3);
+
+	    LocalDate date1 = period1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	    LocalDate date2 = period2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	    //Duration daysBetween = Duration.between(date1, date2);
+
+	    int daus = Period.between(date1, date2).getDays();
+	    int mon = Period.between(date1, date2).getMonths();
+
+	    
+	    System.out.println(daus);
+	    System.out.println(mon);
+	    
+	    
+	    
+	   /* 
+	    Days d = Days.daysBetween(period2, period1);
+	    int days = d.getDays();
+	    //int day = Period.between(period1, period2);
+	    
+		HandymanApplication ob = new HandymanApplication(1, period1, "wsedrs", period1, true, "sd", "ssd", "male",
+				"asd", "check", "check", true, true, true, true, true, "");
+		System.out.println("list is " + HibernateApplicationDAO.getInstance().getApplication(8, "handyman"));
+		//HibernateApplicationDAO.getInstance().createApplication(ob);
+		/*
 		StudentApplication ob4 = new StudentApplication(1, period, "wsedrs", period, true, "sd", "male", "hebrew",
 				"2", "math", "sports","check", "check", true, true, true);
 		
@@ -61,7 +94,7 @@ public class TestApplication {
 	    
 	    
 	    System.out.println("Timestamp: " + tsPrimitive);
-
+*/
 
 
 		
@@ -69,7 +102,7 @@ public class TestApplication {
 		//Gson gson = new Gson();
 		//Deserialization = (Application)gson.fromJson(new Gson().toJson(ob).toString(),HandymanApplication.class);
 		
-		System.out.println(new Gson().toJson(ob).toString());
+		//System.out.println(new Gson().toJson(ob).toString());
 
 		//System.out.println(new Gson().toJson(ob).toString());
 		
@@ -77,12 +110,12 @@ public class TestApplication {
 			//	"test", true, true, true, true);
 		//System.out.println(new Gson().toJson(ob2).toString());
 
-		
+		/*
 		RideApplication ob3 = new RideApplication(1, period, period, true, "sd", "ssd", "male",
 				"test", "test", "rishon", period, "test", "test");
 		System.out.println(new Gson().toJson(ob3).toString());
 
-		
+		*/
 		//HibernateApplicationDAO.getInstance().createApplication(ob);
 		//HibernateApplicationDAO.getInstance().createApplication(ob2);
 		//HibernateApplicationDAO.getInstance().createApplication(ob3);

@@ -27,10 +27,9 @@ public class RideOffer extends Offer
 
 	public RideOffer(int userId, Date period, Date periodic, boolean urgency,
 			String userLocation, String gender, String language, String img, String title, String description,
-			String source, String destination, Date endPeriod) 
+			String source, String destination, Date endPeriod, String status) 
 	{
-		super(userId, period, "", periodic, urgency, "Waiting for approval", userLocation, false, gender, language, img, title, description);
-		this.TTL = -1;
+		super(userId, period, "", periodic, urgency, status, userLocation, false, gender, language, img, title, description);
 		this.source = source;
 		this.destination = destination;
 		this.endPeriod = endPeriod;

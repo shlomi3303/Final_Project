@@ -13,18 +13,44 @@
     	var id="2";
     	sendMessage(id);
     	console.log("id was sent to the client");
+    	setInterval(ping, 30000);
+
 	};
+	
 	socket.onmessage = function (event) {
 		alert(event.data);
     	console.log("on message");
+    	var msg = event.data;
+    	if (msg == "__PONG__") {
+    		console.log(msg);
+        	pong();
+        	return;
+    	}
     	console.log(event.data);
     	var demo = document.getElementById("demo");
     	demo.innerHTML = demo.innerHTML + "<br/>" + event.data;
 	};
+	
+	socket.onclose = function(){
+        //setTimeout(setupWebSocket, 1000);
+        //console.log("reconnect to the server");
+	}	
+	
 	function sendMessage(message)
 	{
 		socket.send(message);
 	}
+
+	function ping() {
+		sendMessage("__PING__");
+        tm = setTimeout(function () {
+    	}, 5000);
+	}
+
+	function pong() {
+    	clearTimeout(tm);
+	}
+	
 
 </script>
 </head>

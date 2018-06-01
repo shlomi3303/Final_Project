@@ -54,18 +54,14 @@ public class HibernateManualMatchDAO implements IManualMatch {
 						manualApp.setApplicationAproved(false);
 						manualApp.setStatus(ConstantVariables.offerDeclined);
 						manualApp.setUserToInform(0);
-						
-						//save the match in the archive
+						//change the match to the archive
+						manualApp.setArchive(true);
 						
 						if (!session.getTransaction().isActive())
 							session.beginTransaction();
 						session.update(manualApp);
-						//sending the offer to the archive
 						
-						//delete the offer from the table 
-						//session.delete(manualApp);
 						session.getTransaction().commit();
-						
 						
 						Offer offer = HibernateOfferDAO.getInstance().getOffer(offerId, tableName);
 						HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
@@ -93,12 +89,12 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							manualOffer.setOfferAproved(false);
 							manualOffer.setStatus(ConstantVariables.applicationDeclined);
 							manualOffer.setUserToInform(0);
+							manualOffer.setArchive(true);
 							
 							if (!session.getTransaction().isActive())
 								session.beginTransaction();
 								
 							session.update(manualOffer); 
-							//session.delete(manualOffer);
 							session.getTransaction().commit();
 							
 							Application application = HibernateApplicationDAO.getInstance().getApplication(applicationId, tableName);
@@ -123,7 +119,6 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			}
 		}
 	}
-	
 	
 	@Override
 	public void acceptMatch(String user, int userRequestId, String tableName) 
@@ -197,7 +192,6 @@ public class HibernateManualMatchDAO implements IManualMatch {
 				}
 			}
 			
-			
 		}
 		catch(Exception e){
 			throw new HibernateException (e);
@@ -206,11 +200,13 @@ public class HibernateManualMatchDAO implements IManualMatch {
 		finally 
 		{
 			try 
-			{session.close();} 
+			{
+				if (session!=null)
+					session.close();
+			} 
 			catch (HibernateException e){}
 		}
 	}
-	
 	
 	@Override
 	public void createMatch(Match match, String tableName) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException 
@@ -235,7 +231,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							
 							Application application = HibernateApplicationDAO.getInstance().getApplication(offer.getApplicationID(), tableName);
 							
-							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForAppApproval, application);
+							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForYourApproval, application);
 							offer.setUserToInform(application.getUserId());
 							
 							//String strApplication = new Gson().toJson(application).toString();
@@ -260,7 +256,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 						application.setStatus(ConstantVariables.waitingForOfferApproval);
 						
 						Offer offer = HibernateOfferDAO.getInstance().getOffer(application.getOfferId(), tableName);
-						HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForOfferApproval, offer);
+						HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForYourApproval, offer);
 						application.setUserToInform(offer.getUserId());
 
 						String subject = "!מחוברים לחיים: מישהו מעוניין בעזרה שלך";
@@ -290,7 +286,10 @@ public class HibernateManualMatchDAO implements IManualMatch {
 		finally 
 		{
 			try 
-			{session.close();} 
+			{
+				if (session!=null)
+					session.close();
+			} 
 			catch (HibernateException e)
 			{//throw new OfferExceptionHandler("Warnning!! connection did'nt close properly");
 				 
@@ -313,11 +312,11 @@ public class HibernateManualMatchDAO implements IManualMatch {
 		 try{
 	    	  if (tableName.equals("User Application"))
 	    	  {
-		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where matchId = " + Id +"").getResultList();
+		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where offerId = " + Id + " and isArchive = false").getResultList();
 	    	  }
 	    	  else if (tableName.equals("User Offer"))
 	    	  {
-	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + Id +"").getResultList();
+	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + Id + " and isArchive = false").getResultList();
 	    	  }
 	    	  
 	    	  if (manualMatch != null && !manualMatch.isEmpty())
@@ -337,7 +336,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	    	 try 
 	    	 {
 	    		 if (session!=null)
-						session.close();
+					session.close();
 	    	 } 
 	    	 catch(HibernateException e) {
 	    		 e.printStackTrace();
@@ -346,8 +345,54 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	     return null;
 	}
 	
-	
-	
+	@SuppressWarnings("unchecked")
+	public List<Match> getAllUserManualMatches(int userId, String tableName) {
+		
+		 Session session = null;
+		 List<Match> manualMatch = null;
+		 
+		 initMatchFactory();
+		 session = getSession();
+		 
+		 if (!session.getTransaction().isActive())
+			 session.beginTransaction();
+
+		 try{
+	    	  if (tableName.equals("User Application"))
+	    	  {
+		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where userId = " + userId +"").getResultList();
+	    	  }
+	    	  else if (tableName.equals("User Offer"))
+	    	  {
+	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where userId = " + userId +"").getResultList();
+	    	  }
+	    	  
+	    	  if (manualMatch != null && !manualMatch.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (manualMatch.size() > 0) {
+	    		      return manualMatch;	
+	    	      }
+	          }
+
+	      }catch (HibernateException e) {
+	         if (session.getTransaction() != null) session.getTransaction().rollback();
+	         	
+	      }
+	     finally 
+	     {
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+					session.close();
+	    	 } 
+	    	 catch(HibernateException e) {
+	    		 e.printStackTrace();
+	    	 }
+	     }
+	     return null;
+	}
+	 
 	private static void initMatchFactory ()
 	{
 		try

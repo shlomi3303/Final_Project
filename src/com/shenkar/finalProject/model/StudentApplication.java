@@ -32,10 +32,9 @@ public class StudentApplication extends Application
 
 	public StudentApplication(int userId, Date period, String location, Date periodic, boolean urgency,
 			String userLocation,String gender, String language, String img, String title, String description, 
-			String educationLevel, String fieldOfStudy, boolean homeWorks, boolean testStudy, boolean practice) 
+			String educationLevel, String fieldOfStudy, boolean homeWorks, boolean testStudy, boolean practice, String status) 
 	{
-		super(userId, period, location, periodic, urgency, userLocation, "Waiting for approval", true, gender, language, img, title, description);
-		this.TTL = 4;
+		super(userId, period, location, periodic, urgency, userLocation, status, true, gender, language, img, title, description);
 		this.educationLevel = educationLevel;
 		this.fieldOfStudy = fieldOfStudy;
 		this.homeWorks = homeWorks;

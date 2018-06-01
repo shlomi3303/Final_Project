@@ -67,10 +67,11 @@ public class Application
 		@Column (name = "Is_Archive")
 		boolean isArchive;
 		
-
+		@Column(name="Category")
+		String category;
+		
 		public Application(){}
 		
-
 		public Application(int userId, Date period, String location, Date periodic, boolean urgency,
 				String userLocation, String status, boolean isAprroved, String gender,
 				String language, String img, String title, String description) 
@@ -89,6 +90,7 @@ public class Application
 			this.title = title;
 			this.description = description;
 			this.isArchive = false;
+			this.category = "";
 		}
 
 
@@ -307,6 +309,14 @@ public class Application
 
 		public void setArchive(boolean isArchive) {
 			this.isArchive = isArchive;
+		}
+
+		public String getCategory() {
+			return category;
+		}
+
+		public void setCategory(String category) {
+			this.category = category;
 		}
 		
 		

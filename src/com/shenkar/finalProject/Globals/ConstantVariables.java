@@ -4,23 +4,26 @@ public class ConstantVariables
 {
 	
     public final static long TEST = 1000*60; 
+    public final static long sessionMaxIdle =10*1000*60; 
 	public final static long ONCE_PER_DAY = 1000*60*60*24;
 
 	public final static String userName = "root";
 	public final static String password = "root";
 	public final static String URL = "jdbc:mysql://localhost:3306/finalproject?useSSL=false";
 	
+	public final static String newMsgInPrivateZone = "הודעות מחדשות ממתינות לך באזור האישי";
+	
 	public final static String waitingForAppApproval = "ממתין לאישור מבקש העזרה";	
 	public final static String waitingForOfferApproval = "ממתין לאישור מציע העזרה";
+	public final static String waitingForYourApproval = "ממתין לאישורך";
+	
 	public final static String waitingForMatch = "ממתין למציאת התאמה";
 	
-	public final static String bothSideApproved = "שני הצדדים אישרו";
+	public final static String bothSideApproved = "שני הצדדים אישרו את ההתאמה";
 		
-	
 	public final static String offerDeclined = "מציע העזרה דחה את ההתאמה";
 	public final static String applicationDeclined = "מבקש העזרה דחה את ההתאמה";
 
-	
 	//variable for Email
 	public final static String subjectMailApplication = "מחוברים לחיים: מישהו/י מוכנ/ה לעזור לך!";
 	

@@ -16,6 +16,7 @@ import org.hibernate.SessionFactory;
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
+import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
 
 public class HibernateOfferDAO implements IOfferDAO
@@ -47,15 +48,28 @@ public class HibernateOfferDAO implements IOfferDAO
 			if (session != null && offer!=null)
 			{
 				if (offer.getClass().equals(HandymanOffer.class))
-					{offer.setTTL(5);}
+				{
+					offer.setTTL(5);
+					offer.setCategory("handyman");
+				}
 				else if (offer.getClass().equals(RideOffer.class))
-					{offer.setTTL(-1);}
+				{
+					offer.setTTL(-1);
+					offer.setCategory("ride");
+				}
 				else if (offer.getClass().equals(OldersOffer.class))
-					{offer.setTTL(4);}
+				{
+					offer.setTTL(4);
+					offer.setCategory("olders");
+				}
 				else if (offer.getClass().equals(StudentOffer.class))
-					{offer.setTTL(6);}
+				{
+					offer.setTTL(6);
+					offer.setCategory("student");
+				}
 				offer.setIsAprroved(false);
-				offer.setStatus("Waiting for approval");
+				if (offer.getStatus().equals(""))
+					offer.setStatus(ConstantVariables.waitingForMatch);
 				
 				session.beginTransaction();
 				session.save(offer); 
@@ -159,14 +173,14 @@ public class HibernateOfferDAO implements IOfferDAO
 		if (offer !=null){
 			try
 			{
-					initOfferFactory();
-					session = getSession();
-					if (session!=null)
-					{  
-				    	session.beginTransaction();
-						session.createQuery("delete from " + getTableName(tableName) + " where id = " + offerId).executeUpdate();
-			        	session.getTransaction().commit();
-					}
+				initOfferFactory();
+				session = getSession();
+				if (session!=null)
+				{  
+			    	session.beginTransaction();
+					session.createQuery("delete from " + getTableName(tableName) + " where id = " + offerId).executeUpdate();
+		        	session.getTransaction().commit();
+				}
 			}
 			catch  (HibernateException e) 
 			{if (session.getTransaction() != null) session.getTransaction().rollback();}
@@ -192,7 +206,7 @@ public class HibernateOfferDAO implements IOfferDAO
 		    	  initOfferFactory();
 				  session = getSession();
 		    	  session.beginTransaction();
-		          offer = session.createQuery("from " + getTableName(tableName) + " where offerId = " + offerId +"").getResultList();
+		          offer = session.createQuery("from " + getTableName(tableName) + " where offerId = " + offerId +" and isArchive = false").getResultList();
 		          
 		          if (offer != null && !offer.isEmpty())
 		          {
@@ -232,7 +246,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	    	 session.beginTransaction();
 			
 	    	 if (userId>0)
-	    		 offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId = "+userId+"").getResultList();
+	    		 offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId = " +userId+ " and isArchive = false").getResultList();
 	    	 else if(userId==-1)
 	    		 offers = session.createQuery ("from " + Offer.class.getName()).getResultList();
 	         
@@ -265,6 +279,7 @@ public class HibernateOfferDAO implements IOfferDAO
 		
 		List <Offer> offersList = new ArrayList<>();
 		
+	try{	
 		initOfferFactory();
 		session = getSession();
    	  	session.beginTransaction();
@@ -276,7 +291,14 @@ public class HibernateOfferDAO implements IOfferDAO
         idList = session.createQuery(criteriaQuery).getResultList();
         session.getTransaction().commit();
         int maxId = idList.get(0);
-
+        /*
+        int maxId;
+        
+        if (Id<num)
+        	maxId=Id;
+        else
+        	maxId=num;
+        */
         while (offersList.size() !=num )
         {
         	Offer offer= getOffer(new Random().nextInt(maxId)+1, tableName);
@@ -290,6 +312,16 @@ public class HibernateOfferDAO implements IOfferDAO
         
 		return new Gson().toJson(offersList).toString();
 	}
+	catch (Exception e)
+	{
+		e.printStackTrace();
+	}
+	finally {
+		if (session!=null)
+			session.close();
+	}
+	return null;
+}
 
 	@Override
 	public void status(String status, Offer offer) throws OfferExceptionHandler {
@@ -325,9 +357,125 @@ public class HibernateOfferDAO implements IOfferDAO
 		AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 		
 		if (user!=null)
+		{
 			GlobalsFunctions.sendEmail(user.getMail(), subject, body);
+			String strUserId = String.valueOf(userId);
+			WebSocket.sendMessageToClient(ConstantVariables.newMsgInPrivateZone, strUserId);
+		}
 		
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Offer> getAllSpecificOfferTable(String tableName) throws OfferExceptionHandler 
+	{
+		Session session = null;
+		List <Offer> offers = null;
+		
+		try
+		{
+	    	String strTableName = getTableName(tableName);
+			initOfferFactory();
+			session = getSession();
+	    	session.beginTransaction();
+		
+	    	offers = session.createQuery ("from " + strTableName + " as table where table.isArchive = false and table.status like :searchkey").setParameter("searchkey",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
+				
+	         if (offers != null && !offers.isEmpty())
+	          {
+	        	  session.getTransaction().commit();
+	        	  if (offers.size() > 0) {
+	    		      return offers;	
+	    	      }
+	          }
+	    }
+		catch (HibernateException e) 
+		  {
+		         if (session.getTransaction() != null) session.getTransaction().rollback();
+	         throw new OfferExceptionHandler("Offers list not avilable at the moment" + e.getMessage());
+	      }
+		finally {
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+					session.close();
+	    	 }
+	    	 catch (HibernateException e){
+	    		 throw new OfferExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
+	    	 } 
+	      }
+		
+	    return null;
+	}
+	
+	@Override
+	public List<Offer> getaAllOfferMatches (List<Match> manOffer)
+	{
+		Session session =null;
+		
+		List<Offer> offerList = new ArrayList<Offer>();
+		
+		if (manOffer!=null && manOffer.size()>0)
+		try
+		{
+			for (int i=0; i<manOffer.size(); i++)
+			{
+				ManualMatchUserApplication manMatchApp = (ManualMatchUserApplication) manOffer.get(i);
+				Offer offer = HibernateOfferDAO.getInstance().getOffer(manMatchApp.getOfferId(), manMatchApp.getCategory());
+				if (offer!=null && offer.getUserId()!=manMatchApp.getUserId())
+				{
+					offerList.add(offer);
+				}
+			}
+			return offerList;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+
+   		 	if (session!=null)
+   			 session.close();
+		}
+		return null;
+	}
+	
+	
+	
+	private String getTableName(String tableName) 
+	{
+		if (tableName.equals("olders"))
+			return OldersOffer.class.getName();
+		else if (tableName.equals("ride"))
+			return RideOffer.class.getName();
+		else if (tableName.equals("handyman"))
+			return HandymanOffer.class.getName();
+		else if (tableName.equals("student"))
+			return StudentOffer.class.getName();
+		
+		return "";
+	}
+	
+	public Class<?> getTableMapping (String tableName)
+	{
+		
+		Class<?> className = null;
+		
+		if (tableName.equals("olders"))
+			className = OldersOffer.class;
+		else if (tableName.equals("ride"))
+			className = RideOffer.class;
+		else if (tableName.equals("handyman"))
+			className = HandymanOffer.class;
+		else if (tableName.equals("student"))
+			className = StudentOffer.class;
+		
+		return className;
+		
+	}
+	
 	private static void initOfferFactory ()
 	{
 		try
@@ -400,81 +548,6 @@ public class HibernateOfferDAO implements IOfferDAO
 		handyman.setHangingOfLightFixtures(updateHandyman.getHangingOfLightFixtures());
 		handyman.setTreatmentSocketsAndPowerPoints(updateHandyman.getTreatmentSocketsAndPowerPoints());
 		handyman.setGeneralHangingWorks(updateHandyman.getGeneralHangingWorks());
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Offer> getAllSpecificOfferTable(String tableName) throws OfferExceptionHandler 
-	{
-		Session session = null;
-		List <Offer> offers = null;
-		
-		try
-		{
-	    	String strTableName = getTableName(tableName);
-			initOfferFactory();
-			session = getSession();
-	    	session.beginTransaction();
-		
-	    	offers = session.createQuery ("from " + strTableName + " as table where table.status like :searchkey").setParameter("searchkey",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
-				
-	         if (offers != null && !offers.isEmpty())
-	          {
-	        	  session.getTransaction().commit();
-	        	  if (offers.size() > 0) {
-	    		      return offers;	
-	    	      }
-	          }
-	    }
-		catch (HibernateException e) 
-		  {
-		         if (session.getTransaction() != null) session.getTransaction().rollback();
-	         throw new OfferExceptionHandler("Offers list not avilable at the moment" + e.getMessage());
-	      }
-		finally {
-	    	 try 
-	    	 {
-	    		 if (session!=null)
-						session.close();
-	    	 }
-	    	 catch (HibernateException e){
-	    		 throw new OfferExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
-	    	 } 
-	      }
-		
-	    return null;
-	}
-	
-	private String getTableName(String tableName) 
-	{
-		if (tableName.equals("olders"))
-			return OldersOffer.class.getName();
-		else if (tableName.equals("ride"))
-			return RideOffer.class.getName();
-		else if (tableName.equals("handyman"))
-			return HandymanOffer.class.getName();
-		else if (tableName.equals("student"))
-			return StudentOffer.class.getName();
-		
-		return "";
-	}
-	
-	public Class<?>  getTableMapping (String tableName)
-	{
-		
-		Class<?> className = null;
-		
-		if (tableName.equals("olders"))
-			className = OldersOffer.class;
-		else if (tableName.equals("ride"))
-			className = RideOffer.class;
-		else if (tableName.equals("handyman"))
-			className = HandymanOffer.class;
-		else if (tableName.equals("student"))
-			className = StudentOffer.class;
-		
-		return className;
-		
 	}
 	
 }

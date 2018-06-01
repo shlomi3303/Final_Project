@@ -16,9 +16,6 @@ import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 
-import Tests.TestUser;
-import api.CoralogixLogger;
-
 import api.CoralogixLogger;
 
 /**
@@ -47,7 +44,7 @@ public class ApplicationServelt extends HttpServlet
        // int companyId = 4092;
 
         CoralogixLogger.configure(privateKey, appName, subSystem);
-        CoralogixLogger logger = new CoralogixLogger(TestUser.class.toString());
+        CoralogixLogger logger = new CoralogixLogger(ApplicationServelt.class.toString());
 
         //logger.info("This is my serious test log 1");
         //logger.info("This is my serious test log 2");

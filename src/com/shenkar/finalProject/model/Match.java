@@ -14,8 +14,6 @@ public class Match
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	int matchId;
 	
-   
-	
 	@Column (name="Offer_Aproved")
 	boolean offerAproved;
 	
@@ -34,6 +32,9 @@ public class Match
 	@Column (name = "Category")
 	String category;
 	
+	@Column (name = "Is_Archive")
+	boolean isArchive;
+	
 	public Match(){}
 	
 	public Match(boolean offerAproved, boolean applicationAproved, String status,
@@ -45,6 +46,7 @@ public class Match
 		this.reminderCount = reminderCount;
 		this.category = category;
 		TTL = tTL;
+		this.isArchive=false;
 	}
 
 	/**
@@ -122,6 +124,15 @@ public class Match
 	public void setCategory(String category) {
 		this.category = category;
 	}
+
+	public boolean getArchive() {
+		return isArchive;
+	}
+
+	public void setArchive(boolean isArchive) {
+		this.isArchive = isArchive;
+	}
+	
 	
 	
 	

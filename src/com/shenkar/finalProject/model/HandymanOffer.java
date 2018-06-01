@@ -30,10 +30,9 @@ public class HandymanOffer extends Offer
 
 	public HandymanOffer(int userId, Date period, String location, Date periodic, boolean urgency,
 			String userLocation, String gender, String language, String img, String title, String description, boolean colorCorrections, boolean furniture, boolean generalHangingWorks,
-			boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints) 
+			boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints, String status) 
 	{
-		super(userId, period, location, periodic, urgency, "Waiting for approval",userLocation, false, gender, language, img, title, description);
-		this.TTL = 5;
+		super(userId, period, location, periodic, urgency, status, userLocation, false, gender, language, img, title, description);
 		this.colorCorrections = colorCorrections;
 		this.furniture = furniture;
 		this.generalHangingWorks = generalHangingWorks;

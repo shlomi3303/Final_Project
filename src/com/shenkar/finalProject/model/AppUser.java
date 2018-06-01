@@ -60,18 +60,6 @@ public class AppUser
 	 
 	public AppUser() {} 
 
-	/**
-	 * @param firstname
-	 * @param lastname
-	 * @param mail
-	 * @param password
-	 * @param phone
-	 * @param age
-	 * @param familyStatus
-	 * @param kids
-	 * @param userLocation
-	 * @param interests
-	 */
 	public AppUser(String firstname, String lastname, String mail, String password, String phone, int age,
 			String familyStatus, int kids, String userLocation, boolean student, boolean olders, boolean handyman,
 			boolean ride) 

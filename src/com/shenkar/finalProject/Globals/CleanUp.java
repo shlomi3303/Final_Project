@@ -77,7 +77,7 @@ public class CleanUp implements ServletContextListener
 					}
 					else if (list.get(i).getTTL()==0)
 					{
-						//session.delete(list.get(i));
+						list.get(i).setArchive(true);
 					}
 				}
 				session.getTransaction().commit();
@@ -103,12 +103,12 @@ public class CleanUp implements ServletContextListener
 					if (list.get(i).getTTL()>0)
 					{
 						list.get(i).setTTL(list.get(i).getTTL()-1);
-						session.update(list.get(i));
 					}
 					else if (list.get(i).getTTL()==0)
 					{
-						//session.delete(list.get(i));
+						list.get(i).setArchive(true);
 					}
+					session.update(list.get(i));
 				}
 				session.getTransaction().commit();
 			}	

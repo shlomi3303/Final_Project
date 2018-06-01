@@ -1,6 +1,10 @@
 package com.shenkar.finalProject.Globals;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Date;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -85,6 +89,19 @@ public class GlobalsFunctions
 		{
 			ex.printStackTrace();
 		}
+	}
+	
+	public static int calculateTTL(Date date)
+	{
+		Date today = new Date();
+		
+		 LocalDate date1 = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		 LocalDate date2 = today.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+		 int days = Period.between(date1, date2).getDays();
+		 int mon = Period.between(date1, date2).getMonths();
+		 int ttl = days + mon*30;
+		 return ttl;
 	}
 
 }

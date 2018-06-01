@@ -10,14 +10,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
+import com.shenkar.finalProject.model.ManualMatchUserApplication;
+import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
+import com.shenkar.finalProject.model.HibernateManualMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -36,6 +41,7 @@ public class UserServelt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		
@@ -66,39 +72,65 @@ public class UserServelt extends HttpServlet {
 							user = getUser(mail, password);
 							if (user!=null)
 							{
-																
-								List<Application> applicationsList = HibernateApplicationDAO.getInstance().getUserApplications(user.get(0).getId());
+								int userId = user.get(0).getId();
+								List<Application> applicationsList = HibernateApplicationDAO.getInstance().getUserApplications(userId);
 								
-								List <Offer> offersList = HibernateOfferDAO.getInstance().getUserOffers(user.get(0).getId());
+								List <Offer> offersList = HibernateOfferDAO.getInstance().getUserOffers(userId);
+								
+								List <Match> manualMatchApplication = HibernateManualMatchDAO.getInstance().getAllUserManualMatches(userId, "User Application");
+								List<Offer> userMatchOfferList = HibernateOfferDAO.getInstance().getaAllOfferMatches(manualMatchApplication);
+								
+								List <Match> manualMatchOffer = HibernateManualMatchDAO.getInstance().getAllUserManualMatches(userId, "User Offer");
+								List<Application> userMatchApplicationsList = HibernateApplicationDAO.getInstance().getaAllApplicationMatches(manualMatchOffer);
 								
 								List<Object> userInfo = new ArrayList<Object>();
 								
 								userInfo.add(user);
 								userInfo.add(applicationsList);
 								userInfo.add(offersList);
+								userInfo.add(userMatchApplicationsList);
+								userInfo.add(userMatchOfferList);
 								
 								String strUserInfoJson = new Gson().toJson(userInfo).toString();
 								response.setContentType("application/json");
 					        	response.setCharacterEncoding("utf-8");
 								response.getWriter().write(strUserInfoJson);
-								
-								/*
-								List <Match> matches = HibernateManualMatchDAO.getInstance().getAllUserToInform(user.getId());
-								if (matches!=null)
-								{
-									String matchJson = new Gson().toJson(matches).toString();
-									response.setContentType("application/json");
-						        	response.setCharacterEncoding("utf-8");
-									response.getWriter().write(matchJson);
-								}
-								*/
 							}
 						} 
 						catch (UserExceptionHandler | ApplicationExceptionHandler | OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					}
 				 }
 				break;
-				
+			case "getUserInfo":
+			{
+				AppUser user = null;
+				String strUserId = request.getParameter("userId");
+				if (strUserId!=null)
+				{
+					int userId = Integer.parseInt(strUserId);
+					try 
+					{
+						user = HibernateUserDAO.getInstance().getUserInfo(userId);
+						JSONObject json = new JSONObject();
+						json.put("firstname", user.getFirstname());
+						json.put("lastname", user.getLastname());
+						json.put("phone", user.getPhone());
+						json.put("mail", user.getMail());
+						json.put("age", user.getAge());
+						
+						String mess = json.toString();
+						String userInfo = new Gson().toJson(json).toString();
+						response.setContentType("application/json");
+			        	response.setCharacterEncoding("utf-8");
+						response.getWriter().write(mess);
+						
+					} 
+					catch (UserExceptionHandler e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			break;
 			case "update":
 				{
 					List<AppUser> user = null;
@@ -117,8 +149,7 @@ public class UserServelt extends HttpServlet {
 						catch (UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					}
 				}
-				break;
-				
+				break;				
 			case "delete":
 				{
 					String mail = request.getParameter("mail");
