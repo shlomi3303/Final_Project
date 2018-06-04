@@ -19,6 +19,7 @@ import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
+@SuppressWarnings("unchecked")
 public class HibernateApplicationDAO implements IApplicationDAO 
 {
 	private static HibernateApplicationDAO instance;
@@ -48,7 +49,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			{
 				if (application.getClass().equals(HandymanApplication.class))
 				{
-					application.setTTL(5);
+					application.setTTL(GlobalsFunctions.calculateTTL(application.getPeriod()));
 					application.setCategory("handyman");
 				}
 				else if (application.getClass().equals(RideApplication.class))
@@ -58,12 +59,12 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				}
 				else if (application.getClass().equals(OldersApplication.class))
 				{
-					application.setTTL(4);
+					application.setTTL(GlobalsFunctions.calculateTTL(application.getPeriod()));
 					application.setCategory("olders");
 				}
 				else if (application.getClass().equals(StudentApplication.class))
 				{
-					application.setTTL(6);
+					application.setTTL(GlobalsFunctions.calculateTTL(application.getPeriod()));
 					application.setCategory("student");
 				}
 				application.setIsAprroved(false);
@@ -92,9 +93,9 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	}
 
 	@Override
-	public void editApplication(int applicationId, Application updateApplication, String tableName) throws ApplicationExceptionHandler {
+	public void editApplication(int applicationId, Application updateApplication, String tableName) throws ApplicationExceptionHandler 
+	{
 		Session session = null;
-
 		try
 		{
 			initApplicationFactory();
@@ -143,12 +144,13 @@ public class HibernateApplicationDAO implements IApplicationDAO
 					}
 				}
 				
-				 session.getTransaction().commit();
+				session.getTransaction().commit();
 			}
 		}
-		catch (HibernateException e)
+		catch (Exception e)
 		{
-			if (session.getTransaction() !=null) session.getTransaction().rollback();
+			if (session.getTransaction() !=null) 
+				session.getTransaction().rollback();
 			throw new HibernateException (e);
 		}
 		finally 
@@ -163,9 +165,9 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		}
 
 	}
-
+	
 	@Override
-	public void deleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler 
+	public void hardDeleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler 
 	{
 		Application application = null;
 		Session session = null;
@@ -187,8 +189,48 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			
 			finally
 			{
-				 if (session!=null)
-	    			 session.close();
+				 try 
+		    	 {
+		    		 if (session!=null)
+		    			 session.close();
+		    	 } 
+		    	 catch(HibernateException e){throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");}
+			}
+		}
+	}
+	
+	@Override
+	public void deleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler 
+	{
+		Application application = null;
+		Session session = null;
+		application = HibernateApplicationDAO.getInstance().getApplication(applicationId, tableName);
+		if (application != null)
+		{
+			try 
+			{
+				initApplicationFactory();
+				session = getSession();
+				if (session != null)
+				{
+					session.beginTransaction();
+					application.setArchive(true);
+					session.update(application);
+					session.getTransaction().commit();	
+				}
+			} 
+			
+			catch (Exception e) {if (session.getTransaction() !=null) session.getTransaction().rollback();}
+			
+			finally
+			{
+				 try 
+		    	 {
+		    		 if (session!=null)
+		    			 session.close();
+		    	 } 
+		    	 catch(HibernateException e)
+				 {throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");}
 			}
 		}
 	}
@@ -218,15 +260,24 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		}
 		finally
 		{
-
-   		 	if (session!=null)
-   			 session.close();
+			 try 
+	    	 {
+	    		 if (session!=null)
+	    			 session.close();
+	    	 } 
+	    	 catch(HibernateException e)
+			 {
+	    		 try {
+	    			 throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");
+	    		 } 
+	    		 catch (ApplicationExceptionHandler e1){ 
+	    			 e1.printStackTrace();
+	    		 }
+	    	 }
 		}
 		return null;
 	}
 	
-	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Application getApplication(int applicationId, String tableName) throws ApplicationExceptionHandler 
 	{
@@ -236,13 +287,14 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    try
 	    {
 	    	String strTableName = getTableName(tableName);
-	    	if (!strTableName.equals("")){
+	    	if (!strTableName.equals(""))
+	    	{
 	    		
 		    	  initApplicationFactory();
 				  session = getSession();
 		    	  session.beginTransaction();
 		    	  
-		    	  application = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + applicationId +" and isArchive = false").getResultList();
+		    	  application = session.createQuery("from " + strTableName + " where applicationID = " + applicationId +" and isArchive = false").getResultList();
 			      if (application != null && !application.isEmpty())
 			      {
 			        session.getTransaction().commit();
@@ -254,8 +306,9 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    }
 	    catch (HibernateException e) 
 	    {
-	         if (session.getTransaction() != null) session.getTransaction().rollback();
-	         	throw new ApplicationExceptionHandler("Sorry, connection problem was detected");
+	         if (session.getTransaction() != null) 
+	        	 session.getTransaction().rollback();
+	         throw new ApplicationExceptionHandler("Error in get application: " + e.getMessage());
 	    }
 	    finally 
 	    {
@@ -269,7 +322,6 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Application> getUserApplications(int userId) throws ApplicationExceptionHandler 
 	{
@@ -297,20 +349,27 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    	      }
 	          }
 			 
-	      }catch (HibernateException e) {
-		         if (session.getTransaction() != null) session.getTransaction().rollback();
-	         throw new ApplicationExceptionHandler("Applications list not avilable at the moment" + e.getMessage());
-	      }
-		finally {
-	    	 try {
-	    		 if (session!=null)
+	    }
+		catch (HibernateException e) 
+		{
+		     if (session.getTransaction() != null) 
+		    	 session.getTransaction().rollback();
+	         throw new ApplicationExceptionHandler("Error in get User applications list: " + e.getMessage());
+	    }
+		finally 
+		{
+	    	try 
+	    	{
+	    		if (session!=null)
 	    			 session.close();
 	    		 
-	    	 } catch (HibernateException e){
+	    	} 
+	    	catch (HibernateException e)
+	    	{
 	    		 throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
-	    	 } 
-	      }
-	      return null;
+	    	} 
+	    }
+	    return null;
 	}
 	
 	@Override
@@ -320,48 +379,56 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		List<Integer> idList = null;
 		
 		List <Application> applicationsList = new ArrayList<>();
-		
-	try{	
-		initApplicationFactory();
-		session = getSession();
-   	  	session.beginTransaction();
-   	  	   	  	
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-   	  	CriteriaQuery<Integer> criteriaQuery = builder.createQuery(Integer.class);
-        Root<?> root2 = criteriaQuery.from(getTableMapping(tableName));
-        criteriaQuery.select(builder.max(root2.get("applicationID")));
-        idList = session.createQuery(criteriaQuery).getResultList();
-        session.getTransaction().commit();
-        int maxId = idList.get(0);
-    /*    
-        int maxId;
-        if (Id<num)
-        	maxId=Id;
-        else
-        	maxId=num;
-*/
-        while (applicationsList.size() !=num )
-        {
-        	Application app = getApplication(new Random().nextInt(maxId)+1, tableName);
-        	if (app != null)
-        	{
-        		applicationsList.add(app);
-        		if (applicationsList.size()==num)
-        			break;
-        	}
-        }
-		return new Gson().toJson(applicationsList).toString();
-	}
-	catch (Exception e)
-	{
-		e.printStackTrace();
-	}
-        
-	   finally{ 
-	    if (session!=null)
-	    	session.close();
-	   }
-	return null;
+			
+		try
+		{	
+			initApplicationFactory();
+			session = getSession();
+	   	  	session.beginTransaction();
+	   	  	   	  	
+	        CriteriaBuilder builder = session.getCriteriaBuilder();
+	   	  	CriteriaQuery<Integer> criteriaQuery = builder.createQuery(Integer.class);
+	        Root<?> root2 = criteriaQuery.from(getTableMapping(tableName));
+	        criteriaQuery.select(builder.max(root2.get("applicationID")));
+	        idList = session.createQuery(criteriaQuery).getResultList();
+	        session.getTransaction().commit();
+	        int maxId = idList.get(0);
+	        /*    
+	        int maxId;
+	        if (Id<num)
+	        	maxId=Id;
+	        else
+	        	maxId=num;
+	     	*/
+	        while (applicationsList.size() !=num )
+	        {
+	        	Application app = getApplication(new Random().nextInt(maxId)+1, tableName);
+	        	if (app != null)
+	        	{
+	        		applicationsList.add(app);
+	        		if (applicationsList.size()==num)
+	        			break;
+	        	}
+	        }
+			return new Gson().toJson(applicationsList).toString();
+		}
+		catch (Exception e)
+		{
+			throw new ApplicationExceptionHandler("Error in get random applications: " + e.getMessage());
+		}
+	        
+		finally
+		{
+			try 
+			{	
+				if (session!=null)
+					session.close();
+			} 
+			catch (HibernateException e1)
+			{
+				throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly " + e1.getMessage());
+			} 
+		}
 	}
 
 	
@@ -503,7 +570,6 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Application> getAllSpecificApplicationTable(String tableName) throws ApplicationExceptionHandler 
 	{
@@ -529,19 +595,21 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	          }
 	    }
 		catch (HibernateException e) 
-		  {
-		         if (session.getTransaction() != null) session.getTransaction().rollback();
-	         throw new ApplicationExceptionHandler("Applications list not avilable at the moment" + e.getMessage());
-	      }
-		finally {
+		{
+		     if (session.getTransaction() != null) 
+		    	 session.getTransaction().rollback();
+	         throw new ApplicationExceptionHandler("Error in get All Specific Application Table function " + e.getMessage());
+	    }
+		finally 
+		{
 	    	 try 
 	    	 {	
 	    		 if (session!=null)
 	    			 session.close();
-	    	 } catch (HibernateException e){
-	    		 throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly" + e.getMessage());
 	    	 } 
-	      }
+	    	 catch (HibernateException e1)
+	    		 {throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly " + e1.getMessage());} 
+	    }
 		
 	    return null;
 		

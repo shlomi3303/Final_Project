@@ -6,6 +6,8 @@ public class ConstantVariables
     public final static long TEST = 1000*60; 
     public final static long sessionMaxIdle =10*1000*60; 
 	public final static long ONCE_PER_DAY = 1000*60*60*24;
+	
+	
 
 	public final static String userName = "root";
 	public final static String password = "root";
@@ -24,12 +26,20 @@ public class ConstantVariables
 	public final static String offerDeclined = "מציע העזרה דחה את ההתאמה";
 	public final static String applicationDeclined = "מבקש העזרה דחה את ההתאמה";
 
-	//variable for Email
-	public final static String subjectMailApplication = "מחוברים לחיים: מישהו/י מוכנ/ה לעזור לך!";
+	//////variable for Email///////
+	
+	public final static String subjectMailInterestedInApplication = "מחוברים לחיים: מישהו/י מוכנ/ה לעזור לך!";
 	
 	private static String body1MailApplication = "נמצאה התאמה לאחת מבקשות העזרה שלך!";
 	private static String body2MailApplication = "נא כנס לאלפליקציה בכדי להשלים את תהליך העזרה";
 	public final static String bodyMailApplication = body1MailApplication + System.lineSeparator() + body2MailApplication;
+	
+	public final static String subjectMailInterestedInOffer = "מחוברים לחיים: מישהו/י מעוניינ/ת בעזרה שלך!";
+	
+	private static String body1InterestedInOffer = "מישהו/י מעוניינ/ת בקבלת סיוע לאחת מהצעות שהעלאת למחוברים לחיים";
+	private static String body2InterestedInOffer = "נא כנס/י לאלפליקציה בכדי להשלים את תהליך העזרה";
+	public final static String bodyMailInterestedInOffer = body1InterestedInOffer + System.lineSeparator() + body2InterestedInOffer;
+	
 	
 	//subject and body for case that both side approved
 	public final static String subjectMailBothApproved = "מחוברים לחיים: שני הצדדים אישרו את ההתאמה!";

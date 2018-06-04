@@ -28,6 +28,8 @@ public interface IOfferDAO
 	
 	public String getRandomOffer(int num, String tableName) throws OfferExceptionHandler;
 
-	public List<Offer> getaAllOfferMatches(List<Match> manApp); 
+	public List<Offer> getaAllOfferMatches(List<Match> manApp);
+
+	void hardDeleteOffer(int offerId, String tableName) throws OfferExceptionHandler; 
 
 }

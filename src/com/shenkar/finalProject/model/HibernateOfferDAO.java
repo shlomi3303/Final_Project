@@ -49,7 +49,7 @@ public class HibernateOfferDAO implements IOfferDAO
 			{
 				if (offer.getClass().equals(HandymanOffer.class))
 				{
-					offer.setTTL(5);
+					offer.setTTL(GlobalsFunctions.calculateTTL(offer.getPeriod()));
 					offer.setCategory("handyman");
 				}
 				else if (offer.getClass().equals(RideOffer.class))
@@ -59,12 +59,12 @@ public class HibernateOfferDAO implements IOfferDAO
 				}
 				else if (offer.getClass().equals(OldersOffer.class))
 				{
-					offer.setTTL(4);
+					offer.setTTL(GlobalsFunctions.calculateTTL(offer.getPeriod()));
 					offer.setCategory("olders");
 				}
 				else if (offer.getClass().equals(StudentOffer.class))
 				{
-					offer.setTTL(6);
+					offer.setTTL(GlobalsFunctions.calculateTTL(offer.getPeriod()));
 					offer.setCategory("student");
 				}
 				offer.setIsAprroved(false);
@@ -165,7 +165,7 @@ public class HibernateOfferDAO implements IOfferDAO
 	}
 
 	@Override
-	public void deleteOffer(int offerId, String tableName) throws OfferExceptionHandler 
+	public void hardDeleteOffer(int offerId, String tableName) throws OfferExceptionHandler 
 	{
 		Offer offer = null;
 		Session session = null;
@@ -179,6 +179,35 @@ public class HibernateOfferDAO implements IOfferDAO
 				{  
 			    	session.beginTransaction();
 					session.createQuery("delete from " + getTableName(tableName) + " where id = " + offerId).executeUpdate();
+		        	session.getTransaction().commit();
+				}
+			}
+			catch  (HibernateException e) 
+			{if (session.getTransaction() != null) session.getTransaction().rollback();}
+			finally
+			{
+				if (session!=null)
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public void deleteOffer(int offerId, String tableName) throws OfferExceptionHandler 
+	{
+		Offer offer = null;
+		Session session = null;
+		offer = HibernateOfferDAO.getInstance().getOffer(offerId, tableName);
+		if (offer !=null){
+			try
+			{
+				initOfferFactory();
+				session = getSession();
+				if (session!=null)
+				{  
+			    	session.beginTransaction();
+			    	offer.setArchive(true);
+			    	session.update(offer);
 		        	session.getTransaction().commit();
 				}
 			}
@@ -235,7 +264,8 @@ public class HibernateOfferDAO implements IOfferDAO
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Offer> getUserOffers(int userId) throws OfferExceptionHandler {
+	public List<Offer> getUserOffers(int userId) throws OfferExceptionHandler 
+	{
 		Session session = null;
 		List <Offer> offers = null;
 
@@ -442,8 +472,6 @@ public class HibernateOfferDAO implements IOfferDAO
 		return null;
 	}
 	
-	
-	
 	private String getTableName(String tableName) 
 	{
 		if (tableName.equals("olders"))
@@ -490,6 +518,7 @@ public class HibernateOfferDAO implements IOfferDAO
 			e.printStackTrace();
 		}
 	}
+	
 	private static Session getSession() throws HibernateException {         
 		   Session sess = null;       
 		   try {         
@@ -498,7 +527,8 @@ public class HibernateOfferDAO implements IOfferDAO
 		       sess = offerFactory.openSession();     
 		   }             
 		   return sess;
-	} 
+	}
+	
 	private void updateSameVarOffer(Offer offer, Offer updateOffer)
 	{
 		offer.setLocation(updateOffer.getLocation());

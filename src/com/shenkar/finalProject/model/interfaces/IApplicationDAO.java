@@ -30,4 +30,6 @@ public interface IApplicationDAO
 	public String getRandomApplication(int num, String tableName) throws ApplicationExceptionHandler;
 	
 	public List<Application> getaAllApplicationMatches (List<Match> manApp);
+
+	public void hardDeleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler;
 }

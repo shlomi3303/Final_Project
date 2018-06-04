@@ -9,98 +9,89 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import com.google.gson.Gson;
+import com.shenkar.finalProject.model.AppUser;
+import com.shenkar.finalProject.model.HibernateManualMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
+import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 
-/**
- * Servlet implementation class OfferServelt
- */
 @WebServlet(value="/OfferServelt")
-public class OfferServelt extends HttpServlet {
+public class OfferServelt extends HttpServlet 
+{
 	private static final long serialVersionUID = 1L;
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public OfferServelt() {super();}
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-    
-    //insert function trigger into doGet()
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		
 		String function = request.getParameter("function");
 
 		if (function!=null && !function.isEmpty())
 		{
-			
 			switch (function)
 			{
-		
 				case "create":
-					{
-						try {addNewOffer(request);
-							response.getWriter().println(Thread.currentThread().getName());
-						} 
-						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
-					}
+				{
+					try {addNewOffer(request);
+						response.getWriter().println(Thread.currentThread().getName());
+					} 
+					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
+				}
 				
 				case "update":
-					{
-						try {updateOffer(request);}
-						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}			
-					}
+				{
+					try {updateOffer(request);}
+					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
+				}
 					
 				case "getOffer":
-					{
-						String StringOfferId = request.getParameter("offerId");
-						String tableName = request.getParameter("tableName");
+				{
+					String StringOfferId = request.getParameter("offerId");
+					String tableName = request.getParameter("tableName");
 
-						Offer offer = null;
-						try {offer = getOffer(StringOfferId, tableName);}
-						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
-			
-						String strOffer = new Gson().toJson(offer).toString();
-						response.setContentType("application/json");
-			        	response.setCharacterEncoding("utf-8");
-						response.getWriter().write(strOffer);
-					}
+					Offer offer = null;
+					try {offer = getOffer(StringOfferId, tableName);}
+					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+		
+					String strOffer = new Gson().toJson(offer).toString();
+					response.setContentType("application/json");
+		        	response.setCharacterEncoding("utf-8");
+					response.getWriter().write(strOffer);
 					break;
+				}
 				
 				case "delete":
-					{
+				{
 						try {deleteOffer(request);}
-						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}	
-					}
-					break;
+						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+						break;
+				}
 					
 				case "getAllOffersUser":
+				{
+					String stringUserID = request.getParameter("userId");
+					if (stringUserID!=null && !stringUserID.isEmpty())
 					{
-						String stringUserID = request.getParameter("userId");
-						if (stringUserID!=null && !stringUserID.isEmpty())
+						List<Offer> offers = null;
+						try 
 						{
-							List<Offer> offers = null;
-							try 
-							{
-								offers = getAllOffersUser(stringUserID);
-								String offerArray = new Gson().toJson(offers).toString();
-								response.setContentType("application/json");
-					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(offerArray);	
-							}
-							catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}		
+							offers = getAllOffersUser(stringUserID);
+							String offerArray = new Gson().toJson(offers).toString();
+							response.setContentType("application/json");
+				        	response.setCharacterEncoding("utf-8");
+							response.getWriter().write(offerArray);	
 						}
+						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}		
 					}
 					break;
-					
-					
+				}
+				
 				case "getAllSpecificTable":
 				{
 					String tableName = request.getParameter("tableName");
@@ -124,6 +115,7 @@ public class OfferServelt extends HttpServlet {
 				}
 					
 				case "randomOffers":
+				{
 					try 
 					{
 						String strOffersList = getRandomOffer(request);
@@ -133,7 +125,47 @@ public class OfferServelt extends HttpServlet {
 					}
 					catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
-					
+				}
+				case "getUserToInform":
+				{
+					try
+					{
+						String strOfferId = request.getParameter("offerId");
+						if (strOfferId!=null)
+						{
+							int userId = HibernateManualMatchDAO.getInstance().getUserByOfferId(Integer.parseInt(strOfferId));
+							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
+							if (user!=null)
+							{
+								JSONObject json = new JSONObject();
+								json.put("firstname", user.getFirstname());
+								json.put("lastname", user.getLastname());
+								json.put("phone", user.getPhone());
+								json.put("mail", user.getMail());
+								json.put("age", user.getAge());
+								
+								String message = json.toString();
+								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
+								response.getWriter().write(message);
+							}
+							else
+							{
+								System.out.println("The user was not found");
+							}
+						}
+						
+					}
+					catch (Exception e)
+					{
+						try {
+							throw new OfferExceptionHandler("Error in get User Information by offer Id: " + e.getMessage());
+						} catch (OfferExceptionHandler e1) {
+							e1.printStackTrace();
+						}
+					}
+					break;
+				}	
 				default:
 					String str = "please insert a valid value into fucntion";
 					response.getWriter().write(str);
@@ -143,13 +175,11 @@ public class OfferServelt extends HttpServlet {
 		
 	}
 
-	
 	private List<Offer> getAllOffersUser(String stringUserID) throws OfferExceptionHandler
 	{
 		int userId = Integer.parseInt(stringUserID);
 		return HibernateOfferDAO.getInstance().getUserOffers(userId);
 	}
-	
 
 	private void deleteOffer(HttpServletRequest req) throws OfferExceptionHandler
 	{
@@ -228,5 +258,4 @@ public class OfferServelt extends HttpServlet {
 		
 		return null;
 	}
-	
 }

@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
-import com.shenkar.finalProject.model.ManualMatchUserApplication;
 import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
@@ -33,15 +32,8 @@ import com.shenkar.finalProject.model.UserExceptionHandler;
 public class UserServelt extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public UserServelt() {super();}
     
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		
@@ -118,12 +110,10 @@ public class UserServelt extends HttpServlet {
 						json.put("mail", user.getMail());
 						json.put("age", user.getAge());
 						
-						String mess = json.toString();
-						String userInfo = new Gson().toJson(json).toString();
+						String message = json.toString();
 						response.setContentType("application/json");
 			        	response.setCharacterEncoding("utf-8");
-						response.getWriter().write(mess);
-						
+						response.getWriter().write(message);
 					} 
 					catch (UserExceptionHandler e) {
 						e.printStackTrace();
@@ -243,15 +233,5 @@ public class UserServelt extends HttpServlet {
 		
 		AppUser user = new AppUser(fname, lname, mail, password, phone, IntegerAge, familyStatus, IntegerKids, userLocation, student, olders, handyman, ride);
 		return user;
-	}
-	
-	
-	private String getJsonString(AppUser user) 
-	{
-	    // Before converting to GSON check value of id
-	    Gson gson = null;
-	    gson = new Gson();
-	    
-	    return gson.toJson(user);
 	}
 }

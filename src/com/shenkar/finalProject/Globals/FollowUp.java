@@ -13,7 +13,6 @@ import javax.servlet.annotation.WebListener;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
@@ -26,6 +25,7 @@ import com.shenkar.finalProject.model.RideApplication;
 import com.shenkar.finalProject.model.RideOffer;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
+@SuppressWarnings("unchecked")
 @WebListener
 public class FollowUp implements ServletContextListener 
 {
@@ -40,23 +40,20 @@ public class FollowUp implements ServletContextListener
         System.out.println("Follow Up model is Closed");
         if (timer!=null)
         	timer.cancel();
-
 	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) 
 	{
         System.out.println("Follow Up model is On");
-        System.out.println("follow up thread: " +Thread.currentThread().getName());
-        
-       // timer.scheduleAtFixedRate(new followUpRunner(), 0, ConstantVariables.TEST);
+        System.out.println("follow up thread: " + Thread.currentThread().getName());
+        //timer.scheduleAtFixedRate(new followUpRunner(), 0, ConstantVariables.TEST);
 
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void reminderScanner()
 	{
-		//Date date = new Date();
+		//Date today = new Date();
 		Session session = null;
 		
 		List <ManualMatchUserOffer> mmOffer = null;
@@ -64,11 +61,11 @@ public class FollowUp implements ServletContextListener
 		
 		try
 		{
-			initCleanUpFactory();
+			initFollowUpFactory();
 			session = getSessionManualMatch();
 			session.beginTransaction();
 			
-			mmOffer = session.createQuery ("from " + ManualMatchUserOffer.class.getName() + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForAppApproval + "%").getResultList();
+			mmOffer = session.createQuery ("from " + ManualMatchUserOffer.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForAppApproval + "%").getResultList();
 			
 			if (mmOffer!= null)
 			{
@@ -78,9 +75,11 @@ public class FollowUp implements ServletContextListener
 					{
 						mmOffer.get(i).setReminderCount(mmOffer.get(i).getReminderCount()+1);
 						session.update(mmOffer.get(i));
+						
 						//notify the user application that he needs to approve or decline the match
 						HibernateApplicationDAO.getInstance().notification(mmOffer.get(i).getUserToInform(), ConstantVariables.subjectReminderApplication, ConstantVariables.bodyMailReminderApplication);
 					}
+					//handle with the ttl value?
 					else if (mmOffer.get(i).getReminderCount()==3)
 					{
 						//change the match to archive
@@ -95,7 +94,7 @@ public class FollowUp implements ServletContextListener
 				}
 			}
 			
-			mmApp = session.createQuery ("from " + ManualMatchUserApplication.class.getName() + " as table where table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForOfferApproval + "%").getResultList();
+			mmApp = session.createQuery ("from " + ManualMatchUserApplication.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForOfferApproval + "%").getResultList();
 			
 			if (mmApp!=null)
 			{
@@ -136,13 +135,12 @@ public class FollowUp implements ServletContextListener
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void sendSurvey() throws ApplicationExceptionHandler, UserExceptionHandler, IOException, OfferExceptionHandler
 	{
-		Date date = new Date();
+		Date today = new Date();
 		Session session = null;
 
-		System.out.println("In send Survey method. The current date and time is: " + date);
+		System.out.println("In send Survey method. The current date and time is: " + today);
 		
 		//send survey to all the match in Manual Match offer table
 		List <ManualMatchUserOffer> mmOffer = null;
@@ -150,7 +148,7 @@ public class FollowUp implements ServletContextListener
 		
 		try
 		{
-			initCleanUpFactory();
+			initFollowUpFactory();
 			session = getSessionManualMatch();
 			session.beginTransaction();
 			
@@ -164,7 +162,7 @@ public class FollowUp implements ServletContextListener
 					if ( mmOffer.get(i).getCategory().equals("ride"))
 					{
 						RideApplication ride = (RideApplication) HibernateApplicationDAO.getInstance().getApplication( mmOffer.get(i).getApplicationID(), mmOffer.get(i).getCategory());
-						if (date.compareTo(ride.getEndPeriod())>0)
+						if (today.compareTo(ride.getEndPeriod())>0)
 						{
 							//send mail to the application user
 							HibernateApplicationDAO.getInstance().notification(ride.getUserId(), ConstantVariables.subjectMailSurvey, ConstantVariables.bodyMailSurvey);
@@ -176,7 +174,7 @@ public class FollowUp implements ServletContextListener
 					{
 						Application app = HibernateApplicationDAO.getInstance().getApplication( mmOffer.get(i).getApplicationID(), mmOffer.get(i).getCategory());
 
-						if (date.compareTo(app.getPeriod())>0)
+						if (today.compareTo(app.getPeriod())>0)
 						{
 							//send mail to the application user
 							HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailSurvey, ConstantVariables.bodyMailSurvey);
@@ -196,7 +194,7 @@ public class FollowUp implements ServletContextListener
 					if (mmApp.get(j).getCategory().equals("ride"))
 					{
 						RideOffer ride = (RideOffer)HibernateOfferDAO.getInstance().getOffer(mmApp.get(j).getOfferId(), mmApp.get(j).getCategory());
-						if (date.compareTo(ride.getEndPeriod()) >0 );
+						if (today.compareTo(ride.getEndPeriod()) >0 );
 						{
 							//send mail to the offer user
 							HibernateOfferDAO.getInstance().notification(ride.getOfferId(), ConstantVariables.subjectMailSurvey, ConstantVariables.bodyMailSurvey);
@@ -243,13 +241,14 @@ public class FollowUp implements ServletContextListener
 	}
 	
 	
-	private static void initCleanUpFactory ()
+	private static void initFollowUpFactory ()
 	{
 		try
 		{
 		 if (followUpManualMatchFactory==null)
 		  {
-			 followUpManualMatchFactory = new Configuration().configure("hibernateTest.cfg.xml").buildSessionFactory();
+
+			 followUpManualMatchFactory = GlobalsFunctions.initSessionFactory(followUpManualMatchFactory,"hibernateMatch.cfg.xml");
 		  }
 		}
 		catch (Exception e){}
@@ -265,7 +264,4 @@ public class FollowUp implements ServletContextListener
 		   }             
 		   return sess;
 	} 
-	
-
-
 }

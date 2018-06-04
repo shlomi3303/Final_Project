@@ -10,17 +10,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.WebSocket;
+import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
+import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.HibernateUserDAO;
 
 import api.CoralogixLogger;
 
-/**
- * Servlet implementation class ApplicationServelt
- */
 @WebServlet(value="/ApplicationServelt")
 public class ApplicationServelt extends HttpServlet 
 {
@@ -30,15 +32,8 @@ public class ApplicationServelt extends HttpServlet
 	private static final String appName = "Final Project";
 	private static final String subSystem = "Application Servlet";
 
-	
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public ApplicationServelt() {super();}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
        // int companyId = 4092;
@@ -49,15 +44,15 @@ public class ApplicationServelt extends HttpServlet
         //logger.info("This is my serious test log 1");
         //logger.info("This is my serious test log 2");
 		
-		
 		String function = request.getParameter("function");
 		
-		if (function!=null && !function.isEmpty()){
+		if (function!=null && !function.isEmpty())
+		{
 		
 			switch (function)
 			{
-			case "create":
-			{
+				case "create":
+				{
 					try 
 					{
 						addNewApplication(request, response);
@@ -67,15 +62,14 @@ public class ApplicationServelt extends HttpServlet
 					} 
 					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
-			}	
-			case "update":
-			{	
-					try {updateApplication(request, response);}
-					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
-					break;
-				
-			}	
-			case "getApplication":
+				}	
+				case "update":
+				{	
+						try {updateApplication(request, response);}
+						catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+						break;
+				}	
+				case "getApplication":
 				{
 					String StringApplicationId = request.getParameter("applicationId");				
 					String tableName = request.getParameter("tableName");
@@ -96,15 +90,15 @@ public class ApplicationServelt extends HttpServlet
 					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
 				}
-				
-			case "delete":
+					
+				case "delete":
 				{
-					try {deleteApplication(request);}
-					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
-					break;
+						try {deleteApplication(request);}
+						catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+						break;
 				}
 				
-			case "getAllApplicationsUser":
+				case "getAllApplicationsUser":
 				{
 					String stringUserID = request.getParameter("userId");
 					if (stringUserID!=null && !stringUserID.isEmpty())
@@ -125,30 +119,30 @@ public class ApplicationServelt extends HttpServlet
 					}
 					break;
 				}
-				
-			case "getAllSpecificTable":
-			{
-				String tableName = request.getParameter("tableName");
-
-				List<Application> applications = null;
-				
-				try 
+					
+				case "getAllSpecificTable":
 				{
-					applications  = getAllSpecificTable(tableName);
-					if (applications!=null)
+					String tableName = request.getParameter("tableName");
+	
+					List<Application> applications = null;
+					
+					try 
 					{
-						String applicationArray = new Gson().toJson(applications).toString();
-						response.setContentType("application/json");
-						response.setCharacterEncoding("utf-8");
-						response.getWriter().write(applicationArray);
-					}
-				} 
-				catch (ApplicationExceptionHandler e) 
-				{e.printStackTrace(response.getWriter());}
-				break;
-			}
-				
-			case "randomApplications":
+						applications  = getAllSpecificTable(tableName);
+						if (applications!=null)
+						{
+							String applicationArray = new Gson().toJson(applications).toString();
+							response.setContentType("application/json");
+							response.setCharacterEncoding("utf-8");
+							response.getWriter().write(applicationArray);
+						}
+					} 
+					catch (ApplicationExceptionHandler e) 
+					{e.printStackTrace(response.getWriter());}
+					break;
+				}
+					
+				case "randomApplications":
 				{
 					try 
 					{
@@ -163,22 +157,66 @@ public class ApplicationServelt extends HttpServlet
 					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
 				}
-			case "test":
-			{
-				String userId = request.getParameter("userId");
-				System.out.println("the user id from post man is: " + userId);
-				logger.info("The user id is: " + userId);
-				WebSocket.sendMessageToClient("test", userId);
-				//logger.info()
-				/*
-				String to = request.getParameter("mail");
-				sendMail.sendEmail(to, "Hello to you Yossi!!", "sending from Heruko using sendGrid");
-				*/
-				break;
-			}
-			default:
-				String str = "please insert a valid value into fucntion";
-				response.getWriter().write(str);
+				
+				case "getUserToInform":
+				{
+					try
+					{
+						String strAppId = request.getParameter("applicationId");
+						if (strAppId!=null)
+						{
+							int userId = HibernateManualMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId));
+							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
+							if (user!=null)
+							{
+								JSONObject json = new JSONObject();
+								json.put("firstname", user.getFirstname());
+								json.put("lastname", user.getLastname());
+								json.put("phone", user.getPhone());
+								json.put("mail", user.getMail());
+								json.put("age", user.getAge());
+								
+								String message = json.toString();
+								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
+								response.getWriter().write(message);
+							}
+							else
+							{
+								System.out.println("The user was not found");
+							}
+						}
+						
+					}
+					catch (Exception e)
+					{
+						try {
+							throw new ApplicationExceptionHandler("Error in get User Information by Application Id: " + e.getMessage());
+						} catch (ApplicationExceptionHandler e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					break;
+				}	
+				
+				case "test":
+				{
+					String userId = request.getParameter("userId");
+					System.out.println("the user id from post man is: " + userId);
+					logger.info("The user id is: " + userId);
+					WebSocket.sendMessageToClient("test", userId);
+					
+					//logger.info()
+					/*
+					String to = request.getParameter("mail");
+					sendMail.sendEmail(to, "Hello to you Yossi!!", "sending from Heruko using sendGrid");
+					*/
+					break;
+				}
+				default:
+					String str = "please insert a valid value into fucntion";
+					response.getWriter().write(str);
 			}
 		}
 	}

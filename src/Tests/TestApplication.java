@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import org.joda.time.Days;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -50,21 +48,24 @@ public class TestApplication {
 	    Date period2  = (Date) df.parse(testDateString2);
 	    
 	    //today
-		String testDateString3 = "2018-06-1";
-	    Date period1  = (Date) df.parse(testDateString3);
+		String testDateString3 = "2018-07-27";
+	    Date today  = (Date) df.parse(testDateString3);
 
-	    LocalDate date1 = period1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+	    System.out.println(today.compareTo(period2));
+	    
+	    LocalDate todayy = today.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	    LocalDate date2 = period2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	    //Duration daysBetween = Duration.between(date1, date2);
 
-	    int daus = Period.between(date1, date2).getDays();
-	    int mon = Period.between(date1, date2).getMonths();
+	    int daus = Period.between( date2,todayy).getDays();
+	    int mon = Period.between(date2,todayy).getMonths();
+	    
+	    System.out.println("days: "+daus);
+	    System.out.println("month: "+ mon);
+	    
+		//System.out.println("list is " + HibernateApplicationDAO.getInstance().getApplication(8, "handyman"));
 
-	    
-	    System.out.println(daus);
-	    System.out.println(mon);
-	    
-	    
 	    
 	   /* 
 	    Days d = Days.daysBetween(period2, period1);

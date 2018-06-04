@@ -21,5 +21,9 @@ public interface IManualMatch
 	
 	public List<Match> getAllUserToInform(int userToInform);
 
+	int getUserByOfferId(int offerId);
+
+	int getUserByApplicationId(int applicationId);
+
 
 }

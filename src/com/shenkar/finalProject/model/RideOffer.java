@@ -35,25 +35,14 @@ public class RideOffer extends Offer
 		this.endPeriod = endPeriod;
 	}
 
-
-	/**
-	 * @return the source
-	 */
 	public String getSource() {
 		return source;
 	}
 
-
-	/**
-	 * @param source the source to set
-	 */
 	public void setSource(String source) {
 		this.source = source;
 	}
 
-	/**
-	 * @return the destination
-	 */
 	public String getDestination() {
 		return destination;
 	}
@@ -65,10 +54,6 @@ public class RideOffer extends Offer
 		this.destination = destination;
 	}
 
-
-	/**
-	 * @return the timeRange
-	 */
 	public Date getEndPeriod() {
 		return endPeriod;
 	}

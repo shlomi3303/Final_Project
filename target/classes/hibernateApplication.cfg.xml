@@ -9,13 +9,12 @@
    
     <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 	<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-	<property name="hibernate.default_schema">gz1an2hjx3itd2un</property>
 	<property name="hibernate.hbm2ddl.auto">update</property>
 	    
 	<property name="connection.pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
 	    
-	<!-- Mapping files -->
+	<!-- Mapping Classes -->
 	<mapping class="com.shenkar.finalProject.model.HandymanApplication"/>
 	<mapping class="com.shenkar.finalProject.model.OldersApplication"/>
 	<mapping class="com.shenkar.finalProject.model.RideApplication"/>
