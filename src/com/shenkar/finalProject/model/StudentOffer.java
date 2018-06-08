@@ -31,7 +31,7 @@ public class StudentOffer extends Offer
 			String userLocation,String gender, String language, String img, String title, String description,
 			String educationLevel, String fieldOfStudy, boolean homeWorks, boolean testStudy, boolean practice, String status) 
 	{
-		super(userId, period, location, periodic, urgency, status,userLocation, false, gender, language, img, title, description);
+		super(userId, period, location, periodic, status,userLocation, false, gender, language, img, title, description);
 		this.educationLevel = educationLevel;
 		this.fieldOfStudy = fieldOfStudy;
 		this.homeWorks = homeWorks;

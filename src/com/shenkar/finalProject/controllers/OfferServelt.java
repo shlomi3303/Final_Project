@@ -1,6 +1,7 @@
 package com.shenkar.finalProject.controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -18,6 +19,7 @@ import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
+import com.shenkar.finalProject.model.UserExceptionHandler;
 
 @WebServlet(value="/OfferServelt")
 public class OfferServelt extends HttpServlet 
@@ -131,9 +133,10 @@ public class OfferServelt extends HttpServlet
 					try
 					{
 						String strOfferId = request.getParameter("offerId");
-						if (strOfferId!=null)
+						String category = request.getParameter("category");
+						if (strOfferId!=null && category!=null)
 						{
-							int userId = HibernateManualMatchDAO.getInstance().getUserByOfferId(Integer.parseInt(strOfferId));
+							int userId = HibernateManualMatchDAO.getInstance().getUserByOfferId(Integer.parseInt(strOfferId), category);
 							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 							if (user!=null)
 							{
@@ -165,7 +168,39 @@ public class OfferServelt extends HttpServlet
 						}
 					}
 					break;
-				}	
+				}
+				
+				case "getOffersIntersted":
+				{
+					String strUserId = request.getParameter("userId");
+					
+					if (strUserId!=null)
+					{
+						int userId = Integer.parseInt(strUserId);
+						AppUser user = null;
+						try {
+							user = HibernateUserDAO.getInstance().getUserInfo(userId);
+						} catch (UserExceptionHandler e) {
+							e.printStackTrace();
+						}
+						if (user!=null)
+						{
+							try 
+							{
+								String strUserOffersPreferences = getUserOffersPreferences(user);
+								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
+								response.getWriter().write(strUserOffersPreferences);
+							}
+							catch (OfferExceptionHandler e) 
+							{
+								e.printStackTrace();
+							}
+						}
+					}
+					break;
+				}
+				
 				default:
 					String str = "please insert a valid value into fucntion";
 					response.getWriter().write(str);
@@ -175,6 +210,40 @@ public class OfferServelt extends HttpServlet
 		
 	}
 
+	private String getUserOffersPreferences(AppUser user) throws OfferExceptionHandler
+	{
+		
+		List<Object> offerList = new ArrayList<Object>();
+		
+		if (user.getRide())
+		{
+			List<Offer> rideList = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("ride");
+			if (rideList!=null)
+				offerList.add(rideList);
+		}
+		if (user.getHandyman())
+		{
+			List<Offer> handymanList = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("handyman");
+			if (handymanList!=null)
+				offerList.add(handymanList);
+		}
+		if (user.getOlders())
+		{
+			List<Offer> oldersList = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("olders");
+			if (oldersList!=null)
+				offerList.add(oldersList);
+		}
+		if (user.getStudent())
+		{
+			List<Offer> studentList = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("student");
+			if (studentList!=null)
+				offerList.add(studentList);
+		}
+					
+		return new Gson().toJson(offerList).toString();
+	}
+	
+	
 	private List<Offer> getAllOffersUser(String stringUserID) throws OfferExceptionHandler
 	{
 		int userId = Integer.parseInt(stringUserID);

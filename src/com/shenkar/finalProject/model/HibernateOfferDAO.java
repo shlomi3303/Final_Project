@@ -534,7 +534,6 @@ public class HibernateOfferDAO implements IOfferDAO
 		offer.setLocation(updateOffer.getLocation());
 		offer.setPeriod(updateOffer.getPeriod());
 		offer.setPeriodic(updateOffer.getPeriodic());
-		offer.setUrgency(updateOffer.getUrgency());
 		offer.setUserLocation(updateOffer.getUserLocation());
 		offer.setGender(updateOffer.getGender());
 		offer.setLanguage(updateOffer.getLanguage());

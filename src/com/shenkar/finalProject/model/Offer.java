@@ -27,9 +27,6 @@ public class Offer
 	@Temporal(TemporalType.TIMESTAMP)
 	Date periodic;
 	
-	@Column(name="Urgency")
-	boolean urgency;
-	
 	@Column(name="TTL")
 	protected int TTL;
 	
@@ -65,7 +62,7 @@ public class Offer
 
 	public Offer(){}
 	
-	public Offer(int userId, Date period, String location, Date periodic, boolean urgency,
+	public Offer(int userId, Date period, String location, Date periodic,
 			String status, String userLocation, boolean isAprroved, 
 			String gender, String language, String img, String title, String description) 
 	{
@@ -74,7 +71,6 @@ public class Offer
 		this.period = period;
 		this.location = location;
 		this.periodic = periodic;
-		this.urgency = urgency;
 		this.status = status;
 		this.userLocation = userLocation;
 		this.isAprroved = isAprroved;
@@ -125,14 +121,6 @@ public class Offer
 
 	public void setPeriodic(Date periodic) {
 		this.periodic = periodic;
-	}
-
-	public boolean getUrgency() {
-		return urgency;
-	}
-
-	public void setUrgency(boolean urgency) {
-		this.urgency = urgency;
 	}
 
 	public int getTTL() {

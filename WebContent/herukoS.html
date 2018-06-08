@@ -31,10 +31,7 @@
     	demo.innerHTML = demo.innerHTML + "<br/>" + event.data;
 	};
 	
-	socket.onclose = function(){
-        //setTimeout(setupWebSocket, 1000);
-        //console.log("reconnect to the server");
-	}	
+	socket.onclose = function(){}	
 	
 	function sendMessage(message)
 	{

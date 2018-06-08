@@ -44,10 +44,8 @@ public class TestOffer {
 		String image = "www.test.co.il";
 		
 		
-		Offer offer1 = new Offer(123,period, location, periodic,
-				urgency, description, "", isAprroved,"male", "english", "high", "math", image);
-		Offer offer2 = new Offer(123,period, location, periodic,
-				urgency, description, "waiting", isAprroved,"male", "english", "high", "math", image);
+		Offer offer1 = new Offer(123,period, location, periodic, description, "", isAprroved,"male", "english", "high", "math", image);
+		Offer offer2 = new Offer(123,period, location, periodic,description, "waiting", isAprroved,"male", "english", "high", "math", image);
 		
 		//String arr = new Gson().toJson(offer1, Offer[].class);
 		// System.out.println(arr);

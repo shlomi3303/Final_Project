@@ -57,7 +57,6 @@ public class MatchServlet extends HttpServlet {
 				}
 				case "accept":
 				{
-					
 					acceptManualMatch(request, response);
 					break;
 				}

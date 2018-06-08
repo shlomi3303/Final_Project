@@ -30,7 +30,7 @@ public class OldersOffer extends Offer
 			boolean shopping, boolean cooking, boolean escortedAged,
 			boolean conversation, String status) 
 	{
-		super(userId, period, location, periodic, urgency, status, userLocation, false, gender, language, img, title, description);
+		super(userId, period, location, periodic, status, userLocation, false, gender, language, img, title, description);
 		this.shopping = shopping;
 		this.cooking = cooking;
 		this.escortedAged = escortedAged;

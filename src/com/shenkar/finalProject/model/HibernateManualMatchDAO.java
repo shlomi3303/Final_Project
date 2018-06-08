@@ -147,7 +147,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 						
 						manualApp.setOfferAproved(true);
 						manualApp.setStatus(ConstantVariables.bothSideApproved);
-						manualApp.setUserToInform(0);
+						//manualApp.setUserToInform(0);
 						
 						if (!session.getTransaction().isActive())
 							session.beginTransaction();
@@ -179,7 +179,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 							
 							manualOffer.setApplicationAproved(true);
 							manualOffer.setStatus(ConstantVariables.bothSideApproved);
-							manualOffer.setUserToInform(0);
+							//manualOffer.setUserToInform(0);
 							
 							if (!session.getTransaction().isActive())
 								session.beginTransaction();
@@ -222,35 +222,38 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			{
 				if (match.getClass().equals(ManualMatchUserOffer.class))
 				{						
-						try 
-						{
-							ManualMatchUserOffer offer = (ManualMatchUserOffer)match;
-							offer.setOfferAproved(true);
-							offer.setApplicationAproved(false);
-							offer.setStatus(ConstantVariables.waitingForAppApproval);
-							
-							Application application = HibernateApplicationDAO.getInstance().getApplication(offer.getApplicationID(), tableName);
-							
-							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForYourApproval, application);
-							
-							if (application.getCategory().equals("ride"))
-							{
-								RideApplication ride = (RideApplication) application;
-								offer.setTTL(GlobalsFunctions.calculateTTL(ride.getEndPeriod()));
-							}
-							
-							offer.setTTL(GlobalsFunctions.calculateTTL(application.getPeriod()));
-							offer.setUserToInform(application.getUserId());
-							
-							HibernateApplicationDAO.getInstance().notification(application.getUserId(), ConstantVariables.subjectMailInterestedInApplication, ConstantVariables.bodyMailApplication);
-							
-							session.beginTransaction();
-							session.save(offer); 
-							session.getTransaction().commit();
+					try 
+					{
+						ManualMatchUserOffer offer = (ManualMatchUserOffer)match;
+						offer.setOfferAproved(true);
+						offer.setApplicationAproved(false);
+						offer.setStatus(ConstantVariables.waitingForAppApproval);
 						
-						} 
-						catch (Exception e) 
-						{e.printStackTrace();}
+						Application application = HibernateApplicationDAO.getInstance().getApplication(offer.getApplicationID(), tableName);
+						
+						HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForYourApproval, application);
+						
+						HibernateUserInterestsDAO.getInstance().updateUserInterests(application, offer.getUserId());
+						
+						if (application.getCategory().equals("ride"))
+						{
+							RideApplication ride = (RideApplication) application;
+							offer.setTTL(GlobalsFunctions.calculateTTL(ride.getEndPeriod()));
+						}
+						else
+							offer.setTTL(GlobalsFunctions.calculateTTL(application.getPeriod()));
+						
+						offer.setUserToInform(application.getUserId());
+						
+						HibernateApplicationDAO.getInstance().notification(application.getUserId(), ConstantVariables.subjectMailInterestedInApplication, ConstantVariables.bodyMailApplication);
+						
+						session.beginTransaction();
+						session.save(offer); 
+						session.getTransaction().commit();
+					
+					} 
+					catch (Exception e) 
+					{e.printStackTrace();}
 				}
 						
 				else if (match.getClass().equals(ManualMatchUserApplication.class))
@@ -263,12 +266,15 @@ public class HibernateManualMatchDAO implements IManualMatch {
 					Offer offer = HibernateOfferDAO.getInstance().getOffer(application.getOfferId(), tableName);
 					HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForYourApproval, offer);
 					
+					HibernateUserInterestsDAO.getInstance().updateUserInterests(offer, application.getUserId());
+					
 					if (offer.getCategory().equals("ride"))
 					{	
 						RideOffer ride = (RideOffer) offer;
 						application.setTTL(GlobalsFunctions.calculateTTL(ride.getEndPeriod()));
 					}
-					application.setTTL(GlobalsFunctions.calculateTTL(offer.getPeriod()));
+					else
+						application.setTTL(GlobalsFunctions.calculateTTL(offer.getPeriod()));
 					application.setUserToInform(offer.getUserId());
 					
 					HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailInterestedInOffer, ConstantVariables.bodyMailInterestedInOffer);
@@ -431,7 +437,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 
 	//return the user id that need to be informed about the match
 	@Override
-	public int getUserByOfferId (int offerId)
+	public int getUserByOfferId (int offerId, String category)
 	{
 		Session session = null;
 		List<ManualMatchUserApplication> match = null;
@@ -442,7 +448,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			 session = getSession();
 	    	 session.beginTransaction();
 	    	 
-	    	 match = session.createQuery("from "+ ManualMatchUserApplication.class.getName() + " where offerId = " + offerId+"").getResultList();
+	    	 match = session.createQuery("from "+ ManualMatchUserApplication.class.getName() + " where offerId = " + offerId+" and isArchive = false and Category = " + category).getResultList();
 	    	 if (match != null && !match.isEmpty())
 	         {
 	        	session.getTransaction().commit();
@@ -471,7 +477,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	}
 	
 	@Override
-	public int getUserByApplicationId (int applicationId)
+	public int getUserByApplicationId (int applicationId, String category)
 	{
 		Session session = null;
 		List<ManualMatchUserOffer> match = null;
@@ -482,7 +488,7 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			 session = getSession();
 	    	 session.beginTransaction();
 	    	 
-	    	 match = session.createQuery("from "+ ManualMatchUserOffer.class.getName() + " where applicationID = " + applicationId+"").getResultList();
+	    	 match = session.createQuery("from "+ ManualMatchUserOffer.class.getName() + " where applicationID = " + applicationId + " and isArchive = false and Category = " + category).getResultList();
 	    	 if (match != null && !match.isEmpty())
 	         {
 	        	session.getTransaction().commit();
@@ -508,7 +514,196 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	    }
 		return 0;
 	}
+	
+	
+	/*private static void updateUserInterests(Object obj, int userId)
+	{
+		List<Integer> list = new ArrayList<Integer>();
+
+		if (obj instanceof Application)
+		{
+			Application application = (Application) obj;
+
+			if (HibernateUserInterestsDAO.getInstance().getApplicationsInterests(userId)==null)
+			{
+				HibernateUserInterestsDAO.getInstance().createUserInterests(userId, application);
+			}
+			
+			else 
+			{
+				if (application.getCategory().equals("ride"))
+				{
+					list.add(1);
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
 		
+				}
+				else if (application.getCategory().equals("handyman"))
+				{
+					HandymanApplication handymanApp = (HandymanApplication)application;
+					if (handymanApp.getColorCorrections())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (handymanApp.getFurniture())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (handymanApp.getGeneralHangingWorks())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (handymanApp.getHangingOfLightFixtures())
+						list.add(1);
+					else
+						list.add(0);
+					
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
+				}
+				else if (application.getCategory().equals("student"))
+				{
+		
+					StudentApplication studentApp =(StudentApplication) application;
+					
+					if (studentApp.getHomeWorks())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (studentApp.getPractice())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (studentApp.getTestStudy())
+						list.add(1);
+					else
+						list.add(0);
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
+				}
+				else if (application.getCategory().equals("olders"))
+				{
+					OldersApplication oldersApp = (OldersApplication) application;
+					
+					if (oldersApp.getConversation())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (oldersApp.getCooking())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (oldersApp.getEscortedAged())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (oldersApp.getShopping())
+						list.add(1);
+					else
+						list.add(0);
+					
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
+				}
+			}
+		}
+		else if (obj instanceof Offer)
+		{
+			Offer offer = (Offer) obj;
+
+			if (HibernateUserInterestsDAO.getInstance().getOffersInterests(userId)==null)
+			{
+				HibernateUserInterestsDAO.getInstance().createUserInterests(userId, offer);
+			}
+			
+			else 
+			{
+				if (offer.getCategory().equals("ride"))
+				{
+					list.add(1);
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
+		
+				}
+				else if (offer.getCategory().equals("handyman"))
+				{
+					HandymanOffer handymanOffer = (HandymanOffer)offer;
+					if (handymanOffer.getColorCorrections())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (handymanOffer.getFurniture())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (handymanOffer.getGeneralHangingWorks())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (handymanOffer.getHangingOfLightFixtures())
+						list.add(1);
+					else
+						list.add(0);
+					
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
+				}
+				else if (offer.getCategory().equals("student"))
+				{
+		
+					StudentOffer studentOffer =(StudentOffer) offer;
+					
+					if (studentOffer.getHomeWorks())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (studentOffer.getPractice())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (studentOffer.getTestStudy())
+						list.add(1);
+					else
+						list.add(0);
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
+				}
+				else if (offer.getCategory().equals("olders"))
+				{
+					OldersOffer oldersOffer = (OldersOffer) offer;
+					
+					if (oldersOffer.getConversation())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (oldersOffer.getCooking())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (oldersOffer.getEscortedAged())
+						list.add(1);
+					else
+						list.add(0);
+					
+					if (oldersOffer.getShopping())
+						list.add(1);
+					else
+						list.add(0);
+					
+					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
+				}
+			}
+		}
+	}*/
+	
 	@Override
 	public List<Match> getAllUserToInform(int userToInform) 
 	{

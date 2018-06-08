@@ -13,13 +13,13 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.shenkar.finalProject.Archive.RideApplicationArchive;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
+import com.shenkar.finalProject.model.RideApplication;
 import com.shenkar.finalProject.model.RideOffer;
 
 @WebListener
@@ -80,7 +80,7 @@ public class CleanUp implements ServletContextListener
 					else if (list.get(i).getTTL()==-1)
 					{
 						Date today = new Date();
-						RideApplicationArchive ride = (RideApplicationArchive) list.get(i);
+						RideApplication ride = (RideApplication) list.get(i);
 						if (today.compareTo(ride.getEndPeriod())>0)
 						{
 							list.get(i).setArchive(true);

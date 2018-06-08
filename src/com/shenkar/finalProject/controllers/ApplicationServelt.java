@@ -1,7 +1,8 @@
-
+	
 package com.shenkar.finalProject.controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -20,6 +21,8 @@ import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateManualMatchDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
+import com.shenkar.finalProject.model.HibernateUserInterestsDAO;
+import com.shenkar.finalProject.model.UserExceptionHandler;
 
 import api.CoralogixLogger;
 
@@ -163,9 +166,10 @@ public class ApplicationServelt extends HttpServlet
 					try
 					{
 						String strAppId = request.getParameter("applicationId");
-						if (strAppId!=null)
+						String category = request.getParameter("category");
+						if (strAppId!=null&&category!=null)
 						{
-							int userId = HibernateManualMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId));
+							int userId = HibernateManualMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId), category);
 							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 							if (user!=null)
 							{
@@ -184,6 +188,7 @@ public class ApplicationServelt extends HttpServlet
 							else
 							{
 								System.out.println("The user was not found");
+								response.getWriter().write("The user was not found");
 							}
 						}
 						
@@ -193,12 +198,77 @@ public class ApplicationServelt extends HttpServlet
 						try {
 							throw new ApplicationExceptionHandler("Error in get User Information by Application Id: " + e.getMessage());
 						} catch (ApplicationExceptionHandler e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					}
 					break;
 				}	
+				
+				case "getApplicationsIntersted":
+				{
+					String strUserId = request.getParameter("userId");
+					
+					if (strUserId!=null)
+					{
+						int userId = Integer.parseInt(strUserId);
+						AppUser user = null;
+						try {
+							user = HibernateUserDAO.getInstance().getUserInfo(userId);
+						} catch (UserExceptionHandler e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (user!=null)
+						{
+							try 
+							{
+								String strUserApplicationPreferences = getUserApplicationPreferences(user);
+								response.setContentType("application/json");
+					        	response.setCharacterEncoding("utf-8");
+								response.getWriter().write(strUserApplicationPreferences);
+							}
+							catch (ApplicationExceptionHandler e) 
+							{
+							
+								e.printStackTrace();
+							}
+						}
+					}
+					break;
+				}
+				case "addInterests":
+				{
+					String strApplicationId = request.getParameter("applicationId");
+					String strUserId = request.getParameter("userId");
+					String category = request.getParameter("category");
+					
+					if (strApplicationId!=null && strUserId!=null&&category!=null)
+					{
+						try{
+							addInterests(strApplicationId, strUserId, category);
+						} 
+						catch (NumberFormatException | ApplicationExceptionHandler e) {
+							e.printStackTrace();
+						}
+					}
+					break;
+				}
+				
+				case "suggestions":
+				{
+					String strUserId = request.getParameter("userId");
+					try {
+						List<Application> list = HibernateUserInterestsDAO.getInstance().suggestions(Integer.parseInt(strUserId));
+						String strApplicationlist = new Gson().toJson(list).toString();
+						response.setContentType("application/json");
+						response.setCharacterEncoding("utf-8");
+						response.getWriter().write(strApplicationlist);
+						
+					} catch (NumberFormatException | UserExceptionHandler | ApplicationExceptionHandler e) {
+						e.printStackTrace();
+					}
+							
+				}
 				
 				case "test":
 				{
@@ -206,12 +276,6 @@ public class ApplicationServelt extends HttpServlet
 					System.out.println("the user id from post man is: " + userId);
 					logger.info("The user id is: " + userId);
 					WebSocket.sendMessageToClient("test", userId);
-					
-					//logger.info()
-					/*
-					String to = request.getParameter("mail");
-					sendMail.sendEmail(to, "Hello to you Yossi!!", "sending from Heruko using sendGrid");
-					*/
 					break;
 				}
 				default:
@@ -220,6 +284,58 @@ public class ApplicationServelt extends HttpServlet
 			}
 		}
 	}
+	
+	private void addInterests (String strApplicationId, String strUserId, String category) throws NumberFormatException, ApplicationExceptionHandler
+	{
+		Application app = HibernateApplicationDAO.getInstance().getApplication(Integer.valueOf(strApplicationId), category);
+		
+		if (app!=null)
+		{
+			HibernateUserInterestsDAO.getInstance().updateUserInterests(app, Integer.valueOf(strUserId));
+			HibernateUserInterestsDAO.getInstance().updateCategoryOffersSuggestions(Integer.valueOf(strUserId), app);
+		}
+		else
+		{
+			System.out.println("Application not exist!");
+		}
+		
+	}
+	
+	
+	
+	private String getUserApplicationPreferences(AppUser user) throws ApplicationExceptionHandler
+	{
+		
+		List<Object> applicationList = new ArrayList<Object>();
+		
+		if (user.getRide())
+		{
+			List<Application> rideList = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("ride");
+			if (rideList!=null)
+				applicationList.add(rideList);
+		}
+		if (user.getHandyman())
+		{
+			List<Application> handymanList = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
+			if (handymanList!=null)
+				applicationList.add(handymanList);
+		}
+		if (user.getOlders())
+		{
+			List<Application> oldersList = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("olders");
+			if (oldersList!=null)
+				applicationList.add(oldersList);
+		}
+		if (user.getStudent())
+		{
+			List<Application> studentList = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("student");
+			if (studentList!=null)
+				applicationList.add(studentList);
+		}
+					
+		return new Gson().toJson(applicationList).toString();
+	}
+	
 	
 	private List<Application> getAllApplicationsUser(String stringUserID) throws ApplicationExceptionHandler
 	{

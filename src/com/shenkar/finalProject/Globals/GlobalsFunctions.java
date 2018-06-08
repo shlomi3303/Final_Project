@@ -6,6 +6,8 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.Date;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -64,6 +66,17 @@ public class GlobalsFunctions
 		return null;
 		
 	}
+
+	public static Session getSession(SessionFactory sessionFactory) throws HibernateException {         
+		   Session sess = null;       
+		   try {         
+		       sess = sessionFactory.getCurrentSession();  
+		   } catch (org.hibernate.HibernateException he) {  
+		       sess = sessionFactory.openSession();     
+		   }             
+		   return sess;
+	} 
+	
 	
 	public static void sendEmail(String toEmail,String subject , String body)
 	{

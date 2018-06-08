@@ -29,7 +29,7 @@ public class RideOffer extends Offer
 			String userLocation, String gender, String language, String img, String title, String description,
 			String source, String destination, Date endPeriod, String status) 
 	{
-		super(userId, period, "", periodic, urgency, status, userLocation, false, gender, language, img, title, description);
+		super(userId, period, "", periodic, status, userLocation, false, gender, language, img, title, description);
 		this.source = source;
 		this.destination = destination;
 		this.endPeriod = endPeriod;

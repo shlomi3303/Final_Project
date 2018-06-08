@@ -32,7 +32,7 @@ public class HandymanOffer extends Offer
 			String userLocation, String gender, String language, String img, String title, String description, boolean colorCorrections, boolean furniture, boolean generalHangingWorks,
 			boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints, String status) 
 	{
-		super(userId, period, location, periodic, urgency, status, userLocation, false, gender, language, img, title, description);
+		super(userId, period, location, periodic, status, userLocation, false, gender, language, img, title, description);
 		this.colorCorrections = colorCorrections;
 		this.furniture = furniture;
 		this.generalHangingWorks = generalHangingWorks;

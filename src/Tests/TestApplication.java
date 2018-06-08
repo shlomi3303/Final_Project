@@ -64,6 +64,9 @@ public class TestApplication {
 	    System.out.println("days: "+daus);
 	    System.out.println("month: "+ mon);
 	    
+	    HandymanApplication ob = new HandymanApplication(1, period2, "wsedrs", period2, true, "sd", "ssd", "male",
+				"asd", "check", "check", true, true, true, true, true, "");
+	    check(ob);
 		//System.out.println("list is " + HibernateApplicationDAO.getInstance().getApplication(8, "handyman"));
 
 	    
@@ -76,7 +79,7 @@ public class TestApplication {
 				"asd", "check", "check", true, true, true, true, true, "");
 		System.out.println("list is " + HibernateApplicationDAO.getInstance().getApplication(8, "handyman"));
 		//HibernateApplicationDAO.getInstance().createApplication(ob);
-		/*
+		
 		StudentApplication ob4 = new StudentApplication(1, period, "wsedrs", period, true, "sd", "male", "hebrew",
 				"2", "math", "sports","check", "check", true, true, true);
 		
@@ -135,5 +138,13 @@ public class TestApplication {
 		//System.out.println(HibernateApplicationDAO.getInstance().getApplications(-1).toString());
 
 	}
-
+	
+	public static void check (Object obj)
+	{
+		if (obj instanceof Application){
+			System.out.println("is application");
+		}
+		
+	}
+	
 }
