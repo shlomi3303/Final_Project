@@ -39,9 +39,21 @@ public class AppUser
 	 
     @Column (name="Kids")
 	 private int kids;
-    
-    @Column (name="User_Location")
-	 private String userLocation;
+   
+    @Column(name="City")
+	String city;
+	
+	@Column(name="Street")
+	String street;
+	
+	@Column(name="House_Number")
+	int houseNumber;
+	
+	@Column(name="Latitude")
+	String latitude;
+	
+	@Column(name="Longitude")
+	String longitude;
 	 
     @Column (name="Help_For_Student")
 	 private boolean student;
@@ -60,26 +72,33 @@ public class AppUser
 	 
 	public AppUser() {} 
 
+	
+	
 	public AppUser(String firstname, String lastname, String mail, String password, String phone, int age,
-			String familyStatus, int kids, String userLocation, boolean student, boolean olders, boolean handyman,
-			boolean ride) 
-	{
-		super();
-		this.setFirstname(firstname);
-		this.setLastname(lastname);
-		this.setMail(mail);
-		this.setPassword(password);
-		this.setPhone(phone);
-		this.setAge(age);
-		this.setFamilyStatus(familyStatus);
-		this.setKids(kids);
-		this.setUserLocation(userLocation);
+			String familyStatus, int kids, String city, String street, int houseNumber, String latitude,
+			String longitude, boolean student, boolean olders, boolean handyman, boolean ride) {
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.mail = mail;
+		this.password = password;
+		this.phone = phone;
+		this.age = age;
+		this.familyStatus = familyStatus;
+		this.kids = kids;
+		this.city = city;
+		this.street = street;
+		this.houseNumber = houseNumber;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.student = student;
 		this.olders = olders;
 		this.handyman = handyman;
 		this.ride = ride;
+		this.admin = false;
 	}
-	
+
+
+
 	public int getId() {
 		return id;
 	}
@@ -152,13 +171,6 @@ public class AppUser
 		this.kids = kids;
 	}
 
-	public String getUserLocation() {
-		return userLocation;
-	}
-
-	public void setUserLocation(String userLocation) {
-		this.userLocation = userLocation;
-	}
 
 	public boolean getStudent() {
 		return student;
@@ -203,5 +215,66 @@ public class AppUser
 	public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
+
+
+
+	public String getCity() {
+		return city;
+	}
+
+
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+
+
+	public String getStreet() {
+		return street;
+	}
+
+
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+
+
+	public int getHouseNumber() {
+		return houseNumber;
+	}
+
+
+
+	public void setHouseNumber(int houseNumber) {
+		this.houseNumber = houseNumber;
+	}
+
+
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+	
 	
 }

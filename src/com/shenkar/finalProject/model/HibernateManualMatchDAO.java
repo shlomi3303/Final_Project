@@ -447,8 +447,8 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			 initMatchFactory();
 			 session = getSession();
 	    	 session.beginTransaction();
-	    	 
-	    	 match = session.createQuery("from "+ ManualMatchUserApplication.class.getName() + " where offerId = " + offerId+" and isArchive = false and Category = " + category).getResultList();
+
+	    	 match = session.createQuery("from "+ ManualMatchUserApplication.class.getName() + " as table where table.offerId = " + offerId + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + category + "%").getResultList();
 	    	 if (match != null && !match.isEmpty())
 	         {
 	        	session.getTransaction().commit();
@@ -487,10 +487,12 @@ public class HibernateManualMatchDAO implements IManualMatch {
 			 initMatchFactory();
 			 session = getSession();
 	    	 session.beginTransaction();
-	    	 
-	    	 match = session.createQuery("from "+ ManualMatchUserOffer.class.getName() + " where applicationID = " + applicationId + " and isArchive = false and Category = " + category).getResultList();
+
+	    	 match = session.createQuery("from "+ ManualMatchUserOffer.class.getName() + " as table where table.applicationID = " + applicationId + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + category + "%").getResultList();
+	    	 System.out.println("the match is:" + match);
 	    	 if (match != null && !match.isEmpty())
 	         {
+	    		 System.out.println("userId:" + match.get(0).getUserId());
 	        	session.getTransaction().commit();
 	    	    return match.get(0).getUserToInform();
 	         }
@@ -514,195 +516,6 @@ public class HibernateManualMatchDAO implements IManualMatch {
 	    }
 		return 0;
 	}
-	
-	
-	/*private static void updateUserInterests(Object obj, int userId)
-	{
-		List<Integer> list = new ArrayList<Integer>();
-
-		if (obj instanceof Application)
-		{
-			Application application = (Application) obj;
-
-			if (HibernateUserInterestsDAO.getInstance().getApplicationsInterests(userId)==null)
-			{
-				HibernateUserInterestsDAO.getInstance().createUserInterests(userId, application);
-			}
-			
-			else 
-			{
-				if (application.getCategory().equals("ride"))
-				{
-					list.add(1);
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
-		
-				}
-				else if (application.getCategory().equals("handyman"))
-				{
-					HandymanApplication handymanApp = (HandymanApplication)application;
-					if (handymanApp.getColorCorrections())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (handymanApp.getFurniture())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (handymanApp.getGeneralHangingWorks())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (handymanApp.getHangingOfLightFixtures())
-						list.add(1);
-					else
-						list.add(0);
-					
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
-				}
-				else if (application.getCategory().equals("student"))
-				{
-		
-					StudentApplication studentApp =(StudentApplication) application;
-					
-					if (studentApp.getHomeWorks())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (studentApp.getPractice())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (studentApp.getTestStudy())
-						list.add(1);
-					else
-						list.add(0);
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
-				}
-				else if (application.getCategory().equals("olders"))
-				{
-					OldersApplication oldersApp = (OldersApplication) application;
-					
-					if (oldersApp.getConversation())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (oldersApp.getCooking())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (oldersApp.getEscortedAged())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (oldersApp.getShopping())
-						list.add(1);
-					else
-						list.add(0);
-					
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, application.getCategory(),"application", list);
-				}
-			}
-		}
-		else if (obj instanceof Offer)
-		{
-			Offer offer = (Offer) obj;
-
-			if (HibernateUserInterestsDAO.getInstance().getOffersInterests(userId)==null)
-			{
-				HibernateUserInterestsDAO.getInstance().createUserInterests(userId, offer);
-			}
-			
-			else 
-			{
-				if (offer.getCategory().equals("ride"))
-				{
-					list.add(1);
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
-		
-				}
-				else if (offer.getCategory().equals("handyman"))
-				{
-					HandymanOffer handymanOffer = (HandymanOffer)offer;
-					if (handymanOffer.getColorCorrections())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (handymanOffer.getFurniture())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (handymanOffer.getGeneralHangingWorks())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (handymanOffer.getHangingOfLightFixtures())
-						list.add(1);
-					else
-						list.add(0);
-					
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
-				}
-				else if (offer.getCategory().equals("student"))
-				{
-		
-					StudentOffer studentOffer =(StudentOffer) offer;
-					
-					if (studentOffer.getHomeWorks())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (studentOffer.getPractice())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (studentOffer.getTestStudy())
-						list.add(1);
-					else
-						list.add(0);
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
-				}
-				else if (offer.getCategory().equals("olders"))
-				{
-					OldersOffer oldersOffer = (OldersOffer) offer;
-					
-					if (oldersOffer.getConversation())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (oldersOffer.getCooking())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (oldersOffer.getEscortedAged())
-						list.add(1);
-					else
-						list.add(0);
-					
-					if (oldersOffer.getShopping())
-						list.add(1);
-					else
-						list.add(0);
-					
-					HibernateUserInterestsDAO.getInstance().addInterests(userId, offer.getCategory(),"offer", list);
-				}
-			}
-		}
-	}*/
 	
 	@Override
 	public List<Match> getAllUserToInform(int userToInform) 

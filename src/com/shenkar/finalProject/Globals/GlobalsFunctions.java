@@ -19,6 +19,8 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 
+import android.Manifest.permission;
+
 public class GlobalsFunctions 
 {
 	
@@ -113,6 +115,7 @@ public class GlobalsFunctions
 	
 		 int days = Period.between(today, date1).getDays();
 		 int mon = Period.between(today,date1).getMonths();
+		 
 		 int ttl = days + mon*30;
 		 if (ttl>0)
 			 return ttl;

@@ -9,6 +9,14 @@
 <packaging>war</packaging>
   
 <dependencies>
+
+<dependency>
+    <groupId>com.google.android</groupId>
+    <artifactId>android</artifactId>
+    <version>4.0.1.2</version>
+    <scope>provided</scope>
+</dependency>
+
    
    	<dependency> 
  		<groupId>com.newrelic.agent.java</groupId>
@@ -60,7 +68,7 @@
    	<dependency>
     	<groupId>org.hibernate</groupId>
     	<artifactId>hibernate-core</artifactId>
-    	<version>5.2.0.Final</version>
+    	<version>5.2.2.Final</version>
 	</dependency>
 	
     <dependency>

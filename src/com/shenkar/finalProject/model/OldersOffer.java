@@ -25,82 +25,49 @@ public class OldersOffer extends Offer
 	
 	public OldersOffer() {super();}
 
-	public OldersOffer(int userId, Date period, String location, Date periodic, boolean urgency,
-			String userLocation, String gender, String language, String img,String title, String description,
-			boolean shopping, boolean cooking, boolean escortedAged,
-			boolean conversation, String status) 
+	public OldersOffer(int userId, Date period, String city, String street, int houseNumber, String latitude,
+			String longitude, Date periodic, String status, String userLocation, String gender, String language,
+			String img, String title, String description, boolean shopping, boolean cooking, boolean escortedAged,
+			boolean conversation)  
 	{
-		super(userId, period, location, periodic, status, userLocation, false, gender, language, img, title, description);
+		super(userId, period, city, street, houseNumber, latitude, longitude, periodic, status, userLocation, gender, language,
+				img, title, description);
+		
 		this.shopping = shopping;
 		this.cooking = cooking;
 		this.escortedAged = escortedAged;
 		this.conversation  = conversation;
 	}
 
-
-	/**
-	 * @return the shopping
-	 */
 	public boolean getShopping() {
 		return shopping;
 	}
 
-
-	/**
-	 * @param shopping the shopping to set
-	 */
 	public void setShopping(boolean shopping) {
 		this.shopping = shopping;
 	}
 
-
-	/**
-	 * @return the cooking
-	 */
 	public boolean getCooking() {
 		return cooking;
 	}
 
-
-	/**
-	 * @param cooking the cooking to set
-	 */
 	public void setCooking(boolean cooking) {
 		this.cooking = cooking;
 	}
 
-
-	/**
-	 * @return the escortedAged
-	 */
 	public boolean getEscortedAged() {
 		return escortedAged;
 	}
 
-
-	/**
-	 * @param escortedAged the escortedAged to set
-	 */
 	public void setEscortedAged(boolean escortedAged) {
 		this.escortedAged = escortedAged;
 	}
 
-
-	/**
-	 * @return the conversation
-	 */
 	public boolean getConversation() {
 		return conversation;
 	}
 
-
-	/**
-	 * @param conversation the conversation to set
-	 */
 	public void setConversation(boolean conversation) {
 		this.conversation = conversation;
 	}
-
-
-	
 }

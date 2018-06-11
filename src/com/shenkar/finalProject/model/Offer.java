@@ -20,8 +20,20 @@ public class Offer
 	@Temporal(TemporalType.TIMESTAMP)
 	Date period;
 	
-	@Column(name="Location")
-	String location;
+	@Column(name="City")
+	String city;
+	
+	@Column(name="Street")
+	String street;
+	
+	@Column(name="House_Number")
+	int houseNumber;
+	
+	@Column(name="Latitude")
+	String latitude;
+	
+	@Column(name="Longitude")
+	String Longitude;
 	
 	@Column(name="Periodic")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -59,21 +71,25 @@ public class Offer
 	
 	@Column(name="Category")
 	String category;
-
+	
 	public Offer(){}
 	
-	public Offer(int userId, Date period, String location, Date periodic,
-			String status, String userLocation, boolean isAprroved, 
+	public Offer(int userId, Date period, String city, String street, int houseNumber, String latitude,
+			String longitude, Date periodic, String status, String userLocation, 
 			String gender, String language, String img, String title, String description) 
 	{
-		super();
 		this.userId = userId;
 		this.period = period;
-		this.location = location;
+		this.city = city;
+		this.street = street;
+		this.houseNumber = houseNumber;
+		this.latitude = latitude;
+		Longitude = longitude;
 		this.periodic = periodic;
+		TTL = 0;
 		this.status = status;
 		this.userLocation = userLocation;
-		this.isAprroved = isAprroved;
+		this.isAprroved = true;
 		this.gender = gender;
 		this.language = language;
 		this.img = img;
@@ -82,6 +98,10 @@ public class Offer
 		this.isArchive = false;
 		this.category = "";
 	}
+
+
+
+
 
 	public int getOfferId() {
 		return offerId;
@@ -105,14 +125,6 @@ public class Offer
 
 	public void setPeriod(Date period) {
 		this.period = period;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
 	}
 	
 	public Date getPeriodic() {
@@ -210,7 +222,5 @@ public class Offer
 	public void setCategory(String category) {
 		this.category = category;
 	}
-	
-	
 	
 }

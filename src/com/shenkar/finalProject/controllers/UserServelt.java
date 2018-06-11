@@ -211,7 +211,13 @@ public class UserServelt extends HttpServlet {
 		String age = request.getParameter("age");
 		String familyStatus = request.getParameter("familyStatus");
 		String kids = request.getParameter("kids");
-		String userLocation = request.getParameter("userLocation");
+		String street = request.getParameter("street");
+		String city = request.getParameter("city");
+		String houseNumber = request.getParameter("houseNumber");
+		String latitude = request.getParameter("latitude");
+		String longitude = request.getParameter("longitude");
+		
+		
 		String strStudent = request.getParameter("student");
 		String strHandyman = request.getParameter("handyman");
 		String strOlders = request.getParameter("olders");
@@ -225,13 +231,14 @@ public class UserServelt extends HttpServlet {
 			IntegerKids = 0;
 		else
 			IntegerKids = Integer.parseInt(kids);
+		int IntegerhouseNumber = Integer.parseInt(houseNumber);
 		
 		boolean student = Boolean.valueOf(strStudent);
 		boolean handyman = Boolean.valueOf(strHandyman);
 		boolean olders = Boolean.valueOf(strOlders);
 		boolean ride = Boolean.valueOf(strRide);
 		
-		AppUser user = new AppUser(fname, lname, mail, password, phone, IntegerAge, familyStatus, IntegerKids, userLocation, student, olders, handyman, ride);
+		AppUser user = new AppUser(fname, lname, mail, password, phone, IntegerAge, familyStatus, IntegerKids,city, street,IntegerhouseNumber,latitude,longitude, student, olders, handyman, ride);
 		return user;
 	}
 }

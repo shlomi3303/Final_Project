@@ -27,11 +27,15 @@ public class StudentOffer extends Offer
 	
 	public StudentOffer() {super();}
 
-	public StudentOffer(int userId, Date period, String location, Date periodic, boolean urgency,
-			String userLocation,String gender, String language, String img, String title, String description,
-			String educationLevel, String fieldOfStudy, boolean homeWorks, boolean testStudy, boolean practice, String status) 
+	
+	
+	public StudentOffer(int userId, Date period, String city, String street, int houseNumber, String latitude,
+			String longitude, Date periodic, String status, String userLocation, String gender, String language,
+			String img, String title, String description, String educationLevel, String fieldOfStudy,
+			boolean homeWorks,boolean testStudy, boolean practice) 
 	{
-		super(userId, period, location, periodic, status,userLocation, false, gender, language, img, title, description);
+		super(userId, period, city, street, houseNumber, latitude, longitude, periodic, status, userLocation, gender, language,
+				img, title, description);
 		this.educationLevel = educationLevel;
 		this.fieldOfStudy = fieldOfStudy;
 		this.homeWorks = homeWorks;
@@ -40,81 +44,52 @@ public class StudentOffer extends Offer
 	}
 
 
-	/**
-	 * @return the educationLevel
-	 */
+
 	public String getEducationLevel() {
 		return educationLevel;
 	}
 
 
-	/**
-	 * @param educationLevel the educationLevel to set
-	 */
+	
 	public void setEducationLevel(String educationLevel) {
 		this.educationLevel = educationLevel;
 	}
 
 
-	/**
-	 * @return the fieldOfStudy
-	 */
+	
 	public String getFieldOfStudy() {
 		return fieldOfStudy;
 	}
 
 
-	/**
-	 * @param fieldOfStudy the fieldOfStudy to set
-	 */
+	
 	public void setFieldOfStudy(String fieldOfStudy) {
 		this.fieldOfStudy = fieldOfStudy;
 	}
 
 
-	/**
-	 * @return the homeWorks
-	 */
+	
 	public boolean getHomeWorks() {
 		return homeWorks;
 	}
 
-
-	/**
-	 * @param homeWorks the homeWorks to set
-	 */
 	public void setHomeWorks(boolean homeWorks) {
 		this.homeWorks = homeWorks;
 	}
 
-
-	/**
-	 * @return the testStudy
-	 */
 	public boolean getTestStudy() {
 		return testStudy;
 	}
 
-
-	/**
-	 * @param testStudy the testStudy to set
-	 */
 	public void setTestStudy(boolean testStudy) {
 		this.testStudy = testStudy;
 	}
 
 
-	/**
-	 * @return the practice
-	 */
 	public boolean getPractice() {
 		return practice;
 	}
 
-
-	/**
-	 * @param practice the practice to set
-	 */
 	public void setPractice(boolean practice) {
 		this.practice = practice;
 	}

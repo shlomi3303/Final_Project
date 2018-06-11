@@ -170,6 +170,7 @@ public class ApplicationServelt extends HttpServlet
 						if (strAppId!=null&&category!=null)
 						{
 							int userId = HibernateManualMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId), category);
+							System.out.println(userId);
 							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 							if (user!=null)
 							{
@@ -257,7 +258,8 @@ public class ApplicationServelt extends HttpServlet
 				case "suggestions":
 				{
 					String strUserId = request.getParameter("userId");
-					try {
+					try 
+					{
 						List<Application> list = HibernateUserInterestsDAO.getInstance().suggestions(Integer.parseInt(strUserId));
 						String strApplicationlist = new Gson().toJson(list).toString();
 						response.setContentType("application/json");

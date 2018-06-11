@@ -30,12 +30,14 @@ public class HandymanApplication extends Application
 		super();
 	}
 
-
-	public HandymanApplication(int userId, Date period, String location, Date periodic, boolean urgency,
-			String userLocation, String gender, String language, String img, String title, String description, boolean colorCorrections, boolean furniture, boolean generalHangingWorks,
-			boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints, String status) 
+	public HandymanApplication(int userId, Date period, String city, String street, int houseNumber, String latitude,
+			String longitude, Date periodic, boolean urgency, String status, String gender, String language, String img,
+			String title, String description,
+			boolean colorCorrections,boolean furniture,  boolean generalHangingWorks, boolean hangingOfLightFixtures, boolean treatmentSocketsAndPowerPoints) 
 	{
-		super(userId, period, location, periodic, urgency, userLocation, status, false, gender, language, img, title, description);
+		super(userId, period, city, street, houseNumber, latitude, longitude, periodic, urgency, status, gender, language, img,
+				title, description);
+		
 		this.colorCorrections = colorCorrections;
 		this.furniture = furniture;
 		this.generalHangingWorks = generalHangingWorks;
@@ -44,81 +46,43 @@ public class HandymanApplication extends Application
 	}
 
 
-	/**
-	 * @return the colorCorrections
-	 */
 	public boolean getColorCorrections() {
 		return colorCorrections;
 	}
 
-
-	/**
-	 * @param colorCorrections the colorCorrections to set
-	 */
-	public void setColorCorrections(boolean colorCorrections) {
+	void setColorCorrections(boolean colorCorrections) {
 		this.colorCorrections = colorCorrections;
 	}
 
 
-	/**
-	 * @return the furniture
-	 */
 	public boolean getFurniture() {
 		return furniture;
 	}
 
-
-	/**
-	 * @param furniture the furniture to set
-	 */
 	public void setFurniture(boolean furniture) {
 		this.furniture = furniture;
 	}
 
-
-	/**
-	 * @return the generalHangingWorks
-	 */
 	public boolean getGeneralHangingWorks() {
 		return generalHangingWorks;
 	}
 
-
-	/**
-	 * @param generalHangingWorks the generalHangingWorks to set
-	 */
 	public void setGeneralHangingWorks(boolean generalHangingWorks) {
 		this.generalHangingWorks = generalHangingWorks;
 	}
 
-
-	/**
-	 * @return the hangingOfLightFixtures
-	 */
 	public boolean getHangingOfLightFixtures() {
 		return hangingOfLightFixtures;
 	}
 
-
-	/**
-	 * @param hangingOfLightFixtures the hangingOfLightFixtures to set
-	 */
 	public void setHangingOfLightFixtures(boolean hangingOfLightFixtures) {
 		this.hangingOfLightFixtures = hangingOfLightFixtures;
 	}
 
-
-	/**
-	 * @return the treatmentSocketsAndPowerPoints
-	 */
 	public boolean getTreatmentSocketsAndPowerPoints() {
 		return treatmentSocketsAndPowerPoints;
 	}
 
-
-	/**
-	 * @param treatmentSocketsAndPowerPoints the treatmentSocketsAndPowerPoints to set
-	 */
 	public void setTreatmentSocketsAndPowerPoints(boolean treatmentSocketsAndPowerPoints) {
 		this.treatmentSocketsAndPowerPoints = treatmentSocketsAndPowerPoints;
 	}

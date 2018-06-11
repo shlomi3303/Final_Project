@@ -531,7 +531,6 @@ public class HibernateOfferDAO implements IOfferDAO
 	
 	private void updateSameVarOffer(Offer offer, Offer updateOffer)
 	{
-		offer.setLocation(updateOffer.getLocation());
 		offer.setPeriod(updateOffer.getPeriod());
 		offer.setPeriodic(updateOffer.getPeriodic());
 		offer.setUserLocation(updateOffer.getUserLocation());
@@ -565,8 +564,6 @@ public class HibernateOfferDAO implements IOfferDAO
 	
 	private void editRide (RideOffer ride, RideOffer updateRide)
 	{
-		ride.setDestination(updateRide.getDestination());
-		ride.setSource(updateRide.getSource());
 		ride.setEndPeriod(updateRide.getEndPeriod());
 	}
 	

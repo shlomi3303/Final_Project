@@ -13,11 +13,20 @@ import javax.persistence.TemporalType;
 public class RideOffer extends Offer 
 {
 
-	@Column (name="Source")
-	String source;
+	@Column (name="Destination_City")
+	String destCity;
 	
-	@Column (name="Destination")
-	String destination;
+	@Column (name="Destination_Street")
+	String destStreet;
+	
+	@Column (name="Destination_HouseNum")
+	int destHouseNum;
+	
+	@Column(name="Destination_Latitude")
+	String destlatitude;
+	
+	@Column(name="Destination_Longitude")
+	String destLongitude;
 	
 	@Column(name="End_Period")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -25,43 +34,68 @@ public class RideOffer extends Offer
 
 	public RideOffer() {super();}
 
-	public RideOffer(int userId, Date period, Date periodic, boolean urgency,
-			String userLocation, String gender, String language, String img, String title, String description,
-			String source, String destination, Date endPeriod, String status) 
+	public RideOffer(int userId, Date period, String city, String street, int houseNumber, String latitude,
+			String longitude, Date periodic, String status, String userLocation, String gender, String language,
+			String img, String title, String description, String destCity, String destStreet, int destHouseNum, String destlatitude,
+			String destLongitude, Date endPeriod) 
 	{
-		super(userId, period, "", periodic, status, userLocation, false, gender, language, img, title, description);
-		this.source = source;
-		this.destination = destination;
+		super(userId, period, city, street, houseNumber, latitude, longitude, periodic, status, userLocation, gender, language,
+				img, title, description);
+		this.destCity = destCity;
+		this.destStreet = destStreet;
+		this.destHouseNum = destHouseNum;
+		this.destlatitude = destlatitude;
+		this.destLongitude = destLongitude;
 		this.endPeriod = endPeriod;
 	}
 
-	public String getSource() {
-		return source;
+	public String getDestCity() {
+		return destCity;
 	}
 
-	public void setSource(String source) {
-		this.source = source;
+	public void setDestCity(String destCity) {
+		this.destCity = destCity;
 	}
 
-	public String getDestination() {
-		return destination;
+	public String getDestStreet() {
+		return destStreet;
 	}
 
-	/**
-	 * @param destination the destination to set
-	 */
-	public void setDestination(String destination) {
-		this.destination = destination;
+	public void setDestStreet(String destStreet) {
+		this.destStreet = destStreet;
+	}
+
+	public int getDestHouseNum() {
+		return destHouseNum;
+	}
+
+	public void setDestHouseNum(int destHouseNum) {
+		this.destHouseNum = destHouseNum;
+	}
+
+	public String getDestlatitude() {
+		return destlatitude;
+	}
+
+	public void setDestlatitude(String destlatitude) {
+		this.destlatitude = destlatitude;
+	}
+
+	public String getDestLongitude() {
+		return destLongitude;
+	}
+
+	public void setDestLongitude(String destLongitude) {
+		this.destLongitude = destLongitude;
 	}
 
 	public Date getEndPeriod() {
 		return endPeriod;
 	}
 
-	/**
-	 * @param timeRange the timeRange to set
-	 */
 	public void setEndPeriod(Date endPeriod) {
 		this.endPeriod = endPeriod;
 	}
+
+	
 }

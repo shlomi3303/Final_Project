@@ -34,6 +34,8 @@ public class CategoryOffersSuggestions {
 	@Column (name="Olders_Student")
 	int olders_student;
 
+	public CategoryOffersSuggestions(){}
+	
 	public CategoryOffersSuggestions(int ride_olders, int ride_student, int ride_handyman,
 			int handyman_olders, int handyman_student, int olders_student) {
 		this.ride_olders = ride_olders;

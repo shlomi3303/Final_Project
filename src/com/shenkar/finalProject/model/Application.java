@@ -1,8 +1,12 @@
 package com.shenkar.finalProject.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,9 +30,21 @@ public class Application
 		@Column(name="Period")
 		@Temporal(TemporalType.TIMESTAMP)
 		Date period;
+
+		@Column(name="City")
+		String city;
 		
-		@Column(name="Location")
-		String location;
+		@Column(name="Street")
+		String street;
+		
+		@Column(name="House_Number")
+		int houseNumber;
+		
+		@Column(name="Latitude")
+		String latitude;
+		
+		@Column(name="Longitude")
+		String Longitude;
 		
 		@Column(name="Periodic")
 		@Temporal(TemporalType.TIMESTAMP)
@@ -39,9 +55,6 @@ public class Application
 		
 		@Column(name="TTL")
 		protected int TTL;
-		
-		@Column(name="User_Location")
-		String userLocation;
 		
 		@Column(name="Status")
 		String status;
@@ -70,20 +83,27 @@ public class Application
 		@Column(name="Category")
 		String category;
 		
+		@ElementCollection(fetch=FetchType.EAGER)
+		List<Integer> list;
+	
 		public Application(){}
 		
-		public Application(int userId, Date period, String location, Date periodic, boolean urgency,
-				String userLocation, String status, boolean isAprroved, String gender,
-				String language, String img, String title, String description) 
+		public Application(int userId, Date period, String city, String street, int houseNumber, String latitude,
+				String longitude, Date periodic, boolean urgency, String status,
+				String gender, String language, String img, String title, String description) 
 		{
 			this.userId = userId;
 			this.period = period;
-			this.location = location;
+			this.city = city;
+			this.street = street;
+			this.houseNumber = houseNumber;
+			this.latitude = latitude;
+			Longitude = longitude;
 			this.periodic = periodic;
 			this.urgency = urgency;
-			this.userLocation = userLocation;
+			TTL = 0;
 			this.status = status;
-			this.isAprroved = isAprroved;
+			this.isAprroved = true;
 			this.gender = gender;
 			this.language = language;
 			this.img = img;
@@ -91,9 +111,8 @@ public class Application
 			this.description = description;
 			this.isArchive = false;
 			this.category = "";
+			this.list=new ArrayList<Integer>();
 		}
-
-
 
 		/**
 		 * @return the applicationID
@@ -137,19 +156,7 @@ public class Application
 			this.period = period;
 		}
 
-		/**
-		 * @return the location
-		 */
-		public String getLocation() {
-			return location;
-		}
 
-		/**
-		 * @param location the location to set
-		 */
-		public void setLocation(String location) {
-			this.location = location;
-		}
 
 
 
@@ -195,19 +202,6 @@ public class Application
 			TTL = tTL;
 		}
 
-		/**
-		 * @return the userLocation
-		 */
-		public String getUserLocation() {
-			return userLocation;
-		}
-
-		/**
-		 * @param userLocation the userLocation to set
-		 */
-		public void setUserLocation(String userLocation) {
-			this.userLocation = userLocation;
-		}
 
 		/**
 		 * @return the status
@@ -318,7 +312,56 @@ public class Application
 		public void setCategory(String category) {
 			this.category = category;
 		}
-		
-		
 
+		public String getCity() {
+			return city;
+		}
+
+		public void setCity(String city) {
+			this.city = city;
+		}
+
+		public String getStreet() {
+			return street;
+		}
+
+		public void setStreet(String street) {
+			this.street = street;
+		}
+
+		public int getHouseNumber() {
+			return houseNumber;
+		}
+
+		public void setHouseNumber(int houseNumber) {
+			this.houseNumber = houseNumber;
+		}
+
+		public String getLatitude() {
+			return latitude;
+		}
+
+		public void setLatitude(String latitude) {
+			this.latitude = latitude;
+		}
+
+		public String getLongitude() {
+			return Longitude;
+		}
+
+		public void setLongitude(String longitude) {
+			Longitude = longitude;
+		}
+
+		public List<Integer> getList() {
+			return list;
+		}
+
+		public void setList(List<Integer> list) {
+			this.list = list;
+		}
+
+		
+		
+		
 }

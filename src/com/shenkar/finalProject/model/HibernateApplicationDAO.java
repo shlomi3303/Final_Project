@@ -448,11 +448,11 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	
 	private void updateSameVarAppliction(Application application, Application updateApplication)
 	{
-		application.setLocation(updateApplication.getLocation());
+		//application.setLocation(updateApplication.getLocation());
 		application.setPeriod(updateApplication.getPeriod());
 		application.setPeriodic(updateApplication.getPeriodic());
 		application.setUrgency(updateApplication.getUrgency());
-		application.setUserLocation(updateApplication.getUserLocation());
+		//application.setUserLocation(updateApplication.getUserLocation());
 		application.setGender(updateApplication.getGender());
 		application.setLanguage(updateApplication.getLanguage());
 		application.setImg(updateApplication.getImg());
@@ -483,8 +483,8 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	
 	private void editRide (RideApplication ride, RideApplication updateRide)
 	{
-		ride.setDestination(updateRide.getDestination());
-		ride.setSource(updateRide.getSource());
+		//ride.setDestination(updateRide.getDestination());
+		//ride.setSource(updateRide.getSource());
 		ride.setEndPeriod(updateRide.getEndPeriod());
 	}
 	

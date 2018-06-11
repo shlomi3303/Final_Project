@@ -238,8 +238,12 @@ public class HibernateUserInterestsDAO {
 							appInterests.setEscortedAged(appInterests.getEscortedAged()+interests.get(2));
 							appInterests.setShopping(appInterests.getShopping()+interests.get(3));
 						}
-					
-						session.beginTransaction();
+						
+						session.close();
+						
+						session=GlobalsFunctions.getSession(interestsFactory);
+						if (!session.getTransaction().isActive())
+							session.beginTransaction();
 						session.update(appInterests);
 						session.getTransaction().commit();
 					}
@@ -299,9 +303,7 @@ public class HibernateUserInterestsDAO {
 			} 
 			catch (HibernateException e)
 			{e.printStackTrace();} 
-		}
-		
-		System.out.println("user was not found");
+		}		
 	}
 	
 	public UserSubcategoryApplicationsInterests getApplicationsInterests(int userId)
@@ -401,21 +403,18 @@ public class HibernateUserInterestsDAO {
 			     Root<?> root2 = criteriaQuery.from(CategoryOffersSuggestions.class);
 			     criteriaQuery.select(builder.max(root2.get("id")));
 			     idList = session.createQuery(criteriaQuery).getResultList();
-			     session.getTransaction().commit();
-			     int id = idList.get(0);
-			     
-			     List <CategoryOffersSuggestions> list = session.createQuery("from "+ CategoryOffersSuggestions.class.getName() + " where id = " + id).getResultList();
+			     int id=0;
 			     CategoryOffersSuggestions obj=null;
-			     
-			     if (list!=null && !list.isEmpty())
+			     List <CategoryOffersSuggestions> list=null;
+			     if (idList.get(0)!=null)
 			     {
+			    	 id = idList.get(0);
+			    	 list = session.createQuery("from "+ CategoryOffersSuggestions.class.getName() + " where id = " + id).getResultList();
 			    	 obj = list.get(0);
 			     }
 			     else
-			     {
 			    	 obj=new CategoryOffersSuggestions(0, 0, 0, 0, 0, 0);
-			     }
-			     
+			     			     
 		    	 AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 		    	 String category = app.getCategory();
 		    	 if (!user.getHandyman()&&category.equals("handyman"))

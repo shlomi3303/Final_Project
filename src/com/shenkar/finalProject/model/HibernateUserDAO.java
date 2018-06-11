@@ -120,7 +120,6 @@ public class HibernateUserDAO implements IUserDAO
     		 user.setPhone(updateUser.getPhone());
     		 user.setKids(updateUser.getKids());
     		 user.setPassword(updateUser.getPassword());
-    		 user.setUserLocation(updateUser.getUserLocation());
     		 user.setHandyman(updateUser.getHandyman());
     		 user.setStudent(updateUser.getStudent());
     		 user.setOlders(updateUser.getOlders());
