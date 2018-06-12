@@ -3,9 +3,9 @@ package com.shenkar.finalProject.model.interfaces;
 import java.io.IOException;
 import java.util.List;
 
+import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
-import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 
@@ -32,4 +32,6 @@ public interface IApplicationDAO
 	public List<Application> getaAllApplicationMatches (List<Match> manApp);
 
 	public void hardDeleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler;
+
+	void updateOfferListPotentialMatch(List<Integer> list, Application application) throws ApplicationExceptionHandler;
 }

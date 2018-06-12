@@ -7,11 +7,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.shenkar.finalProject.classes.ManualMatchUserApplication;
+import com.shenkar.finalProject.classes.ManualMatchUserOffer;
+import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateManualMatchDAO;
-import com.shenkar.finalProject.model.ManualMatchUserApplication;
-import com.shenkar.finalProject.model.ManualMatchUserOffer;
-import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 

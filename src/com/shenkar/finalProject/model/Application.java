@@ -1,8 +1,11 @@
 package com.shenkar.finalProject.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -85,6 +88,9 @@ public class Application
 		
 		@ElementCollection(fetch=FetchType.EAGER)
 		List<Integer> list;
+		
+		@ElementCollection(fetch=FetchType.EAGER)
+		Set <Integer> refuseList;
 	
 		public Application(){}
 		
@@ -112,6 +118,8 @@ public class Application
 			this.isArchive = false;
 			this.category = "";
 			this.list=new ArrayList<Integer>();
+			this.refuseList = Collections.synchronizedSet(new HashSet<Integer>());
+		
 		}
 
 		/**
@@ -359,6 +367,14 @@ public class Application
 
 		public void setList(List<Integer> list) {
 			this.list = list;
+		}
+
+		public Set<Integer> getRefuseList() {
+			return refuseList;
+		}
+
+		public void setRefuseList(Set<Integer> refuseList) {
+			this.refuseList = refuseList;
 		}
 
 		

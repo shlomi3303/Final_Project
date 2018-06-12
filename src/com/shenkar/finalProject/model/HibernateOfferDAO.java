@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.WebSocket;
+import com.shenkar.finalProject.classes.ManualMatchUserApplication;
+import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
 
 public class HibernateOfferDAO implements IOfferDAO
@@ -354,7 +356,8 @@ public class HibernateOfferDAO implements IOfferDAO
 }
 
 	@Override
-	public void status(String status, Offer offer) throws OfferExceptionHandler {
+	public void status(String status, Offer offer) throws OfferExceptionHandler 
+	{
 		offer.setStatus(status);
 		
 		Session session = null;

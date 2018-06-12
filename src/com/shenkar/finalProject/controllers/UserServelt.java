@@ -14,9 +14,9 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
-import com.shenkar.finalProject.model.Match;
 import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
+import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;

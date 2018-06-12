@@ -19,8 +19,6 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 
-import android.Manifest.permission;
-
 public class GlobalsFunctions 
 {
 	

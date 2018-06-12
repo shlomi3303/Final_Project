@@ -91,15 +91,17 @@ public class TestApplication {
 		String testDateString3 = "2018-07-27";
 	    Date today  = (Date) df.parse(testDateString3);
 
-//	RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", "asdasd", 1, "asdad", "asdsa", period2);
-//
-//  	ob.setList(list);
-//
-//  	HibernateApplicationDAO.getInstance().createApplication(ob);
+	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
+
+	    ob.setList(list);
+
+	    HibernateApplicationDAO.getInstance().createApplication(ob);
 	    
-	//Application app =  HibernateApplicationDAO.getInstance().getApplication(1, "student");
+	    Application app =  HibernateApplicationDAO.getInstance().getApplication(1, "ride");
 	    
-	System.out.println(new Gson().toJson(HibernateApplicationDAO.getInstance().getApplication(1, "ride")));
+	    
+	    
+	    System.out.println(new Gson().toJson(HibernateApplicationDAO.getInstance().getApplication(1, "ride")));
 	    
 	    
 	    

@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.WebSocket;
+import com.shenkar.finalProject.classes.ManualMatchUserOffer;
+import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
 @SuppressWarnings("unchecked")
@@ -526,16 +528,72 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	public void status(String status, Application application) throws ApplicationExceptionHandler 
 	{
 		application.setStatus(status);
+		Session session = null;
+
+		try
+		{
+			initApplicationFactory();
+			session = getSession();
+			if (session!=null)
+			{
+	   	  		session.beginTransaction();
+	   	  		session.update(application);
+	   	  		session.getTransaction().commit();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (session !=null)
+					session.close();
+			}
+			catch (HibernateException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	@Override
+	public void updateOfferListPotentialMatch(List <Integer> list, Application application) throws ApplicationExceptionHandler 
+	{
+		application.setList(list);
 	
 		Session session = null;
 		
-		initApplicationFactory();
-		session = getSession();
-   	  	session.beginTransaction();
-   	  	session.update(application);
-        session.getTransaction().commit();
+		try{
+			initApplicationFactory();
+			session = getSession();
+			if (session!=null){
+	   	  		session.beginTransaction();
+	   	  		session.update(application);
+	   	  		session.getTransaction().commit();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (session !=null)
+					session.close();
+			}
+			catch (HibernateException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
 
 	}
+	
 	
 	public Class<?>  getTableMapping (String tableName)
 	{

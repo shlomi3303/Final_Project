@@ -14,8 +14,10 @@
 	<property name="connection.pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
 	    
-	<mapping class="com.shenkar.finalProject.model.ManualMatchUserOffer"/>
-	<mapping class="com.shenkar.finalProject.model.ManualMatchUserApplication"/>
+	<mapping class="com.shenkar.finalProject.classes.ManualMatchUserOffer"/>
+	<mapping class="com.shenkar.finalProject.classes.ManualMatchUserApplication"/>
+	<mapping class="com.shenkar.finalProject.classes.AutoMatch"/>
+	
 	
    
   </session-factory>

@@ -2,11 +2,9 @@ package com.shenkar.finalProject.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +12,7 @@ import java.util.Map;
 public class Ranking {
 		
 	@SuppressWarnings("unchecked")
-	public List <Integer> rideRanking (RideApplication app, List <RideOffer> listOffers)
+	public static List <Integer> rideRanking (RideApplication app, List <RideOffer> listOffers)
 	{
 		HashMap<Integer, Double> ranking = new HashMap<Integer, Double>();
 		
@@ -65,18 +63,31 @@ public class Ranking {
 		List<Integer> list = new ArrayList<Integer>();
 		
 		
-		for (Object e : a) {
+		for (int i=0; i<a.length; i++) {
 		    
-		    list.add(( (Map.Entry<Integer, Double>) e).getKey());
+		    list.add(( (Map.Entry<Integer, Double>) a[i]).getKey());
 
 		}
 		
-		
-		
-		return null;
+		return list;
 		
 	}
 	
+	public static List <Integer> oldersRanking (OldersApplication app, List <OldersOffer> listOffers)
+	{
+		return null;		
+	}
+	
+	public static List <Integer> studentRanking (StudentApplication app, List <StudentOffer> listOffers)
+	{
+		return null;		
+	}
+
+	public static List <Integer> handymanRanking (HandymanApplication app, List <HandymanOffer> listOffers)
+	{
+		return null;		
+	}
+
 	
 	public static double distance(double lat1, double lat2, double lon1,
 	        double lon2, double el1, double el2) {

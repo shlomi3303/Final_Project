@@ -10,13 +10,6 @@
   
 <dependencies>
 
-<dependency>
-    <groupId>com.google.android</groupId>
-    <artifactId>android</artifactId>
-    <version>4.0.1.2</version>
-    <scope>provided</scope>
-</dependency>
-
    
    	<dependency> 
  		<groupId>com.newrelic.agent.java</groupId>
@@ -162,14 +155,6 @@
     </resources>
     <plugins>
     
-    
-    
-    
-    
-    
-    
-   
-    	
     
        <plugin>
             <groupId>org.apache.maven.plugins</groupId>
