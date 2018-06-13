@@ -30,7 +30,7 @@ import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HandymanApplication;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
-import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.OldersApplication;
 import com.shenkar.finalProject.model.Ranking;
 import com.shenkar.finalProject.model.RideApplication;

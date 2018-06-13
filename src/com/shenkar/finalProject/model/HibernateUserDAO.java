@@ -1,6 +1,7 @@
 package com.shenkar.finalProject.model;
 
 import java.util.List;
+import java.util.Random;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -192,19 +193,23 @@ public class HibernateUserDAO implements IUserDAO
 	    	  session.getTransaction().commit();
 		  }
 		  catch (HibernateException e) 
-		      {
-					if (session.getTransaction() != null) session.getTransaction().rollback();
-		         	throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
-		      }finally {
-		    	 try 
-		    	 {
-		    		 if (session!=null)
-		    			 session.close();
-		    	 }
-		    	 catch (HibernateException e){
-		    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
-		    	 } 
-		      }	  
+		  {
+			  if (session.getTransaction() != null) 
+				session.getTransaction().rollback();
+			  throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
+		  }
+	      finally 
+	      {
+	    	 try 
+	    	 {
+	    		 if (session!=null)
+	    			 session.close();
+	    	 }
+	    	 catch (HibernateException e)
+	    	 {
+	    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
+	    	 } 
+		  }	  
 	}
 	
 	private static void initUserFactory ()
@@ -238,6 +243,9 @@ public class HibernateUserDAO implements IUserDAO
 	{
 		 Session session = null; 
 	      List<AppUser> user = null;
+	      
+	      //List<Integer> mylist = null;
+	      //mylist.get(new Random().nextInt(mylist.size()));
 	      try
 	      {
 	    	  initUserFactory();
@@ -266,6 +274,54 @@ public class HibernateUserDAO implements IUserDAO
 	      }	
 	      
 	      return null;
+	}
+
+	@Override
+	public void updateLocation(int userId, String lat, String longt, String city, String street, int houseNumber) throws UserExceptionHandler {
+		
+		AppUser user = getUserInfo(userId);
+		
+		Session session =null;
+		
+		if (user!=null)
+		{
+			try
+			{
+				initUserFactory();
+				session=GlobalsFunctions.getSession(userFactory);
+				
+				if (session!=null)
+				{
+					user.setLatitude(lat);
+					user.setLongitude(longt);
+					user.setCity(city);
+					user.setStreet(street);
+					user.setHouseNumber(houseNumber);
+					
+					session.beginTransaction();
+					session.update(user);
+					session.getTransaction().commit();
+				}
+			}
+			catch (HibernateException e) 
+			{
+			  if (session.getTransaction() != null) 
+				session.getTransaction().rollback();
+			  throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
+			}
+		      finally 
+		      {
+		    	 try 
+		    	 {
+		    		 if (session!=null)
+		    			 session.close();
+		    	 }
+		    	 catch (HibernateException e)
+		    	 {
+		    		 throw new UserExceptionHandler("Warnning!! connection did'nt close properly");
+		    	 } 
+			  }	  
+		}
 	}	
 	
 }

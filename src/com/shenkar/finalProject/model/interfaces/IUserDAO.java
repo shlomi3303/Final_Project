@@ -22,5 +22,7 @@ public interface IUserDAO
 	public void setUserToAdmin (int id, boolean bool) throws UserExceptionHandler;
 	
 	public AppUser getUserInfo(int userId) throws UserExceptionHandler;
+	
+	public void updateLocation(int userId, String lat, String longt, String city, String street, int houseNumber) throws UserExceptionHandler;
 
 }

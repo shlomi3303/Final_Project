@@ -11,7 +11,7 @@ import com.shenkar.finalProject.model.UserExceptionHandler;
 public interface IManualMatch 
 {	
 	
-	public void createMatch(Match match, String tableName) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException;
+	public void createManualMatch(Match match, String tableName) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException;
 	
 	public void acceptMatch (String user, int userRequestId, String tableName);
 	

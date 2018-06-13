@@ -11,7 +11,7 @@ import com.shenkar.finalProject.classes.ManualMatchUserApplication;
 import com.shenkar.finalProject.classes.ManualMatchUserOffer;
 import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
-import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -85,7 +85,7 @@ public class MatchServlet extends HttpServlet {
 				if (strOfferId!=null&&strOfferId.matches("[0-9]"))
 				{
 					int offerId = Integer.parseInt(strOfferId);
-					HibernateManualMatchDAO.getInstance().declineMatch(user, offerId, tableName);
+					HibernateMatchDAO.getInstance().declineMatch(user, offerId, tableName);
 				}
 			}
 			
@@ -95,7 +95,7 @@ public class MatchServlet extends HttpServlet {
 				if (strApplicationId!=null&&strApplicationId.matches("[0-9]"))
 				{
 					int applicationId = Integer.parseInt(strApplicationId);
-					HibernateManualMatchDAO.getInstance().declineMatch(user, applicationId, tableName);
+					HibernateMatchDAO.getInstance().declineMatch(user, applicationId, tableName);
 				}
 			}
 			else
@@ -117,7 +117,7 @@ public class MatchServlet extends HttpServlet {
 			{
 				String strOfferId = req.getParameter("offerId");
 				int offerId = Integer.parseInt(strOfferId);
-				HibernateManualMatchDAO.getInstance().acceptMatch(user, offerId, tableName);
+				HibernateMatchDAO.getInstance().acceptMatch(user, offerId, tableName);
 				res.getWriter().println("match was created");
 			}
 			
@@ -125,7 +125,7 @@ public class MatchServlet extends HttpServlet {
 			{
 				String strApplicationId = req.getParameter("applicationId");
 				int applicationId = Integer.parseInt(strApplicationId);
-				HibernateManualMatchDAO.getInstance().acceptMatch(user, applicationId, tableName);
+				HibernateMatchDAO.getInstance().acceptMatch(user, applicationId, tableName);
 				res.getWriter().println("match was created");
 			}
 			else
@@ -143,7 +143,7 @@ public class MatchServlet extends HttpServlet {
 		if (match != null)
 		{
 			String tableName = request.getParameter("tableName");
-			HibernateManualMatchDAO.getInstance().createMatch(match, tableName);
+			HibernateMatchDAO.getInstance().createManualMatch(match, tableName);
 			
 		}
 		

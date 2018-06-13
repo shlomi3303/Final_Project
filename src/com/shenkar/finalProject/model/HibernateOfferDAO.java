@@ -280,8 +280,8 @@ public class HibernateOfferDAO implements IOfferDAO
 	    	 if (userId>0)
 	    		 offers = session.createQuery("from "+ Offer.class.getName() + " offers where offers.userId = " +userId+ " and isArchive = false").getResultList();
 	    	 else if(userId==-1)
-	    		 offers = session.createQuery ("from " + Offer.class.getName()).getResultList();
-	         
+	    		 offers = session.createQuery ("from " + Offer.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
+	    	 
 	         if (offers != null && !offers.isEmpty())
 	          {
 	        	  session.getTransaction().commit();

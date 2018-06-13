@@ -14,7 +14,7 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.AppUser;
-import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.Offer;
@@ -136,7 +136,7 @@ public class OfferServelt extends HttpServlet
 						String category = request.getParameter("category");
 						if (strOfferId!=null && category!=null)
 						{
-							int userId = HibernateManualMatchDAO.getInstance().getUserByOfferId(Integer.parseInt(strOfferId), category);
+							int userId = HibernateMatchDAO.getInstance().getUserByOfferId(Integer.parseInt(strOfferId), category);
 							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 							if (user!=null)
 							{

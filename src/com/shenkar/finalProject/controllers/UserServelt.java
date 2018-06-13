@@ -21,7 +21,7 @@ import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
-import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -69,10 +69,10 @@ public class UserServelt extends HttpServlet {
 								
 								List <Offer> offersList = HibernateOfferDAO.getInstance().getUserOffers(userId);
 								
-								List <Match> manualMatchApplication = HibernateManualMatchDAO.getInstance().getAllUserManualMatches(userId, "User Application");
+								List <Match> manualMatchApplication = HibernateMatchDAO.getInstance().getAllUserManualMatches(userId, "User Application");
 								List<Offer> userMatchOfferList = HibernateOfferDAO.getInstance().getaAllOfferMatches(manualMatchApplication);
 								
-								List <Match> manualMatchOffer = HibernateManualMatchDAO.getInstance().getAllUserManualMatches(userId, "User Offer");
+								List <Match> manualMatchOffer = HibernateMatchDAO.getInstance().getAllUserManualMatches(userId, "User Offer");
 								List<Application> userMatchApplicationsList = HibernateApplicationDAO.getInstance().getaAllApplicationMatches(manualMatchOffer);
 								
 								List<Object> userInfo = new ArrayList<Object>();
@@ -149,6 +149,22 @@ public class UserServelt extends HttpServlet {
 					break;
 				}
 				
+			case "updateUserLocation":
+			{
+				String lat = request.getParameter("latitude");
+				String longt = request.getParameter("longitude");
+				
+				if (lat!=null && longt!=null)
+				{
+					try {
+						updateUserLocation(request, lat, longt);
+					} catch (NumberFormatException | UserExceptionHandler e) {
+						e.printStackTrace();
+					}
+				}
+				
+				break;
+			}
 			default:
 				String str = "please insert a valid value into fucntion";
 				response.getWriter().write(str);
@@ -156,6 +172,18 @@ public class UserServelt extends HttpServlet {
 			}
 		}
 	}
+	
+	private void updateUserLocation(HttpServletRequest request, String lat, String longt) throws NumberFormatException, UserExceptionHandler
+	{
+		String city = request.getParameter("city");
+		String street = request.getParameter("street");
+		String strHouseNumber = request.getParameter("houseNumber");
+		String struserId = request.getParameter("userId");
+		
+		HibernateUserDAO.getInstance().updateLocation(Integer.valueOf(struserId), lat, longt, city, street, Integer.valueOf(strHouseNumber));
+		
+	}
+	
 	
 	private void addNewUser(HttpServletRequest request) throws UserExceptionHandler, IOException
 	{

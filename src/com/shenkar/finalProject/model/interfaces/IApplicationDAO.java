@@ -33,5 +33,7 @@ public interface IApplicationDAO
 
 	public void hardDeleteApplication(int applicationId, String tableName) throws ApplicationExceptionHandler;
 
-	void updateOfferListPotentialMatch(List<Integer> list, Application application) throws ApplicationExceptionHandler;
+	public void updateOfferListPotentialMatch(List<Integer> list, Application application) throws ApplicationExceptionHandler;
+	
+	public void updateRefuseList(int offerId, Application application);
 }

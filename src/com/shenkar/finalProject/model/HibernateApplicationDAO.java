@@ -339,8 +339,8 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    	 if (userId>0)
 	    		 applications = session.createQuery("from "+ Application.class.getName() + " applications where applications.userId = " + userId+ " and isArchive = false").getResultList();
 	    	 else if (userId==-1)
-	    		 applications = session.createQuery ("from " + Application.class.getName()).getResultList();
-				
+	    		 applications = session.createQuery ("from " + Application.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
+	    	 	
 	    	 System.out.println(applications);
 
 	         if (applications != null && !applications.isEmpty())
@@ -590,29 +590,42 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				e.printStackTrace();
 			}
 		}
-		
-
 	}
 	
-	
-	public Class<?>  getTableMapping (String tableName)
+	@Override
+	public void updateRefuseList(int offerId, Application application) 
 	{
+		application.getRefuseList().add(offerId);
 		
-		Class<?> className = null;
+		Session session = null;
 		
-		if (tableName.equals("olders"))
-			className = OldersApplication.class;
-		else if (tableName.equals("ride"))
-			className = RideApplication.class;
-		else if (tableName.equals("handyman"))
-			className = HandymanApplication.class;
-		else if (tableName.equals("student"))
-			className = StudentApplication.class;
-		
-		return className;
-		
+		try{
+			initApplicationFactory();
+			session = GlobalsFunctions.getSession(applicationFactory);
+			if (session!=null){
+	   	  		session.beginTransaction();
+	   	  		session.update(application);
+	   	  		session.getTransaction().commit();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (session !=null)
+					session.close();
+			}
+			catch (HibernateException e)
+			{
+				e.printStackTrace();
+			}
+		}		
 	}
-
+	
 	@Override
 	public void notification(int userId, String subject, String body) throws ApplicationExceptionHandler, UserExceptionHandler, IOException 
 	{
@@ -670,6 +683,24 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    }
 		
 	    return null;
+		
+	}
+
+	public Class<?>  getTableMapping (String tableName)
+	{
+		
+		Class<?> className = null;
+		
+		if (tableName.equals("olders"))
+			className = OldersApplication.class;
+		else if (tableName.equals("ride"))
+			className = RideApplication.class;
+		else if (tableName.equals("handyman"))
+			className = HandymanApplication.class;
+		else if (tableName.equals("student"))
+			className = StudentApplication.class;
+		
+		return className;
 		
 	}
 }

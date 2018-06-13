@@ -37,11 +37,9 @@ public class CleanUp implements ServletContextListener
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) 
 	{
-		
         System.out.println("Clean Up model is Closed");	
         if (timer!=null)
         	timer.cancel();
-
 	}
 
 	@Override

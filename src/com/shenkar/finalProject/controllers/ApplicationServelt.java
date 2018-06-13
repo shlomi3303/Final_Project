@@ -19,7 +19,7 @@ import com.shenkar.finalProject.model.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
-import com.shenkar.finalProject.model.HibernateManualMatchDAO;
+import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.HibernateUserInterestsDAO;
 import com.shenkar.finalProject.model.UserExceptionHandler;
@@ -169,7 +169,7 @@ public class ApplicationServelt extends HttpServlet
 						String category = request.getParameter("category");
 						if (strAppId!=null&&category!=null)
 						{
-							int userId = HibernateManualMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId), category);
+							int userId = HibernateMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId), category);
 							System.out.println(userId);
 							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 							if (user!=null)
