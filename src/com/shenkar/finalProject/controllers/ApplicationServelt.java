@@ -2,6 +2,7 @@
 package com.shenkar.finalProject.controllers;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,18 +15,26 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
+import com.shenkar.finalProject.BackgroundModules.AutoMatchModules;
 import com.shenkar.finalProject.Globals.WebSocket;
-import com.shenkar.finalProject.model.AppUser;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.model.Application;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
+import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.HibernateUserInterestsDAO;
+import com.shenkar.finalProject.model.Offer;
+import com.shenkar.finalProject.model.OfferExceptionHandler;
+import com.shenkar.finalProject.model.Ranking;
+import com.shenkar.finalProject.model.RideApplication;
+import com.shenkar.finalProject.model.RideOffer;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 import api.CoralogixLogger;
 
+@SuppressWarnings("unchecked")
 @WebServlet(value="/ApplicationServelt")
 public class ApplicationServelt extends HttpServlet 
 {
@@ -63,7 +72,7 @@ public class ApplicationServelt extends HttpServlet
 						response.getWriter().println(Thread.currentThread().getName());
 
 					} 
-					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					catch (ApplicationExceptionHandler | ParseException | OfferExceptionHandler | UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
 				}	
 				case "update":
@@ -216,7 +225,6 @@ public class ApplicationServelt extends HttpServlet
 						try {
 							user = HibernateUserDAO.getInstance().getUserInfo(userId);
 						} catch (UserExceptionHandler e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						if (user!=null)
@@ -303,8 +311,6 @@ public class ApplicationServelt extends HttpServlet
 		
 	}
 	
-	
-	
 	private String getUserApplicationPreferences(AppUser user) throws ApplicationExceptionHandler
 	{
 		
@@ -376,14 +382,33 @@ public class ApplicationServelt extends HttpServlet
 		return null;
 	}
 	
-	private void addNewApplication(HttpServletRequest req, HttpServletResponse response) throws ApplicationExceptionHandler, IOException
+	private void addNewApplication(HttpServletRequest req, HttpServletResponse response) throws ApplicationExceptionHandler, IOException, ParseException, OfferExceptionHandler, UserExceptionHandler
 	{
 		Application application = generateApplication(req, response);
 		
 		if (application  != null)
 		{
 			response.getWriter().println("application is not a null");
-			HibernateApplicationDAO.getInstance().createApplication(application);
+			int applicationId = HibernateApplicationDAO.getInstance().createApplication(application);
+			
+			//check if the application is a ride
+			if (applicationId>0)
+			{
+				List<Offer> offerRideList = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("ride");
+				List<RideOffer> rideOfferList =  (List <RideOffer>) (List <?>) offerRideList;
+				RideApplication rideApp =(RideApplication)HibernateApplicationDAO.getInstance().getApplication(applicationId, "ride");
+				if (rideOfferList!=null && rideApp!=null)
+				{
+					List <Integer> listMatchIdOffer = Ranking.rideRanking(rideApp, rideOfferList);
+					if (listMatchIdOffer!=null)
+					{
+						int offerId = listMatchIdOffer.get(0);
+						AutoMatchModules.createAutoMatch("ride", offerId, applicationId);
+						AutoMatchModules.updateApplicationAndOffer(rideApp, offerId, "ride", listMatchIdOffer);
+						System.out.println("Auto match to ride application was created");
+					}
+				}
+			}
 			response.getWriter().println("after createApplication function");
 		}
 	}

@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.WebSocket;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.classes.ManualMatchUserOffer;
 import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
@@ -39,7 +40,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	}
 	
 	@Override
-	public void createApplication(Application application) throws ApplicationExceptionHandler 
+	public int createApplication(Application application) throws ApplicationExceptionHandler 
 	{
 		Session session =null;
 		
@@ -74,8 +75,13 @@ public class HibernateApplicationDAO implements IApplicationDAO
 					application.setStatus(ConstantVariables.waitingForMatch);
 				
 				session.beginTransaction();
-				session.save(application); 
+				int id = (Integer)session.save(application); 
 				session.getTransaction().commit();
+				
+				if (application.equals("ride"))
+					return id;
+				else
+					return 0;
 			}
 			
 		}catch (HibernateException e) {
@@ -92,6 +98,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			catch (HibernateException e)
 			{throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly");} 
 		}
+		return 0;
 	}
 
 	@Override

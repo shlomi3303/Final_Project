@@ -12,6 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.classes.CategoryOffersSuggestions;
 import com.shenkar.finalProject.classes.UserSubcategoryApplicationsInterests;
 import com.shenkar.finalProject.classes.UserSubcategoryOffersInterests;

@@ -81,28 +81,36 @@ public class TestApplication {
 		
 		//Application app = HibernateApplicationDAO.getInstance().getApplication(1, "student");
 		
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 		//the application day
-		String testDateString2 = "2018-07-27";
+		String testDateString2 = "2018-07-27 12:50";
 	    Date period2  = (Date) df.parse(testDateString2);
 	    
 	    //today
 		String testDateString3 = "2018-07-27";
-	    Date today  = (Date) df.parse(testDateString3);
-
-	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
-
-	    ob.setList(list);
-
-	    HibernateApplicationDAO.getInstance().createApplication(ob);
+	    //Date today  = (Date) df.parse(testDateString3);
 	    
-	    Application app =  HibernateApplicationDAO.getInstance().getApplication(1, "ride");
+	    System.out.println(period2);
 	    
+	    DateFormat outputFormatter = new SimpleDateFormat("MM/dd/yyyy");
+	    String output = outputFormatter.format(period2); // Output : 01/20/2012
 	    
-	    
-	    System.out.println(new Gson().toJson(HibernateApplicationDAO.getInstance().getApplication(1, "ride")));
-	    
+	    Date newDate = (Date) outputFormatter.parse(output);
+//	    
+	    System.out.println(newDate);
+//	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
+//
+//	    ob.setList(list);
+//
+//	    HibernateApplicationDAO.getInstance().createApplication(ob);
+//	    
+//	    Application app =  HibernateApplicationDAO.getInstance().getApplication(1, "ride");
+//	    
+//	    
+//	    
+//	    System.out.println(new Gson().toJson(HibernateApplicationDAO.getInstance().getApplication(1, "ride")));
+//	    
 	    
 	    
 	    //System.out.println(app.getPeriodic().compareTo(app.getPeriod()));

@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
 
 public class HibernateUserDAO implements IUserDAO 

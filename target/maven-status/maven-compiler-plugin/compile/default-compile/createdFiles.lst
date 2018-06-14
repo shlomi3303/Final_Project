@@ -3,7 +3,6 @@ com\shenkar\finalProject\model\OldersApplication.class
 com\shenkar\finalProject\model\OldersOffer.class
 com\shenkar\finalProject\model\HibernateOfferDAO.class
 com\shenkar\finalProject\controllers\ApplicationServelt.class
-com\shenkar\finalProject\model\AppUser.class
 com\shenkar\finalProject\model\Offer.class
 com\shenkar\finalProject\model\HandymanOffer.class
 com\shenkar\finalProject\model\ApplicationExceptionHandler.class
@@ -19,6 +18,7 @@ Tests\TestOffer.class
 com\shenkar\finalProject\controllers\UserServelt.class
 com\shenkar\finalProject\model\Application.class
 com\shenkar\finalProject\model\HibernateApplicationDAO.class
+com\shenkar\finalProject\model\Ranking$2.class
 Tests\TestApplication.class
 com\shenkar\finalProject\model\interfaces\IAutoMatch.class
 com\shenkar\finalProject\controllers\AutoMatchController.class

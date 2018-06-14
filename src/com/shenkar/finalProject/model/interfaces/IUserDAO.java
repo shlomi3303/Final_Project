@@ -5,7 +5,7 @@ package com.shenkar.finalProject.model.interfaces;
 
 import java.util.List;
 
-import com.shenkar.finalProject.model.AppUser;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 public interface IUserDAO

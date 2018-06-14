@@ -45,9 +45,6 @@ public class Offer
 	@Column(name="Status")
 	String status;
 	
-	@Column(name="User_Location")
-	String userLocation;
-	
 	@Column(name="Is_Aprroved")
 	boolean isAprroved;
 	
@@ -75,7 +72,7 @@ public class Offer
 	public Offer(){}
 	
 	public Offer(int userId, Date period, String city, String street, int houseNumber, String latitude,
-			String longitude, Date periodic, String status, String userLocation, 
+			String longitude, Date periodic, String status, 
 			String gender, String language, String img, String title, String description) 
 	{
 		this.userId = userId;
@@ -88,7 +85,6 @@ public class Offer
 		this.periodic = periodic;
 		TTL = 0;
 		this.status = status;
-		this.userLocation = userLocation;
 		this.isAprroved = true;
 		this.gender = gender;
 		this.language = language;
@@ -141,14 +137,6 @@ public class Offer
 
 	public void setTTL(int tTL) {
 		TTL = tTL;
-	}
-
-	public String getUserLocation() {
-		return userLocation;
-	}
-
-	public void setUserLocation(String userLocation) {
-		this.userLocation = userLocation;
 	}
 
 	public boolean getIsAprroved() {
@@ -222,5 +210,22 @@ public class Offer
 	public void setCategory(String category) {
 		this.category = category;
 	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+	public String getLongitude() {
+		return Longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		Longitude = longitude;
+	}
+	
 	
 }

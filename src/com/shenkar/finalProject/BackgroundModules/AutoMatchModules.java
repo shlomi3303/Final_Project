@@ -27,14 +27,13 @@ import com.shenkar.finalProject.model.StudentApplication;
 import com.shenkar.finalProject.model.StudentOffer;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
-public class AutoMatchModules {
-
+@SuppressWarnings("unchecked")
+public class AutoMatchModules 
+{
 	private static SessionFactory autoMatchFactory;
 	
 	public AutoMatchModules() {}
 	
-	
-	@SuppressWarnings("unchecked")
 	public void AutoMatchMainModules() throws ApplicationExceptionHandler
 	{
 		List <Application> oldersAppList = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("olders");
@@ -161,19 +160,19 @@ public class AutoMatchModules {
 		
 	}
 	
-	private void updateApplicationAndOffer(Application tempApp, int offerId, String category, List<Integer> offerList) throws OfferExceptionHandler, ApplicationExceptionHandler, UserExceptionHandler, IOException
+	public static void updateApplicationAndOffer(Application tempApp, int offerId, String category, List<Integer> offerList) throws OfferExceptionHandler, ApplicationExceptionHandler, UserExceptionHandler, IOException
 	{
 		HibernateApplicationDAO.getInstance().updateOfferListPotentialMatch(offerList, tempApp);
 		HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForbothSideApproval, tempApp);
 		HibernateApplicationDAO.getInstance().notification(tempApp.getUserId(), ConstantVariables.subjectMailAutoMatchApplication, ConstantVariables.bodyMailApplication);
 	
-		Offer offer = HibernateOfferDAO.getInstance().getOffer(offerId, "olders");
+		Offer offer = HibernateOfferDAO.getInstance().getOffer(offerId, category);
 	
 		HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailAutoMatchOffer, ConstantVariables.bodyMailInterestedInOffer);
 		HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForbothSideApproval, offer);
 	}
 	
-	private void createAutoMatch(String category, int offerId,int appId)
+	public static void createAutoMatch(String category, int offerId, int appId)
 	{
 		Session session = null;
 		

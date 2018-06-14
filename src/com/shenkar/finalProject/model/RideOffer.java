@@ -35,11 +35,11 @@ public class RideOffer extends Offer
 	public RideOffer() {super();}
 
 	public RideOffer(int userId, Date period, String city, String street, int houseNumber, String latitude,
-			String longitude, Date periodic, String status, String userLocation, String gender, String language,
+			String longitude, Date periodic, String status, String gender, String language,
 			String img, String title, String description, String destCity, String destStreet, int destHouseNum, String destlatitude,
 			String destLongitude, Date endPeriod) 
 	{
-		super(userId, period, city, street, houseNumber, latitude, longitude, periodic, status, userLocation, gender, language,
+		super(userId, period, city, street, houseNumber, latitude, longitude, periodic, status, gender, language,
 				img, title, description);
 		this.destCity = destCity;
 		this.destStreet = destStreet;

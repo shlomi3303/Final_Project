@@ -123,6 +123,9 @@ public class FollowUp implements ServletContextListener
 					
 				}
 			}
+			
+			
+			
 			if (mmApp != null || mmOffer !=null)
 				session.getTransaction().commit();
 		}

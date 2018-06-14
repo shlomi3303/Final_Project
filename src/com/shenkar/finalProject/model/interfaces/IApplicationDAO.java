@@ -11,7 +11,7 @@ import com.shenkar.finalProject.model.UserExceptionHandler;
 
 public interface IApplicationDAO 
 {
-	public void createApplication(Application application) throws ApplicationExceptionHandler;
+	public int createApplication(Application application) throws ApplicationExceptionHandler;
 	
 	public void editApplication(int applicationId, Application updateApplication, String tableName) throws ApplicationExceptionHandler;
 	

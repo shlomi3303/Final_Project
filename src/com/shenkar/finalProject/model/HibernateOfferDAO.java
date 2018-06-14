@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.WebSocket;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.classes.ManualMatchUserApplication;
 import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
@@ -536,7 +537,6 @@ public class HibernateOfferDAO implements IOfferDAO
 	{
 		offer.setPeriod(updateOffer.getPeriod());
 		offer.setPeriodic(updateOffer.getPeriodic());
-		offer.setUserLocation(updateOffer.getUserLocation());
 		offer.setGender(updateOffer.getGender());
 		offer.setLanguage(updateOffer.getLanguage());
 		offer.setImg(updateOffer.getImg());

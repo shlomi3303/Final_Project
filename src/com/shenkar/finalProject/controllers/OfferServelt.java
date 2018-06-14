@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
-import com.shenkar.finalProject.model.AppUser;
+import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
