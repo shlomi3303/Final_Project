@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
+import org.joda.time.*;
 
 @SuppressWarnings("unchecked")
 public class Ranking {
@@ -20,6 +20,9 @@ public class Ranking {
 	enum student {homeWorks, testStudy, practice;}
 	enum olders {shooping, cooking, conversation, escort;}
 	enum handyman {colorCorrections, furniture, generalHangingWorks, hangingOfLightFixtures, treatmentSocketsAndPowerPoints;}
+	enum fieldOfStudy {check;}
+	enum educationLevel {check;}
+
 	
 	public static List <Integer> rideRanking (RideApplication app, List <RideOffer> listOffers) throws ParseException
 	{
@@ -64,31 +67,8 @@ public class Ranking {
 			
 		}
 		
-		return sortList(ranking);
-
-		
-//		Object[] a = ranking.entrySet().toArray();
-//		
-//		Arrays.sort(a, new Comparator() 
-//		{
-//		    public int compare(Object o1, Object o2) 
-//		    {
-//		        return ((Map.Entry<Integer, Double>) o2).getValue()
-//		                   .compareTo(((Map.Entry<Integer, Double>) o1).getValue());
-//		    }
-//		});
-//
-//		List<Integer> list = new ArrayList<Integer>();
-//		
-//		for (int i=0; i<a.length; i++) {
-//		    
-//		    list.add(( (Map.Entry<Integer, Double>) a[i]).getKey());
-//
-//		}
-		
-		
+		return sortList(ranking);		
 	}
-	
 	
 	
 	public static List <Integer> oldersRanking (OldersApplication app, List <OldersOffer> listOffers)
@@ -138,7 +118,11 @@ public class Ranking {
 			}
 			if(!flag)
 				continue;
-		
+			
+			//check that the gender is the same or nevermind
+			if (!app.getGender().equals(offer.getGender()))
+				continue;
+			
 			//ranking time
 			LocalDate localApp = app.getPeriod().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			LocalDate localOffer = offer.getPeriod().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -147,10 +131,22 @@ public class Ranking {
 			int mon = Period.between(localApp,localOffer).getMonths();			
 			int year = Period.between(localApp,localOffer).getYears();
 			
-			//ranking time
 			if ((days==0 && mon==0 && year==0))
 			{
-				 
+				DateTime datatimeApp = new DateTime(app.getPeriod());
+				DateTime datatimeOffer = new DateTime(offer.getPeriod());
+
+				org.joda.time.Period p = new org.joda.time.Period(datatimeApp, datatimeOffer);
+				int hours = Math.abs(p.getHours());
+				int minutes = p.getMinutes();
+				
+				double sum = ((hours*60) + minutes)/60;
+				
+				double check = 0.5-(0.1)*sum;
+				
+				if (check>0)
+					tempRanking += check;
+
 			}
 			else
 				continue;
@@ -163,21 +159,17 @@ public class Ranking {
 			double dist = distance(Double.parseDouble(app.getLatitude()), Double.parseDouble(offer.getLatitude()), Double.parseDouble(app.getLongitude()), Double.parseDouble(offer.getLongitude()), 1, 1);
 			
 			if (dist<=0.5)
-				tempRanking+=0.3;
+				tempRanking+=0.4;
 			else
 			{
-				double check = 0.3-((dist/0.3)*0.005);
+				double check = 0.4-((dist/0.3)*0.005);
 				if (check>0)
 					tempRanking += check;
 			}
 			
-			
-			
-				
-				
-			
+			if (tempRanking>=0.50)
+				ranking.put(offer.getOfferId(), tempRanking);
 		}
-		
 		
 		return sortList(ranking);		
 	}
@@ -185,7 +177,7 @@ public class Ranking {
 	public static List <Integer> studentRanking (StudentApplication app, List <StudentOffer> listOffers)
 	{
 		HashMap<Integer, Double> ranking = new HashMap<Integer, Double>();
-
+		
 		student studentEnum = null;
 		
 		if ( (app.getHomeWorks()))
@@ -203,6 +195,9 @@ public class Ranking {
 			
 			//check if the offer is in the refuse list of the application
 			if (app.getRefuseList().contains(offer.getOfferId()))
+				continue;
+			
+			if (!app.getGender().equals(offer.getGender()))
 				continue;
 			
 			switch(studentEnum)
@@ -225,11 +220,58 @@ public class Ranking {
 			if(!flag)
 				continue;
 		
-		
+			//check that the gender is the same never mind
+			if (!app.getGender().equals(offer.getGender()))
+				tempRanking+=0.1;
+			
+			//ranking time
+			LocalDate localApp = app.getPeriod().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			LocalDate localOffer = offer.getPeriod().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			 
+			int days = Period.between(localApp, localOffer).getDays();
+			int mon = Period.between(localApp,localOffer).getMonths();			
+			int year = Period.between(localApp,localOffer).getYears();
+			
+			if ((days==0 && mon==0 && year==0))
+			{
+				DateTime datatimeApp = new DateTime(app.getPeriod());
+				DateTime datatimeOffer = new DateTime(offer.getPeriod());
+
+				org.joda.time.Period p = new org.joda.time.Period(datatimeApp, datatimeOffer);
+				int hours = Math.abs(p.getHours());
+				int minutes = p.getMinutes();
+				
+				double sum = ((hours*60) + minutes)/60;
+				
+				double check = 0.3-(0.1)*sum;
+				
+				if (check>0)
+					tempRanking += check;
+
+			}
+			else
+				continue;
+			
+			//ranking distance
+			double dist = distance(Double.parseDouble(app.getLatitude()), Double.parseDouble(offer.getLatitude()), Double.parseDouble(app.getLongitude()), Double.parseDouble(offer.getLongitude()), 1, 1);
+			
+			if (dist<=0.5)
+				tempRanking+=0.3;
+			else
+			{
+				double check = 0.3-((dist/0.3)*0.005);
+				if (check>0)
+					tempRanking += check;
+			}
+			
+			if (tempRanking>=0.35)
+				ranking.put(offer.getOfferId(), tempRanking);
+			
 		}	
 		
-		return sortList(ranking);		
+		return sortList(ranking);
 	}
+	
 
 	public static List <Integer> handymanRanking (HandymanApplication app, List <HandymanOffer> listOffers)
 	{
@@ -247,7 +289,6 @@ public class Ranking {
 			handymanEnum = handyman.hangingOfLightFixtures;
 		else if (app.getTreatmentSocketsAndPowerPoints())
 			handymanEnum = handyman.treatmentSocketsAndPowerPoints;
-		
 		
 		for (int i=0; i>listOffers.size(); i++)
 		{
@@ -288,10 +329,58 @@ public class Ranking {
 			}
 			if(!flag)
 				continue;
-		
-		
-		}	
-		
+			
+			//check that the gender is the same never mind
+			if (!app.getGender().equals(offer.getGender()))
+				tempRanking+=0.1;
+			
+			//ranking time
+			LocalDate localApp = app.getPeriod().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			LocalDate localOffer = offer.getPeriod().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			 
+			int days = Period.between(localApp, localOffer).getDays();
+			int mon = Period.between(localApp,localOffer).getMonths();			
+			int year = Period.between(localApp,localOffer).getYears();
+			
+			if ((days==0 && mon==0 && year==0))
+			{
+				DateTime datatimeApp = new DateTime(app.getPeriod());
+				DateTime datatimeOffer = new DateTime(offer.getPeriod());
+
+				org.joda.time.Period p = new org.joda.time.Period(datatimeApp, datatimeOffer);
+				int hours = Math.abs(p.getHours());
+				int minutes = p.getMinutes();
+				
+				double sum = ((hours*60) + minutes)/60;
+				
+				double check = 0.4-(0.1)*sum;
+				
+				if (check>0)
+					tempRanking += check;
+
+			}
+			else
+				continue;
+				 
+			//ranking language
+			if (app.getLanguage().equals(offer.getLanguage()))
+				tempRanking += 0.05;
+			
+			//ranking distance
+			double dist = distance(Double.parseDouble(app.getLatitude()), Double.parseDouble(offer.getLatitude()), Double.parseDouble(app.getLongitude()), Double.parseDouble(offer.getLongitude()), 1, 1);
+			
+			if (dist<=0.5)
+				tempRanking+=0.45;
+			else
+			{
+				double check = 0.45-((dist/0.3)*0.005);
+				if (check>0)
+					tempRanking += check;
+			}
+			
+			if (tempRanking>=0.45)
+				ranking.put(offer.getOfferId(), tempRanking);
+		}
 		
 		return sortList(ranking);		
 	}
@@ -312,7 +401,7 @@ public class Ranking {
 
 		List<Integer> list = new ArrayList<Integer>();
 		
-		for (int i=0; i<a.length; i++) {
+		for (int i=0; i<10; i++) {
 		    list.add(( (Map.Entry<Integer, Double>) a[i]).getKey());
 		}
 		

@@ -19,6 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import org.joda.time.DateTime;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -31,6 +33,7 @@ import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HandymanApplication;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
+import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OldersApplication;
 import com.shenkar.finalProject.model.Ranking;
 import com.shenkar.finalProject.model.RideApplication;
@@ -88,22 +91,32 @@ public class TestApplication {
 	    Date period2  = (Date) df.parse(testDateString2);
 	    
 	    //today
-		String testDateString3 = "2018-07-27";
+		String testDateString3 = "2018-07-27 11:40";
+	    Date period3 = (Date) df.parse(testDateString3);
 	    //Date today  = (Date) df.parse(testDateString3);
 	    
-	    System.out.println(period2);
 	    
+		DateTime datatimeApp = new DateTime(period2);
+		DateTime datatimeOffer = new DateTime(period3);
+
+		org.joda.time.Period p = new org.joda.time.Period(datatimeOffer, datatimeApp);
+		int hours = p.getHours();
+		int minutes = p.getMinutes();
+		
+		System.out.println("hours: " + hours);
+		System.out.println("min: " + minutes);
+
 	    DateFormat outputFormatter = new SimpleDateFormat("MM/dd/yyyy");
 	    String output = outputFormatter.format(period2); // Output : 01/20/2012
 	    
 	    Date newDate = (Date) outputFormatter.parse(output);
 //	    
 	    System.out.println(newDate);
-//	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
+	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
 //
 //	    ob.setList(list);
 //
-//	    HibernateApplicationDAO.getInstance().createApplication(ob);
+	    HibernateApplicationDAO.getInstance().createApplication(ob);
 //	    
 //	    Application app =  HibernateApplicationDAO.getInstance().getApplication(1, "ride");
 //	    
@@ -204,7 +217,32 @@ public class TestApplication {
 		//HibernateApplicationDAO.getInstance().getRandomApplication(2, "olders");
 		//System.out.println(HibernateApplicationDAO.getInstance().getRandomApplication(3, "olders"));
 		//System.out.println(HibernateApplicationDAO.getInstance().getApplications(-1).toString());
-
+	    
+//	    private static double calcTime(LocalDate localApp, LocalDate localOffer, Application app, Offer offer)
+//		{
+//			int days = Period.between(localApp, localOffer).getDays();
+//			int mon = Period.between(localApp,localOffer).getMonths();			
+//			int year = Period.between(localApp,localOffer).getYears();
+//			
+//			if ((days==0 && mon==0 && year==0))
+//			{
+//				DateTime datatimeApp = new DateTime(app.getPeriod());
+//				DateTime datatimeOffer = new DateTime(offer.getPeriod());
+//
+//				org.joda.time.Period p = new org.joda.time.Period(datatimeApp, datatimeOffer);
+//				int hours = Math.abs(p.getHours());
+//				int minutes = p.getMinutes();
+//				
+//				double sum = ((hours*60) + minutes)/60;
+//				
+//				double check = 0.5-(0.1)*sum;
+//				
+//				return check;
+//			}
+//			return 0;
+//			
+//		}
+	    
 	}
 	
 	public static void check (Object obj)

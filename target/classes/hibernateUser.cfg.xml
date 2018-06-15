@@ -15,7 +15,7 @@
 	<property name="hibernate.current_session_context_class">thread</property>
 	
 	<!-- Mapping Classes -->
-	<mapping class="com.shenkar.finalProject.model.AppUser"/>
+	<mapping class="com.shenkar.finalProject.classes.AppUser"/>
 	
   </session-factory>
    
