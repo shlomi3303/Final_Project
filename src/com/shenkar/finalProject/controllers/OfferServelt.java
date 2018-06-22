@@ -14,10 +14,12 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.classes.AppUser;
+import com.shenkar.finalProject.classes.Match;
+import com.shenkar.finalProject.classes.Offer;
+import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
-import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -71,7 +73,7 @@ public class OfferServelt extends HttpServlet
 				case "delete":
 				{
 						try {deleteOffer(request);}
-						catch (OfferExceptionHandler e) {e.printStackTrace(response.getWriter());}
+						catch (OfferExceptionHandler | ApplicationExceptionHandler | UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 						break;
 				}
 					
@@ -137,25 +139,27 @@ public class OfferServelt extends HttpServlet
 						if (strOfferId!=null && category!=null)
 						{
 							int userId = HibernateMatchDAO.getInstance().getUserByOfferId(Integer.parseInt(strOfferId), category);
-							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
-							if (user!=null)
+							if (userId>0)
 							{
-								JSONObject json = new JSONObject();
-								json.put("firstname", user.getFirstname());
-								json.put("lastname", user.getLastname());
-								json.put("phone", user.getPhone());
-								json.put("mail", user.getMail());
-								json.put("age", user.getAge());
-								
-								String message = json.toString();
-								response.setContentType("application/json");
-					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(message);
+								AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
+								System.out.println("offer - the user is: " + user);
+								if (user!=null)
+								{
+									JSONObject json = new JSONObject();
+									json.put("firstname", user.getFirstname());
+									json.put("lastname", user.getLastname());
+									json.put("phone", user.getPhone());
+									json.put("mail", user.getMail());
+									json.put("age", user.getAge());
+									
+									String message = json.toString();
+									response.setContentType("application/json");
+						        	response.setCharacterEncoding("utf-8");
+									response.getWriter().write(message);
+								}
 							}
 							else
-							{
 								System.out.println("The user was not found");
-							}
 						}
 						
 					}
@@ -250,12 +254,44 @@ public class OfferServelt extends HttpServlet
 		return HibernateOfferDAO.getInstance().getUserOffers(userId);
 	}
 
-	private void deleteOffer(HttpServletRequest req) throws OfferExceptionHandler
+	private void deleteOffer(HttpServletRequest req) throws OfferExceptionHandler, ApplicationExceptionHandler, UserExceptionHandler, IOException
 	{
 		String offerid = req.getParameter("offerId");
 		String tableName = req.getParameter("tableName");
 		int OfferIdINT = Integer.parseInt(offerid);
-		HibernateOfferDAO.getInstance().deleteOffer(OfferIdINT, tableName);	
+		
+		//check if the offer have a manual match or auto match
+		
+		//manual match case:
+		Match manualMatch = HibernateMatchDAO.getInstance().getManualMatch(OfferIdINT, "User Offer", tableName);
+		if (manualMatch!=null)
+		{
+			//ManualMatchUserApplication app = (ManualMatchUserApplication) manualMatch;
+			//HibernateApplicationDAO.getInstance().notification(app.getUserToInform(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
+			HibernateMatchDAO.getInstance().declineMatch("offer", OfferIdINT, tableName);
+		}
+		
+		//auto match case:
+		else
+		{
+			Match match = HibernateMatchDAO.getInstance().getAutoMatch(OfferIdINT, "User Offer", tableName);
+			if (match!=null)
+			{
+				HibernateMatchDAO.getInstance().declineMatch("offer", OfferIdINT, tableName);
+
+				/*
+				AutoMatch autoMatch = (AutoMatch)match;
+				
+				Application app = HibernateApplicationDAO.getInstance().getApplication(autoMatch.getApplicationId(), tableName);
+				if (app!=null)
+				{
+					//HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, app);
+					//HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
+				}
+				*/
+			}
+		}
+		HibernateOfferDAO.getInstance().deleteOffer(OfferIdINT, tableName);
 	}
 	
 	private void updateOffer(HttpServletRequest req) throws OfferExceptionHandler
@@ -303,8 +339,14 @@ public class OfferServelt extends HttpServlet
 		String tableName = req.getParameter("tableName");
 		int num = Integer.parseInt(strNum);
 		
-		return HibernateOfferDAO.getInstance().getRandomOffer(num, tableName);
+		String strUserId = req.getParameter("userId");
+		int userId;
+		if (strUserId==null || strUserId.equals(""))
+			userId=0;
+		else
+			userId = Integer.valueOf(strUserId);
 		
+		return HibernateOfferDAO.getInstance().getRandomOffer(num, tableName, userId);
 	}
 	
 	private List <Offer> getAllSpecificTable (String tableName) throws OfferExceptionHandler
@@ -319,12 +361,18 @@ public class OfferServelt extends HttpServlet
 		Class <?> className = HibernateOfferDAO.getInstance().getTableMapping(tableName);
 		Offer Deserialization = null;
 		Gson gson = new Gson();
-		Deserialization = (Offer) gson.fromJson(offerString, className);
-		
-		if (Deserialization != null){
-			return Deserialization;
+		if (offerString.isEmpty() || tableName.isEmpty())
+		{
+			System.out.println("offer string is: " + offerString);
+			System.out.println("offer table name is: " + tableName);
 		}
-		
+		else
+		{
+			Deserialization = (Offer) gson.fromJson(offerString, className);
+			if (Deserialization != null){
+				return Deserialization;
+			}
+		}
 		return null;
 	}
 }

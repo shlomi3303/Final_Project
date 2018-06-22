@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.shenkar.finalProject.classes.Match;
-import com.shenkar.finalProject.model.Offer;
+import com.shenkar.finalProject.classes.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
@@ -26,10 +26,9 @@ public interface IOfferDAO
 	
 	public List<Offer> getAllSpecificOfferTable(String tableName) throws OfferExceptionHandler;
 	
-	public String getRandomOffer(int num, String tableName) throws OfferExceptionHandler;
+	public String getRandomOffer(int num, String tableName, int userId) throws OfferExceptionHandler;
 
-	public List<Offer> getaAllOfferMatches(List<Match> manApp);
+	public List<Offer> getaAllOfferMatches(List<Match> manApp) throws OfferExceptionHandler;
 
 	void hardDeleteOffer(int offerId, String tableName) throws OfferExceptionHandler; 
-
 }

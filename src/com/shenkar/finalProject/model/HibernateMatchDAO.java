@@ -9,14 +9,19 @@ import org.hibernate.SessionFactory;
 
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
+import com.shenkar.finalProject.backgroundModules.AutoMatchModules;
+import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.AutoMatch;
 import com.shenkar.finalProject.classes.ManualMatchUserApplication;
 import com.shenkar.finalProject.classes.ManualMatchUserOffer;
 import com.shenkar.finalProject.classes.Match;
-import com.shenkar.finalProject.model.interfaces.IManualMatch;
+import com.shenkar.finalProject.classes.Offer;
+import com.shenkar.finalProject.classes.RideApplication;
+import com.shenkar.finalProject.classes.RideOffer;
+import com.shenkar.finalProject.model.interfaces.IMatch;
 
 @SuppressWarnings("unchecked")
-public class HibernateMatchDAO implements IManualMatch {
+public class HibernateMatchDAO implements IMatch {
 //public class HibernateManualMatchDAO{
 
 	private static HibernateMatchDAO instance;
@@ -43,12 +48,12 @@ public class HibernateMatchDAO implements IManualMatch {
 			if (user.equals("offer"))
 			{
 				int offerId = userRequestId;
-				ManualMatchUserApplication manualApp = (ManualMatchUserApplication) HibernateMatchDAO.getInstance().getManualMatch(offerId, "User Application");
+				ManualMatchUserApplication manualApp = (ManualMatchUserApplication) HibernateMatchDAO.getInstance().getManualMatch(offerId, "User Application", tableName);
 				//manual match case
 				if (manualApp!=null)
 				{
 					initMatchFactory();
-					session = getSession();
+					session = GlobalsFunctions.getSession(matchFactory);
 					if (session!=null)
 					{
 						session.beginTransaction();
@@ -76,7 +81,7 @@ public class HibernateMatchDAO implements IManualMatch {
 				//auto match case
 				else
 				{
-					Match autoMatch = getAutoMatch(offerId, "User Offer");
+					Match autoMatch = getAutoMatch(offerId, "User Offer", tableName);
 					
 					if (autoMatch!=null)
 					{
@@ -87,7 +92,6 @@ public class HibernateMatchDAO implements IManualMatch {
 						{
 							session.beginTransaction();
 
-							
 							autoMatch.setOfferAproved(false);
 							autoMatch.setArchive(true);
 							autoMatch.setStatus(ConstantVariables.offerDeclined);
@@ -97,11 +101,14 @@ public class HibernateMatchDAO implements IManualMatch {
 							Application app = HibernateApplicationDAO.getInstance().getApplication(auto.getApplicationId(), auto.getCategory());
 							Offer offer = HibernateOfferDAO.getInstance().getOffer(auto.getOfferId(), auto.getCategory());
 							
+							//change the status for the application and offer
 							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, app);
 							HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
 							
+							//update the refuse list and the offer list in the application
 							HibernateApplicationDAO.getInstance().updateRefuseList(auto.getOfferId(), app);
-
+							HibernateApplicationDAO.getInstance().removeOfferFromOfferListPotential(app, auto.getOfferId());
+							
 							HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
 						
 							if (!session.getTransaction().isActive())
@@ -109,6 +116,9 @@ public class HibernateMatchDAO implements IManualMatch {
 							session.update(autoMatch);
 							
 							session.getTransaction().commit();
+							
+							//try to find another match to the application user from the offer list potential
+							findAnotherMatch(app, tableName);
 						}
 					}
 				}
@@ -117,12 +127,12 @@ public class HibernateMatchDAO implements IManualMatch {
 			else if (user.equals("application"))
 			{
 				int applicationId = userRequestId;
-				ManualMatchUserOffer manualOffer = (ManualMatchUserOffer) getManualMatch(applicationId, "User Offer");
+				ManualMatchUserOffer manualOffer = (ManualMatchUserOffer) getManualMatch(applicationId, "User Offer", tableName);
 				
 				if (manualOffer != null)
 				{
 					initMatchFactory();
-					session = getSession();
+					session = GlobalsFunctions.getSession(matchFactory);
 					session.beginTransaction();
 
 					if (session!=null){
@@ -145,13 +155,11 @@ public class HibernateMatchDAO implements IManualMatch {
 							
 						session.update(manualOffer); 
 						session.getTransaction().commit();
-						
-						
 					}
 				}
 				else
 				{
-					Match autoMatch = getAutoMatch(applicationId, "User Application");
+					Match autoMatch = getAutoMatch(applicationId, "User Application", tableName);
 					
 					if (autoMatch!=null)
 					{
@@ -171,18 +179,32 @@ public class HibernateMatchDAO implements IManualMatch {
 							Application app = HibernateApplicationDAO.getInstance().getApplication(auto.getApplicationId(), auto.getCategory());
 							Offer offer = HibernateOfferDAO.getInstance().getOffer(auto.getOfferId(), auto.getCategory());
 							
-							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, app);
-							HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
-															
-							HibernateApplicationDAO.getInstance().updateRefuseList(auto.getOfferId(), app);
-															
-							HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
+							if (app!=null)
+							{
+								HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, app);
+								//update the refuse list and the offer list in the application
+								HibernateApplicationDAO.getInstance().updateRefuseList(auto.getOfferId(), app);
+								HibernateApplicationDAO.getInstance().removeOfferFromOfferListPotential(app, auto.getOfferId());
+							}
+							else
+								System.out.println("application is null in auto match decline function");
+							if (offer!=null)
+							{
+								HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
+								HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
+							}
+							else
+								System.out.println("offer is null in auto match decline function");
+							
 							
 							if (!session.getTransaction().isActive())
 								session.beginTransaction();
 							session.update(autoMatch);
 							
 							session.getTransaction().commit();
+							
+							//try to find another match to the application user from the offer list potential
+							findAnotherMatch(app, tableName);
 						}
 					}
 				}
@@ -214,13 +236,13 @@ public class HibernateMatchDAO implements IManualMatch {
 			if (user.equals("offer"))
 			{
 				int offerId = userRequestId;
-				ManualMatchUserApplication manualApp = (ManualMatchUserApplication) getManualMatch(offerId, "User Application");
+				ManualMatchUserApplication manualApp = (ManualMatchUserApplication) getManualMatch(offerId, "User Application", tableName);
 				
 				if (manualApp!=null)
 				{
 				
 					initMatchFactory();
-					session = getSession();
+					session = GlobalsFunctions.getSession(matchFactory);
 					session.beginTransaction();
 
 					
@@ -243,7 +265,7 @@ public class HibernateMatchDAO implements IManualMatch {
 				}
 				else 
 				{
-					Match autoMatch = getAutoMatch(offerId, "User Offer");
+					Match autoMatch = getAutoMatch(offerId, "User Offer", tableName);
 					
 					if (autoMatch!=null)
 					{
@@ -290,12 +312,12 @@ public class HibernateMatchDAO implements IManualMatch {
 			else if (user.equals("application"))
 			{
 				int applicationId = userRequestId;
-				ManualMatchUserOffer manualOffer = (ManualMatchUserOffer) getManualMatch(applicationId, "User Offer");
+				ManualMatchUserOffer manualOffer = (ManualMatchUserOffer) getManualMatch(applicationId, "User Offer", tableName);
 				
 				if (manualOffer != null)
 				{
 					initMatchFactory();
-					session = getSession();
+					session = GlobalsFunctions.getSession(matchFactory);
 					session.beginTransaction();
 
 					if (session!=null){
@@ -318,10 +340,10 @@ public class HibernateMatchDAO implements IManualMatch {
 						HibernateApplicationDAO.getInstance().status(ConstantVariables.bothSideApproved, application);
 					}
 				}
+				//auto match case:
 				else
 				{
-					
-					Match autoMatch = getAutoMatch(applicationId, "User Application");
+					Match autoMatch = getAutoMatch(applicationId, "User Application", tableName);
 					
 					if (autoMatch!=null)
 					{
@@ -393,7 +415,7 @@ public class HibernateMatchDAO implements IManualMatch {
 		try
 		{
 			initMatchFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(matchFactory);
 			if (session != null && match!=null)
 			{
 				if (match.getClass().equals(ManualMatchUserOffer.class))
@@ -482,32 +504,35 @@ public class HibernateMatchDAO implements IManualMatch {
 		}
 	}
 	
-	public Match getAutoMatch(int Id, String tableName) 
+	public Match getAutoMatch(int Id, String user, String tableName) 
 	{
 		 Session session = null;
 		 List<Match> autoMatch = null;
 		 
 		 initMatchFactory();
-		 session = getSession();
+		 session = GlobalsFunctions.getSession(matchFactory);
 		 
 		 if (!session.getTransaction().isActive())
 			 session.beginTransaction();
-
 		 try
 		 {
-	    	  if (tableName.equals("User Offer"))
+	    	  if (user.equals("User Offer"))
 	    	  {
-		          autoMatch = session.createQuery("from " + AutoMatch.class.getName() + " where offerId = " + Id + " and isArchive = false").getResultList();
+		          autoMatch = session.createQuery("from " + AutoMatch.class.getName() + " as table where table.offerId = " + Id + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + tableName + "%").getResultList();
 	    	  }
-	    	  else if (tableName.equals("User Application"))
+	    	  else if (user.equals("User Application"))
 	    	  {
-	    		  autoMatch = session.createQuery("from " + AutoMatch.class.getName() + " where applicationId = " + Id + " and isArchive = false").getResultList();
+	    		  System.out.println("the applicationId is: ");
+	    		  System.out.println("the category is: " + tableName);
+	    		  autoMatch = session.createQuery("from " + AutoMatch.class.getName() + " as table where table.applicationId = " + Id + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + tableName + "%").getResultList();
+	    		  System.out.println("the auto match by applicationId is: " + autoMatch);
 	    	  }
 	    	  
 	    	  if (autoMatch != null && !autoMatch.isEmpty())
 	          {
 	        	  session.getTransaction().commit();
 	        	  if (autoMatch.size() > 0) {
+	        		  System.out.println("returning auto match: " + autoMatch.get(0).getMatchId());
 	    		      return autoMatch.get(0);	
 	    	      }
 	          }
@@ -533,30 +558,26 @@ public class HibernateMatchDAO implements IManualMatch {
 	     return null;
 	}
 	
-	
-	
-	
-	
-	public Match getManualMatch(int Id, String tableName) 
+	public Match getManualMatch(int Id, String user, String tableName) 
 	{
 		 Session session = null;
 		 List<Match> manualMatch = null;
 		 
 		 initMatchFactory();
-		 session = getSession();
+		 session = GlobalsFunctions.getSession(matchFactory);
 		 
 		 if (!session.getTransaction().isActive())
 			 session.beginTransaction();
 
 		 try
 		 {
-	    	  if (tableName.equals("User Application"))
+	    	  if (user.equals("User Application"))
 	    	  {
-		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where offerId = " + Id + " and isArchive = false").getResultList();
+		          manualMatch = session.createQuery("from " + getTableName(user) + " where offerId = " + Id + " and isArchive = false and category = '" + tableName + "'").getResultList();
 	    	  }
-	    	  else if (tableName.equals("User Offer"))
+	    	  else if (user.equals("User Offer"))
 	    	  {
-	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where applicationID = " + Id + " and isArchive = false").getResultList();
+	    		  manualMatch = session.createQuery("from " + getTableName(user) + " where applicationID = " + Id + " and isArchive = false and category = '" + tableName + "'").getResultList();
 	    	  }
 	    	  
 	    	  if (manualMatch != null && !manualMatch.isEmpty())
@@ -594,7 +615,7 @@ public class HibernateMatchDAO implements IManualMatch {
 		 List<Match> manualMatch = null;
 		 
 		 initMatchFactory();
-		 session = getSession();
+		 session = GlobalsFunctions.getSession(matchFactory);
 		 
 		 if (!session.getTransaction().isActive())
 			 session.beginTransaction();
@@ -603,11 +624,11 @@ public class HibernateMatchDAO implements IManualMatch {
 		 {
 	    	  if (tableName.equals("User Application"))
 	    	  {
-		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where userId = " + userId +"").getResultList();
+		          manualMatch = session.createQuery("from " + getTableName(tableName) + " where userId = " + userId +" and isArchive = false").getResultList();
 	    	  }
 	    	  else if (tableName.equals("User Offer"))
 	    	  {
-	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where userId = " + userId +"").getResultList();
+	    		  manualMatch = session.createQuery("from " + getTableName(tableName) + " where userId = " + userId +" and isArchive = false").getResultList();
 	    	  }
 	    	  
 	    	  if (manualMatch != null && !manualMatch.isEmpty())
@@ -637,33 +658,6 @@ public class HibernateMatchDAO implements IManualMatch {
 	     return null;
 	}
 	 
-	private static void initMatchFactory ()
-	{
-		try
-		{
-			if (matchFactory==null)
-			{
-				matchFactory = GlobalsFunctions.initSessionFactory(matchFactory,"hibernateMatch.cfg.xml");
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	private static Session getSession() throws HibernateException 
-	{         
-	   Session sess = null;       
-	   try {         
-	       sess = matchFactory.getCurrentSession();  
-	   } catch (HibernateException he) {  
-	       sess = matchFactory.openSession();     
-	   }             
-	   return sess;
-	}
-
-	//return the user id that need to be informed about the match
 	@Override
 	public int getUserByOfferId (int offerId, String category)
 	{
@@ -673,15 +667,38 @@ public class HibernateMatchDAO implements IManualMatch {
 		try
 		{
 			 initMatchFactory();
-			 session = getSession();
+			 session = GlobalsFunctions.getSession(matchFactory);
 	    	 session.beginTransaction();
 
 	    	 match = session.createQuery("from "+ ManualMatchUserApplication.class.getName() + " as table where table.offerId = " + offerId + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + category + "%").getResultList();
+	    	 System.out.println("manual match in getUserByOfferId is: " + match);
+
 	    	 if (match != null && !match.isEmpty())
 	         {
 	        	session.getTransaction().commit();
 	    	    return match.get(0).getUserToInform();
 	         }
+	    	 else if (match.size()==0)
+	    	 {
+	    		 List<AutoMatch> autoMatch = session.createQuery("from "+ AutoMatch.class.getName() + " as table where table.offerId = " + offerId + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + category + "%").getResultList();
+	    		 System.out.println("auto match in get all by offer id: " + autoMatch);
+	    		 if (autoMatch!=null && autoMatch.size()>0)
+	    		 {
+	    			 System.out.println("autoMatch application Id: " + autoMatch.get(0).getApplicationId() );
+	    			 Application app = HibernateApplicationDAO.getInstance().getApplication(autoMatch.get(0).getApplicationId(), category);
+	    			 
+	    			 if (app!=null)
+	    			 {
+	    				System.out.println("in auto match condition, the application user id is: " + app.getUserId());
+	    				return app.getUserId();
+	    			 }
+	    			 else
+	    			 {
+	    				 System.out.println("the application is null, returing 0");
+	    				 return 0;
+	    			 }
+	    		 }
+	    	 }
 	    }
 		catch (Exception e) 
 		{
@@ -713,18 +730,35 @@ public class HibernateMatchDAO implements IManualMatch {
 		try
 		{
 			 initMatchFactory();
-			 session = getSession();
+			 session = GlobalsFunctions.getSession(matchFactory);
 	    	 session.beginTransaction();
 
 	    	 match = session.createQuery("from "+ ManualMatchUserOffer.class.getName() + " as table where table.applicationID = " + applicationId + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + category + "%").getResultList();
-	    	 System.out.println("the match is:" + match);
-	    	 if (match != null && !match.isEmpty())
+	    	 System.out.println("manual match in getUserByApplicationId is: " + match);
+
+	    	 if (match != null && match.size()>0)
 	         {
-	    		 System.out.println("userId:" + match.get(0).getUserId());
 	        	session.getTransaction().commit();
 	    	    return match.get(0).getUserToInform();
 	         }
-	      }
+	    	 else if (match !=null && match.size()==0)
+	    	 {
+	    		 List<AutoMatch> autoMatch = session.createQuery("from "+ AutoMatch.class.getName() + " as table where table.applicationId = " + applicationId + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + category + "%").getResultList();
+		    	 System.out.println("auto match is: " + autoMatch);
+	    		 if (autoMatch!=null && autoMatch.size()>0)
+	    		 {
+	    			 Offer offer = HibernateOfferDAO.getInstance().getOffer(autoMatch.get(0).getOfferId(), category);
+	    			 if (offer!=null){
+	    				 return offer.getUserId();
+	    			 }
+	    			 else
+	    			 {
+	    				 System.out.println("the offer is null, returning 0");
+	    				 return 0;
+	    			 }
+	    		 }
+	    	 }
+	    }
 		catch (Exception e) 
 		{
 			if (session.getTransaction() !=null) 
@@ -754,7 +788,7 @@ public class HibernateMatchDAO implements IManualMatch {
 		try
 		{
 			 initMatchFactory();
-			 session = getSession();
+			 session = GlobalsFunctions.getSession(matchFactory);
 	    	 session.beginTransaction();
 			
 	    	 if (userToInform>0)
@@ -787,16 +821,46 @@ public class HibernateMatchDAO implements IManualMatch {
 		
 	}
 
-	private String getTableName(String tableName) 
+	private static void initMatchFactory ()
 	{
-		if (tableName.equals("User Application"))
+		try
+		{
+			if (matchFactory==null)
+			{
+				matchFactory = GlobalsFunctions.initSessionFactory(matchFactory,"hibernateMatch.cfg.xml");
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private String getTableName(String user) 
+	{
+		if (user.equals("User Application"))
 			return ManualMatchUserApplication.class.getName();
-		else if (tableName.equals("User Offer"))
+		else if (user.equals("User Offer"))
 			return ManualMatchUserOffer.class.getName();
 		
 		return "";
 	}
 
-	
-	
+	@Override
+	public void findAnotherMatch(Application app, String tableName)
+			throws OfferExceptionHandler, ApplicationExceptionHandler, UserExceptionHandler, IOException 
+	{
+		for (int j=0; j<app.getList().size(); j++)
+		{
+			Offer tempOffer = HibernateOfferDAO.getInstance().getOffer(app.getList().get(j), tableName);
+			if (tempOffer!=null && tempOffer.getStatus().equals(ConstantVariables.waitingForMatch))
+			{
+				AutoMatchModules.createAutoMatch(app.getCategory(), tempOffer.getOfferId(), app.getApplicationID());
+				AutoMatchModules.updateApplicationAndOffer(app, tempOffer.getOfferId(), tableName, null);
+				break;
+			}
+			else
+				HibernateApplicationDAO.getInstance().removeOfferFromOfferListPotential(app, tempOffer.getOfferId());
+		}
+	}
 }

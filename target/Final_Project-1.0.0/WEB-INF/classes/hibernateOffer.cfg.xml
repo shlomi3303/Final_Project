@@ -10,15 +10,15 @@
     <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 	<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
 	<property name="hibernate.hbm2ddl.auto">update</property>
+	<property name="connection.pool_size">100</property>
 	    
-	<property name="connection.pool_size">1</property>
 	<property name="hibernate.current_session_context_class">thread</property>
 	  
 	<!-- Mapping Classes -->
-	<mapping class="com.shenkar.finalProject.model.RideOffer"/>
-	<mapping class="com.shenkar.finalProject.model.OldersOffer"/>	
-	<mapping class="com.shenkar.finalProject.model.StudentOffer"/>
-	<mapping class="com.shenkar.finalProject.model.HandymanOffer"/>
+	<mapping class="com.shenkar.finalProject.classes.RideOffer"/>
+	<mapping class="com.shenkar.finalProject.classes.OldersOffer"/>	
+	<mapping class="com.shenkar.finalProject.classes.StudentOffer"/>
+	<mapping class="com.shenkar.finalProject.classes.HandymanOffer"/>
    
   </session-factory>
    

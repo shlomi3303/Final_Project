@@ -15,26 +15,22 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
-import com.shenkar.finalProject.BackgroundModules.AutoMatchModules;
-import com.shenkar.finalProject.Globals.WebSocket;
+import com.google.gson.GsonBuilder;
+import com.shenkar.finalProject.backgroundModules.AutoMatchModules;
 import com.shenkar.finalProject.classes.AppUser;
-import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.classes.Application;
+import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
-import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.HibernateUserDAO;
 import com.shenkar.finalProject.model.HibernateUserInterestsDAO;
-import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
-import com.shenkar.finalProject.model.Ranking;
-import com.shenkar.finalProject.model.RideApplication;
-import com.shenkar.finalProject.model.RideOffer;
+
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 import api.CoralogixLogger;
 
-@SuppressWarnings("unchecked")
 @WebServlet(value="/ApplicationServelt")
 public class ApplicationServelt extends HttpServlet 
 {
@@ -69,6 +65,7 @@ public class ApplicationServelt extends HttpServlet
 					{
 						addNewApplication(request, response);
 						response.getWriter().println("apllication was created");
+						logger.info("apllication was created");
 						response.getWriter().println(Thread.currentThread().getName());
 
 					} 
@@ -92,7 +89,7 @@ public class ApplicationServelt extends HttpServlet
 						application = getApplication(StringApplicationId, tableName);
 						if (application!=null)
 						{
-							String strApplication = new Gson().toJson(application).toString();
+							String strApplication = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(application).toString();
 							response.setContentType("application/json");
 							response.setCharacterEncoding("utf-8");
 							response.getWriter().write(strApplication);
@@ -106,7 +103,7 @@ public class ApplicationServelt extends HttpServlet
 				case "delete":
 				{
 						try {deleteApplication(request);}
-						catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+						catch (ApplicationExceptionHandler | OfferExceptionHandler | UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 						break;
 				}
 				
@@ -121,7 +118,7 @@ public class ApplicationServelt extends HttpServlet
 							applications  = getAllApplicationsUser(stringUserID);
 							if (applications!=null)
 							{
-								String applicationArray = new Gson().toJson(applications).toString();
+								String applicationArray = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(applications).toString();
 								response.setContentType("application/json");
 								response.setCharacterEncoding("utf-8");
 								response.getWriter().write(applicationArray);
@@ -143,7 +140,7 @@ public class ApplicationServelt extends HttpServlet
 						applications  = getAllSpecificTable(tableName);
 						if (applications!=null)
 						{
-							String applicationArray = new Gson().toJson(applications).toString();
+							String applicationArray = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(applications).toString();
 							response.setContentType("application/json");
 							response.setCharacterEncoding("utf-8");
 							response.getWriter().write(applicationArray);
@@ -166,7 +163,7 @@ public class ApplicationServelt extends HttpServlet
 							response.getWriter().write(strApplicationsList);
 						}
 					}
-					catch (ApplicationExceptionHandler e) {e.printStackTrace(response.getWriter());}
+					catch (ApplicationExceptionHandler | UserExceptionHandler e) {e.printStackTrace(response.getWriter());}
 					break;
 				}
 				
@@ -178,27 +175,31 @@ public class ApplicationServelt extends HttpServlet
 						String category = request.getParameter("category");
 						if (strAppId!=null&&category!=null)
 						{
-							int userId = HibernateMatchDAO.getInstance().getUserByApplicationId(Integer.parseInt(strAppId), category);
-							System.out.println(userId);
-							AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
-							if (user!=null)
+							int applicationId = Integer.parseInt(strAppId);
+							int userId = HibernateMatchDAO.getInstance().getUserByApplicationId(applicationId, category);
+							System.out.println("the user id is: " + userId);
+							if (userId != 0)
 							{
-								JSONObject json = new JSONObject();
-								json.put("firstname", user.getFirstname());
-								json.put("lastname", user.getLastname());
-								json.put("phone", user.getPhone());
-								json.put("mail", user.getMail());
-								json.put("age", user.getAge());
-								
-								String message = json.toString();
-								response.setContentType("application/json");
-					        	response.setCharacterEncoding("utf-8");
-								response.getWriter().write(message);
+								AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
+								if (user!=null)
+								{
+									JSONObject json = new JSONObject();
+									json.put("firstname", user.getFirstname());
+									json.put("lastname", user.getLastname());
+									json.put("phone", user.getPhone());
+									json.put("mail", user.getMail());
+									json.put("age", user.getAge());
+									
+									String message = json.toString();
+									response.setContentType("application/json");
+						        	response.setCharacterEncoding("utf-8");
+									response.getWriter().write(message);
+								}
 							}
 							else
 							{
 								System.out.println("The user was not found");
-								response.getWriter().write("The user was not found");
+								logger.info("user was not found in application servelt");
 							}
 						}
 						
@@ -207,8 +208,12 @@ public class ApplicationServelt extends HttpServlet
 					{
 						try {
 							throw new ApplicationExceptionHandler("Error in get User Information by Application Id: " + e.getMessage());
-						} catch (ApplicationExceptionHandler e1) {
+						}
+						catch (ApplicationExceptionHandler e1) 
+						{
 							e1.printStackTrace();
+							logger.warning("problem in getUserToInform " + e1.getMessage());
+							
 						}
 					}
 					break;
@@ -256,8 +261,10 @@ public class ApplicationServelt extends HttpServlet
 						try{
 							addInterests(strApplicationId, strUserId, category);
 						} 
-						catch (NumberFormatException | ApplicationExceptionHandler e) {
+						catch (NumberFormatException | ApplicationExceptionHandler e) 
+						{
 							e.printStackTrace();
+							logger.warning("problem in addInterests: " + e.getMessage());
 						}
 					}
 					break;
@@ -269,12 +276,14 @@ public class ApplicationServelt extends HttpServlet
 					try 
 					{
 						List<Application> list = HibernateUserInterestsDAO.getInstance().suggestions(Integer.parseInt(strUserId));
-						String strApplicationlist = new Gson().toJson(list).toString();
+						String strApplicationlist = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(list).toString();
 						response.setContentType("application/json");
 						response.setCharacterEncoding("utf-8");
 						response.getWriter().write(strApplicationlist);
+						logger.info("suggestions was sent to client");
 						
-					} catch (NumberFormatException | UserExceptionHandler | ApplicationExceptionHandler e) {
+					}
+					catch (NumberFormatException | UserExceptionHandler | ApplicationExceptionHandler e) {
 						e.printStackTrace();
 					}
 							
@@ -282,10 +291,28 @@ public class ApplicationServelt extends HttpServlet
 				
 				case "test":
 				{
+					try {
+						//AutoMatchModules.AutoMatchMainModules();
+						
+//						Application app = HibernateApplicationDAO.getInstance().getApplication(3, "ride");
+//						List <Offer> offerO = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("ride");
+//						List<RideOffer> handymanOfferList =  (List <RideOffer>) (List <?>) offerO;
+//						Ranking.rideRanking((RideApplication)app, handymanOfferList);
+						//Application app = HibernateApplicationDAO.getInstance().getApplication(3, "handyman");
+						//List <Offer> offer = HibernateOfferDAO.getInstance().getAllSpecificOfferTable("handyman");
+						//List<HandymanOffer> handymanOfferList =  (List <HandymanOffer>) (List <?>) offer;
+						//Ranking.handymanRanking((HandymanApplication)app, handymanOfferList);
+						AutoMatchModules.AutoMatchMainModules();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					/*
 					String userId = request.getParameter("userId");
 					System.out.println("the user id from post man is: " + userId);
 					logger.info("The user id is: " + userId);
-					WebSocket.sendMessageToClient("test", userId);
+					//WebSocket.sendMessageToClient("test", userId);
+					 
+					 */
 					break;
 				}
 				default:
@@ -351,21 +378,53 @@ public class ApplicationServelt extends HttpServlet
 		return HibernateApplicationDAO.getInstance().getUserApplications(userId);
 	}
 	
-	private void deleteApplication (HttpServletRequest req) throws ApplicationExceptionHandler
+	private void deleteApplication (HttpServletRequest req) throws ApplicationExceptionHandler, OfferExceptionHandler, UserExceptionHandler, IOException
 	{
 		String applicationId = req.getParameter("applicationId");
 		String tableName = req.getParameter("tableName");
 		int applicationIdINT = Integer.parseInt(applicationId);
+		//check if the application have a manual match or auto match
+		
+		//manual match case:
+		Match manualMatch = HibernateMatchDAO.getInstance().getManualMatch(applicationIdINT, "User Application", tableName);
+		if (manualMatch!=null)
+		{
+			//ManualMatchUserOffer offer = (ManualMatchUserOffer)manualMatch;
+			HibernateMatchDAO.getInstance().declineMatch("application", applicationIdINT, tableName);
+			//HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
+		}
+		
+		//auto match case:
+		else
+		{
+			Match autoMatch = HibernateMatchDAO.getInstance().getAutoMatch(applicationIdINT, "User Application", tableName);
+			if (autoMatch!=null)
+			{
+				HibernateMatchDAO.getInstance().declineMatch("application",applicationIdINT , tableName);
+				/*
+				AutoMatch match = (AutoMatch)autoMatch;
+				Offer offer = HibernateOfferDAO.getInstance().getOffer(match.getOfferId(), tableName);
+				HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
+				HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
+				*/
+			}
+		}
 		HibernateApplicationDAO.getInstance().deleteApplication(applicationIdINT, tableName);
 	}
 	
-	private String getRandomApplication(HttpServletRequest req) throws ApplicationExceptionHandler
+	private String getRandomApplication(HttpServletRequest req) throws ApplicationExceptionHandler, UserExceptionHandler
 	{
 		String strNum = req.getParameter("number");
 		String tableName = req.getParameter("tableName");
 		int num = Integer.parseInt(strNum);
+		String strUserId = req.getParameter("userId");
+		int userId;
+		if (strUserId==null || strUserId.equals(""))
+			userId=0;
+		else
+			userId = Integer.valueOf(strUserId);
 		
-		return HibernateApplicationDAO.getInstance().getRandomApplication(num, tableName);
+		return HibernateApplicationDAO.getInstance().getRandomApplication(num, tableName, userId);
 		
 	}
 	
@@ -386,11 +445,13 @@ public class ApplicationServelt extends HttpServlet
 	{
 		Application application = generateApplication(req, response);
 		
-		if (application  != null)
+		if (application!=null)
 		{
 			response.getWriter().println("application is not a null");
 			int applicationId = HibernateApplicationDAO.getInstance().createApplication(application);
-			
+			if (applicationId>0)
+				System.out.println("the application id of the ride is: " + applicationId);
+			/*
 			//check if the application is a ride
 			if (applicationId>0)
 			{
@@ -409,6 +470,7 @@ public class ApplicationServelt extends HttpServlet
 					}
 				}
 			}
+			*/
 			response.getWriter().println("after createApplication function");
 		}
 	}

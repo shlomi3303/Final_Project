@@ -13,13 +13,18 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.classes.AppUser;
+import com.shenkar.finalProject.classes.Application;
+import com.shenkar.finalProject.classes.HandymanApplication;
 import com.shenkar.finalProject.classes.ManualMatchUserOffer;
 import com.shenkar.finalProject.classes.Match;
+import com.shenkar.finalProject.classes.OldersApplication;
+import com.shenkar.finalProject.classes.RideApplication;
+import com.shenkar.finalProject.classes.StudentApplication;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
 @SuppressWarnings("unchecked")
@@ -34,7 +39,6 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		if (instance == null) {
 			instance = new HibernateApplicationDAO();
 			initApplicationFactory();
-			
 		}
 		return instance;
 	}
@@ -47,7 +51,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		try
 		{
 			initApplicationFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(applicationFactory);
 			if (session!=null && application!=null)
 			{
 				if (application.getClass().equals(HandymanApplication.class))
@@ -75,11 +79,11 @@ public class HibernateApplicationDAO implements IApplicationDAO
 					application.setStatus(ConstantVariables.waitingForMatch);
 				
 				session.beginTransaction();
-				int id = (Integer)session.save(application); 
+				session.save(application); 
 				session.getTransaction().commit();
 				
-				if (application.equals("ride"))
-					return id;
+				if (application.getCategory().equals("ride"))
+					return application.getApplicationID();
 				else
 					return 0;
 			}
@@ -108,8 +112,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		try
 		{
 			initApplicationFactory();
-			session = getSession();
-			
+			session = GlobalsFunctions.getSession(applicationFactory);
 			if (session !=null)
 			{
 				session.beginTransaction();
@@ -186,7 +189,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			try 
 			{
 				initApplicationFactory();
-				session = getSession();
+				session = GlobalsFunctions.getSession(applicationFactory);
 				if (session != null){
 					session.beginTransaction();
 					session.createQuery("delete from " + getTableName(tableName) + " where id = " + applicationId).executeUpdate();
@@ -219,7 +222,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			try 
 			{
 				initApplicationFactory();
-				session = getSession();
+				session = GlobalsFunctions.getSession(applicationFactory);
 				if (session != null)
 				{
 					session.beginTransaction();
@@ -247,7 +250,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	@Override
 	public List<Application> getaAllApplicationMatches (List<Match> manApp)
 	{
-		Session session =null;
+		Session session = null;
 		
 		List<Application> applicationList = new ArrayList<Application>();
 		
@@ -300,7 +303,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    	{
 	    		
 		    	  initApplicationFactory();
-				  session = getSession();
+		    	  session = GlobalsFunctions.getSession(applicationFactory);
 		    	  session.beginTransaction();
 		    	  
 		    	  application = session.createQuery("from " + strTableName + " where applicationID = " + applicationId +" and isArchive = false").getResultList();
@@ -340,7 +343,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		try
 		{
 			 initApplicationFactory();
-			 session = getSession();
+			 session = GlobalsFunctions.getSession(applicationFactory);
 	    	 session.beginTransaction();
 		
 	    	 if (userId>0)
@@ -381,51 +384,157 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	    return null;
 	}
 	
-	@Override
-	public String getRandomApplication(int num, String tableName) throws ApplicationExceptionHandler 
+	@SuppressWarnings("deprecation")
+	public String getRandomApplication(int num, String tableName, int userId) throws ApplicationExceptionHandler, UserExceptionHandler 
 	{	
 		Session session = null;
 		List<Integer> idList = null;
-		
 		List <Application> applicationsList = new ArrayList<>();
-			
+	    List <Integer> list = new ArrayList<Integer>();
+
+		CriteriaBuilder builder;
+		Root<?> root2;
+		int maxId=0;
+		CriteriaQuery<Integer> criteriaQuery;
+		
 		try
-		{	
+		{
 			initApplicationFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(applicationFactory);
 	   	  	session.beginTransaction();
-	   	  	   	  	
-	        CriteriaBuilder builder = session.getCriteriaBuilder();
-	   	  	CriteriaQuery<Integer> criteriaQuery = builder.createQuery(Integer.class);
-	        Root<?> root2 = criteriaQuery.from(getTableMapping(tableName));
-	        criteriaQuery.select(builder.max(root2.get("applicationID")));
-	        idList = session.createQuery(criteriaQuery).getResultList();
-	        session.getTransaction().commit();
-	        int maxId = idList.get(0);
-	        /*    
-	        int maxId;
-	        if (Id<num)
-	        	maxId=Id;
-	        else
-	        	maxId=num;
-	     	*/
-	        while (applicationsList.size() !=num )
-	        {
-	        	Application app = getApplication(new Random().nextInt(maxId)+1, tableName);
-	        	if (app != null)
-	        	{
-	        		applicationsList.add(app);
-	        		if (applicationsList.size()==num)
-	        			break;
-	        	}
-	        }
-			return new Gson().toJson(applicationsList).toString();
+			int count = ((Long)session.createQuery("select count(*) from " +  getTableName(tableName) + " as table where table.isArchive = false and table.status = '" + ConstantVariables.waitingForMatch + "'").uniqueResult()).intValue();
+			if (userId>0)
+			{
+				
+				AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
+			    if (user!=null)
+				{
+					
+					String city = user.getCity();
+			   	  	List<Application> appByUserLocation = session.createQuery("from " + getTableName(tableName) + " as table where table.city = '" + city +"' and table.isArchive = false and table.status = '" + ConstantVariables.waitingForMatch + "'").getResultList();
+			   	  	if (appByUserLocation.size()<num)
+			   	  	{
+			   	  		builder = session.getCriteriaBuilder();
+				   	  	criteriaQuery = builder.createQuery(Integer.class);
+				   	  	root2 = criteriaQuery.from(getTableMapping(tableName));
+				        criteriaQuery.select(builder.max(root2.get("applicationID")));
+				        idList = session.createQuery(criteriaQuery).getResultList();
+				        session.getTransaction().commit();
+				        maxId = idList.get(0);
+			   	    	list = new ArrayList<Integer>();
+			   	    	
+			   	    	for (Application l:appByUserLocation)
+			   	    	{
+			   	    		list.add(l.getApplicationID());
+			   	    	}
+			   	    	int tempCount = count;
+				        while (appByUserLocation.size() != num)
+				        {
+				        	int index = new Random().nextInt(maxId+1);
+				        	if (list.contains(Integer.valueOf(index)) && (tempCount/count)>1/3)
+				        		continue;
+				        	else
+				        	{
+					        	Application app = getApplication(index, tableName);
+					        	if (app != null)
+					        	{
+					        		if (app.getStatus().equals(ConstantVariables.waitingForMatch))
+					        		{
+						        		appByUserLocation.add(app);
+						        		list.add(app.getApplicationID());
+						        		tempCount--;
+						        		if (appByUserLocation.size()==num)
+						        			break;
+					        		}
+					        	}
+				        	}
+				        }
+				        //change the return
+				        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(appByUserLocation);
+			   	  	}
+			   	    else
+			   	    {
+			   	    	Random random = new Random();
+			   	    	list = new ArrayList<Integer>();
+			   	    	List<Application> applist = new ArrayList<Application>();
+			   	    	int i=0;
+			   	    	while (i!=appByUserLocation.size())
+			   	    	{
+			   	    		int index = random.nextInt(appByUserLocation.size());
+			   	    		if (list.contains(Integer.valueOf(index)))
+			   	    			continue;
+			   	    		else
+			   	    		{
+			   	    			applist.add(appByUserLocation.get(index));
+			   	    			list.add(index);
+			   	    			i++;
+			   	    		}
+			   	    	}
+			   	    	return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(applist);
+			   	    }
+			    }
+			}
+			
+			else if (userId==0)
+			{
+	   	    	Random random = new Random();
+	   	    	list = new ArrayList<Integer>();
+				builder = session.getCriteriaBuilder();
+			  	criteriaQuery = builder.createQuery(Integer.class);
+			  	root2 = criteriaQuery.from(getTableMapping(tableName));
+			  	criteriaQuery.select(builder.max(root2.get("applicationID")));
+			  	idList = session.createQuery(criteriaQuery).getResultList();
+			  	session.getTransaction().commit();
+			  	maxId = idList.get(0);
+			  	
+			  	if (count>num)
+			  	{
+				  	int i=0;
+				    while (i!=num)
+				    {
+				    	int index = random.nextInt(maxId+1);
+				    	if (list.contains(Integer.valueOf(index)) && list.size()!=count)
+				    		continue;
+				    	else
+				    	{
+					        Application app = getApplication(index, tableName);
+					        if (app != null && app.getStatus().equals(ConstantVariables.waitingForMatch))
+					        {
+				        		applicationsList.add(app);
+				        		list.add(index);
+				        		i++;
+					        }
+				    	}
+				    }
+				    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(applicationsList);
+			  	}
+			  	else
+			  	{
+			  		applicationsList = getAllSpecificApplicationTable(tableName);
+			  		if (applicationsList!=null)
+			  		{
+				  		List<Application> toSend = new ArrayList<Application>();
+				  		outloop:
+				  		while (toSend.size()!=num)
+				  		{
+				  			for (int i=0;i<applicationsList.size();i++)
+				  			{
+				  				toSend.add(applicationsList.get(i));
+				  				if (toSend.size()==num)
+				  					break outloop;
+				  			}
+				  		}
+					    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(toSend);
+			  		}
+			  		else
+			  			return null;
+			  	}
+			}
 		}
 		catch (Exception e)
 		{
-			throw new ApplicationExceptionHandler("Error in get random applications: " + e.getMessage());
+			e.printStackTrace();
 		}
-	        
 		finally
 		{
 			try 
@@ -438,9 +547,9 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				throw new ApplicationExceptionHandler("Warnning!! connection did'nt close properly " + e1.getMessage());
 			} 
 		}
+		return null;
 	}
-
-	
+				
 	private String getTableName(String tableName) 
 	{
 		if (tableName.equals("olders"))
@@ -457,20 +566,18 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	
 	private void updateSameVarAppliction(Application application, Application updateApplication)
 	{
-		//application.setLocation(updateApplication.getLocation());
 		application.setPeriod(updateApplication.getPeriod());
-		application.setPeriodic(updateApplication.getPeriodic());
 		application.setUrgency(updateApplication.getUrgency());
-		//application.setUserLocation(updateApplication.getUserLocation());
 		application.setGender(updateApplication.getGender());
 		application.setLanguage(updateApplication.getLanguage());
 		application.setImg(updateApplication.getImg());
 		application.setDescription(updateApplication.getDescription());
 		application.setTitle(updateApplication.getTitle());
-		//change into status function?
-		application.setStatus(updateApplication.getStatus());
-		application.setTTL(updateApplication.getTTL());
-		application.setIsAprroved(updateApplication.getIsAprroved());
+		application.setCity(updateApplication.getCity());
+		application.setStreet(updateApplication.getStreet());
+		application.setHouseNumber(updateApplication.getHouseNumber());
+		application.setLatitude(updateApplication.getLatitude());
+		application.setLongitude(updateApplication.getLongitude());
 	}
 	
 	private void editStudent (StudentApplication student, StudentApplication updateStudent)
@@ -492,8 +599,13 @@ public class HibernateApplicationDAO implements IApplicationDAO
 	
 	private void editRide (RideApplication ride, RideApplication updateRide)
 	{
-		//ride.setDestination(updateRide.getDestination());
-		//ride.setSource(updateRide.getSource());
+		ride.setDestCity(updateRide.getDestCity());
+		ride.setDestStreet(updateRide.getDestStreet());
+		ride.setDestHouseNum(updateRide.getDestHouseNum());
+		
+		ride.setDestlatitude(updateRide.getDestlatitude());
+		ride.setDestLongitude(updateRide.getDestLongitude());
+		
 		ride.setEndPeriod(updateRide.getEndPeriod());
 	}
 	
@@ -521,26 +633,59 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		}
 	}
 	
-	private static Session getSession() throws HibernateException {         
-		   Session sess = null;       
-		   try {         
-		       sess = applicationFactory.getCurrentSession();  
-		   } catch (org.hibernate.HibernateException he) {  
-		       sess = applicationFactory.openSession();     
-		   }             
-		   return sess;
-	} 
-	
 	@Override
 	public void status(String status, Application application) throws ApplicationExceptionHandler 
 	{
-		application.setStatus(status);
+		
+		if (application!=null)
+		{
+			application.setStatus(status);
+			Session session = null;
+	
+			try
+			{
+				initApplicationFactory();
+				session = GlobalsFunctions.getSession(applicationFactory);
+				if (session!=null)
+				{
+		   	  		session.beginTransaction();
+		   	  		session.update(application);
+		   	  		session.getTransaction().commit();
+				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				try
+				{
+					if (session !=null)
+						session.close();
+				}
+				catch (HibernateException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		else
+		{
+			System.out.println("application is null in status function");
+		}
+	}
+	
+	public void removeOfferFromOfferListPotential(Application application, int offerId)
+	{
+		application.getList().remove(Integer.valueOf(offerId));
+		
 		Session session = null;
 
 		try
 		{
 			initApplicationFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(applicationFactory);
 			if (session!=null)
 			{
 	   	  		session.beginTransaction();
@@ -565,6 +710,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			}
 		}
 	}
+	
 	@Override
 	public void updateOfferListPotentialMatch(List <Integer> list, Application application) throws ApplicationExceptionHandler 
 	{
@@ -574,7 +720,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		
 		try{
 			initApplicationFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(applicationFactory);
 			if (session!=null){
 	   	  		session.beginTransaction();
 	   	  		session.update(application);
@@ -659,7 +805,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		{
 	    	String strTableName = getTableName(tableName);
 			initApplicationFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(applicationFactory);
 	    	session.beginTransaction();
 		
 	    	applications = session.createQuery ("from " + strTableName + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForMatch + "%").getResultList();
@@ -709,5 +855,11 @@ public class HibernateApplicationDAO implements IApplicationDAO
 		
 		return className;
 		
+	}
+
+	@Override
+	public String getRandomApplication(int num, String tableName) throws ApplicationExceptionHandler, UserExceptionHandler {
+		getRandomApplication(num, tableName, 0);
+		return null;
 	}
 }

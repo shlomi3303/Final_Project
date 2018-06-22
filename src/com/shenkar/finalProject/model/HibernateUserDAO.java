@@ -1,7 +1,6 @@
 package com.shenkar.finalProject.model;
 
 import java.util.List;
-import java.util.Random;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -11,6 +10,7 @@ import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
 
+@SuppressWarnings("unchecked")
 public class HibernateUserDAO implements IUserDAO 
 {
 	
@@ -36,7 +36,7 @@ public class HibernateUserDAO implements IUserDAO
 		try
 		{
 			initUserFactory();
-			session = getSession();
+			session = GlobalsFunctions.getSession(userFactory);
 			if (session != null)
 			{
 				session.beginTransaction();
@@ -65,7 +65,6 @@ public class HibernateUserDAO implements IUserDAO
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List <AppUser> getUser(String mail, String password) throws UserExceptionHandler
 	{
@@ -74,7 +73,7 @@ public class HibernateUserDAO implements IUserDAO
 	      try
 	      {
 	    	  initUserFactory();
-			  session = getSession();
+	    	  session = GlobalsFunctions.getSession(userFactory);
 			  
 	    	  session.beginTransaction();
 	          user = session.createQuery("from " + AppUser.class.getName() + " user where user.mail ='" + mail +"'").getResultList();
@@ -111,7 +110,7 @@ public class HibernateUserDAO implements IUserDAO
 	      try
 	      {
 	    	 initUserFactory();
-	    	 session =  getSession();
+	    	 session = GlobalsFunctions.getSession(userFactory);
 	    	 session.beginTransaction();
 	    	 AppUser user = (AppUser)session.get(AppUser.class, new Integer(id)); 
 	    	  
@@ -122,6 +121,11 @@ public class HibernateUserDAO implements IUserDAO
     		 user.setPhone(updateUser.getPhone());
     		 user.setKids(updateUser.getKids());
     		 user.setPassword(updateUser.getPassword());
+    		 user.setCity(updateUser.getCity());
+    		 user.setStreet(updateUser.getStreet());
+    		 user.setHouseNumber(updateUser.getHouseNumber());
+    		 user.setLatitude(updateUser.getLatitude());
+    		 user.setLongitude(updateUser.getLongitude());
     		 user.setHandyman(updateUser.getHandyman());
     		 user.setStudent(updateUser.getStudent());
     		 user.setOlders(updateUser.getOlders());
@@ -157,7 +161,7 @@ public class HibernateUserDAO implements IUserDAO
 			if (user!=null && !user.get(0).getMail().isEmpty() )
 			{
 				initUserFactory();
-				session = getSession();
+				session = GlobalsFunctions.getSession(userFactory);
 				
 		    	session.beginTransaction();
 				session.createQuery("delete from " + AppUser.class.getName() + " where id = " + user.get(0).getId()).executeUpdate();
@@ -184,7 +188,7 @@ public class HibernateUserDAO implements IUserDAO
 	      try
 	      {
 	    	  initUserFactory();
-	    	  session =  getSession();
+	    	  session = GlobalsFunctions.getSession(userFactory);
 	    	  session.beginTransaction();
 	    	  AppUser user = (AppUser)session.get(AppUser.class, new Integer(id)); 
 	    	  
@@ -227,18 +231,7 @@ public class HibernateUserDAO implements IUserDAO
 			e.printStackTrace();
 		}
 	}
-	
-	private static Session getSession() throws HibernateException {         
-		   Session sess = null;       
-		   try {         
-		       sess = userFactory.getCurrentSession();  
-		   } catch (org.hibernate.HibernateException he) {  
-		       sess = userFactory.openSession();     
-		   }             
-		   return sess;
-		}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public AppUser getUserInfo(int userId) throws UserExceptionHandler 
 	{
@@ -250,7 +243,7 @@ public class HibernateUserDAO implements IUserDAO
 	      try
 	      {
 	    	  initUserFactory();
-			  session = getSession();
+	    	  session = GlobalsFunctions.getSession(userFactory);
 			  
 	    	  session.beginTransaction();
 	          user = session.createQuery("from " + AppUser.class.getName() + " user where user.id = " + userId +"").getResultList();

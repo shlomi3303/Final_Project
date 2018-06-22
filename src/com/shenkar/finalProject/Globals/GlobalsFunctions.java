@@ -77,31 +77,38 @@ public class GlobalsFunctions
 		   return sess;
 	} 
 	
-	
 	public static void sendEmail(String toEmail,String subject , String body)
 	{
 		Email from = new Email("shlomi3303@gmail.com"); 
 		Email to = new Email(toEmail);
-		Content content = new Content("text/plain", body);
+		String link = "<a href=\"https://final-project-eef76.firebaseapp.com\"> לחץ כאן בכדי לעבור למחוברים לחיים </a>";
+		body = body + System.lineSeparator() + link;
+		Content content = new Content("text/html", body);
 		Mail mail = new Mail(from, subject, to, content);
+		SendGrid sg = null;
 	
-	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-
-		Request request = new Request();
 		try 
 		{
-	      request.method = Method.POST;
-	      request.endpoint = "mail/send";
-	      request.body = mail.build();
-	      Response response = sg.api(request);
-	      System.out.println(response.statusCode);
-	      System.out.println(response.body);
-	      System.out.println(response.headers);
+			String sendGridApi = System.getenv("SENDGRID_API_KEY");
+			if (sendGridApi!=null)
+				sg = new SendGrid(sendGridApi);
+			
+			if (sg!=null)
+			{
+				  Request request = new Request();
+				  request.setMethod(Method.POST);
+				  request.setEndpoint("mail/send");
+				  request.setBody(mail.build());
+				  Response response = sg.api(request);
+				  System.out.println(response.getStatusCode());
+				  System.out.println(response.getBody());
+				  System.out.println(response.getHeaders());
+			}
 	   } 
-		catch (IOException ex) 
-		{
-			ex.printStackTrace();
-		}
+	   catch (IOException ex) 
+	   {
+		   ex.printStackTrace();
+	   }
 	}
 	
 	public static int calculateTTL(Date date)
@@ -119,5 +126,4 @@ public class GlobalsFunctions
 			 return ttl;
 		 return 0;
 	}
-
 }

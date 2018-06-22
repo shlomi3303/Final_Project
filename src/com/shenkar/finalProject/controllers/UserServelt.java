@@ -14,11 +14,11 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.shenkar.finalProject.model.HibernateUserDAO;
-import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 import com.shenkar.finalProject.classes.AppUser;
+import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.Match;
-import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.classes.Offer;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
@@ -97,23 +97,27 @@ public class UserServelt extends HttpServlet {
 			{
 				AppUser user = null;
 				String strUserId = request.getParameter("userId");
-				if (strUserId!=null)
+				if (strUserId!=null && !strUserId.isEmpty())
 				{
 					int userId = Integer.parseInt(strUserId);
 					try 
 					{
 						user = HibernateUserDAO.getInstance().getUserInfo(userId);
-						JSONObject json = new JSONObject();
-						json.put("firstname", user.getFirstname());
-						json.put("lastname", user.getLastname());
-						json.put("phone", user.getPhone());
-						json.put("mail", user.getMail());
-						json.put("age", user.getAge());
-						
-						String message = json.toString();
-						response.setContentType("application/json");
-			        	response.setCharacterEncoding("utf-8");
-						response.getWriter().write(message);
+						if (user!=null){
+							JSONObject json = new JSONObject();
+							json.put("firstname", user.getFirstname());
+							json.put("lastname", user.getLastname());
+							json.put("phone", user.getPhone());
+							json.put("mail", user.getMail());
+							json.put("age", user.getAge());
+							
+							String message = json.toString();
+							response.setContentType("application/json");
+				        	response.setCharacterEncoding("utf-8");
+							response.getWriter().write(message);
+						}
+						else
+							System.out.println("user id in get User info is: " + userId);
 					} 
 					catch (UserExceptionHandler e) {
 						e.printStackTrace();
@@ -178,10 +182,20 @@ public class UserServelt extends HttpServlet {
 		String city = request.getParameter("city");
 		String street = request.getParameter("street");
 		String strHouseNumber = request.getParameter("houseNumber");
-		String struserId = request.getParameter("userId");
+		String strUserId = request.getParameter("userId");
 		
-		HibernateUserDAO.getInstance().updateLocation(Integer.valueOf(struserId), lat, longt, city, street, Integer.valueOf(strHouseNumber));
+		String regex = "\\d+";
 		
+		if (city.isEmpty() || street.isEmpty() || strHouseNumber.isEmpty() || strUserId.isEmpty())
+		{
+			System.out.println("can not update user location");
+			System.out.println("city: " + city + " street: " + street + " house num: " + strHouseNumber + " userId: " + strUserId);
+		}
+		else
+		{
+			if (strHouseNumber.matches(regex))
+				HibernateUserDAO.getInstance().updateLocation(Integer.valueOf(strUserId), lat, longt, city, street, Integer.valueOf(strHouseNumber));
+		}
 	}
 	
 	
@@ -251,15 +265,22 @@ public class UserServelt extends HttpServlet {
 		String strOlders = request.getParameter("olders");
 		String strRide = request.getParameter("ride");
 		
-		int IntegerAge = Integer.parseInt(age);
+		int IntegerAge=0;
+		if (age!=null)
+			IntegerAge = Integer.parseInt(age);
 		
-		int IntegerKids;
+		int IntegerKids=0;
+		if (kids!=null)
+		{
+			if (kids.equals("") || kids.isEmpty())
+				IntegerKids = 0;
+			else
+				IntegerKids = Integer.parseInt(kids);
+		}
 		
-		if (kids.equals("") || kids.isEmpty())
-			IntegerKids = 0;
-		else
-			IntegerKids = Integer.parseInt(kids);
-		int IntegerhouseNumber = Integer.parseInt(houseNumber);
+		int IntegerhouseNumber=0;
+		if (houseNumber!=null)
+			IntegerhouseNumber = Integer.parseInt(houseNumber);
 		
 		boolean student = Boolean.valueOf(strStudent);
 		boolean handyman = Boolean.valueOf(strHandyman);

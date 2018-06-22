@@ -13,7 +13,15 @@ import org.hibernate.SessionFactory;
 
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.classes.AppUser;
+import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.CategoryOffersSuggestions;
+import com.shenkar.finalProject.classes.HandymanApplication;
+import com.shenkar.finalProject.classes.HandymanOffer;
+import com.shenkar.finalProject.classes.Offer;
+import com.shenkar.finalProject.classes.OldersApplication;
+import com.shenkar.finalProject.classes.OldersOffer;
+import com.shenkar.finalProject.classes.StudentApplication;
+import com.shenkar.finalProject.classes.StudentOffer;
 import com.shenkar.finalProject.classes.UserSubcategoryApplicationsInterests;
 import com.shenkar.finalProject.classes.UserSubcategoryOffersInterests;
 
@@ -675,13 +683,14 @@ public class HibernateUserInterestsDAO {
 		
 		AppUser user = HibernateUserDAO.getInstance().getUserInfo(userId);
 		List<Integer> idList = null;
-	     String suggestions = "";
-
+	    String suggestions = "";
+	    Session session =null;
 		if (( (user.getHandyman()?1:0) + (user.getRide()?1:0) + (user.getOlders()?1:0) +  (user.getStudent()?1:0) )<3)
 		{
 			try
 			{
-				Session session = GlobalsFunctions.getSession(interestsFactory);
+				initInterestsFactory();
+				session = GlobalsFunctions.getSession(interestsFactory);
 				if (session!=null)
 				{
 					 session.beginTransaction();
@@ -690,12 +699,9 @@ public class HibernateUserInterestsDAO {
 				     Root<?> root2 = criteriaQuery.from(CategoryOffersSuggestions.class);
 				     criteriaQuery.select(builder.max(root2.get("id")));
 				     idList = session.createQuery(criteriaQuery).getResultList();
-				     session.getTransaction().commit();
 				     int id = idList.get(0);
-				     
 				     List <CategoryOffersSuggestions> list = session.createQuery("from "+ CategoryOffersSuggestions.class.getName() + " where id = " + id).getResultList();
-				     CategoryOffersSuggestions obj= list.get(0);
-				     
+				     CategoryOffersSuggestions obj= list.get(0);				     
 				     int max=0;
 				     
 				     if ( (user.getStudent()&&!user.getOlders()) || (!user.getStudent()&&user.getOlders()) )
@@ -770,18 +776,32 @@ public class HibernateUserInterestsDAO {
 				    			 suggestions="handyman";
 				    	 }
 				     }
-				
+				     System.out.println("suggestion table is: " + suggestions);
+				     List<Application> listsuggestions = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable(suggestions);
+				     session.getTransaction().commit();
+				     return listsuggestions;
 				}
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
-			
-			
+			finally
+			{
+				try
+				{
+					if (session!=null)
+						session.close();
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
 		}
-		List<Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable(suggestions);
-		return list;
+		//System.out.println("sugg is: " + suggestions);
+		//List<Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable(suggestions);
+		return null;
 		
 	}
 	

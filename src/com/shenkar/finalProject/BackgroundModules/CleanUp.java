@@ -1,4 +1,4 @@
-package com.shenkar.finalProject.BackgroundModules;
+package com.shenkar.finalProject.backgroundModules;
 
 import java.util.Date;
 import java.util.List;
@@ -14,14 +14,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
-import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.classes.Application;
+import com.shenkar.finalProject.classes.Offer;
+import com.shenkar.finalProject.classes.RideApplication;
+import com.shenkar.finalProject.classes.RideOffer;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
-import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
-import com.shenkar.finalProject.model.RideApplication;
-import com.shenkar.finalProject.model.RideOffer;
 
 @WebListener
 public class CleanUp implements ServletContextListener
@@ -37,7 +37,7 @@ public class CleanUp implements ServletContextListener
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) 
 	{
-        System.out.println("Clean Up model is Closed");	
+        System.out.println("Clean Up Module is Closed");	
         if (timer!=null)
         	timer.cancel();
 	}
@@ -45,8 +45,8 @@ public class CleanUp implements ServletContextListener
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) 
 	{
-        System.out.println("Clean Up model is On");
-        System.out.println("clean up thread: " +Thread.currentThread().getName());
+        System.out.println("Clean Up Module is On");
+        System.out.println("Clean up thread: " + Thread.currentThread().getName());
 
         //timer.scheduleAtFixedRate(new cleanUp(), 0, ConstantVariables.TEST);
 	}

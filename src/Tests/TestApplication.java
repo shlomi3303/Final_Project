@@ -28,52 +28,75 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
-import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.classes.Application;
+import com.shenkar.finalProject.classes.HandymanApplication;
+import com.shenkar.finalProject.classes.Offer;
+import com.shenkar.finalProject.classes.OldersApplication;
+import com.shenkar.finalProject.classes.RideApplication;
+import com.shenkar.finalProject.classes.StudentApplication;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
-import com.shenkar.finalProject.model.HandymanApplication;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
-import com.shenkar.finalProject.model.Offer;
-import com.shenkar.finalProject.model.OldersApplication;
 import com.shenkar.finalProject.model.Ranking;
-import com.shenkar.finalProject.model.RideApplication;
-import com.shenkar.finalProject.model.StudentApplication;
+import com.shenkar.finalProject.model.UserExceptionHandler;
 
 public class TestApplication {
 
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler 
+	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler, UserExceptionHandler 
 	{
 		
-		HashMap<Integer, Double> ranking = new HashMap<Integer, Double>();
+		String regex = "\\d+";
 		
-		ranking.put(1, 0.5);
-		ranking.put(3, 0.8);
-		ranking.put(2, 0.7);
+		String check ="12";
 		
-		Object[] a = ranking.entrySet().toArray();
-		Arrays.sort(a, new Comparator() {
-		    public int compare(Object o1, Object o2) {
-		        return ((Map.Entry<Integer, Double>) o2).getValue()
-		                   .compareTo(((Map.Entry<Integer, Double>) o1).getValue());
-		    }
-		});
+		if (check.matches(regex))
+			System.out.println(true);
+			
 		
-		List<Integer> list = new ArrayList<Integer>();
-
-		for (Object e : a) {
-		    
-		    list.add(( (Map.Entry<Integer, Double>) e).getKey());
-
-		}
-		
+//		HashMap<Integer, Double> ranking = new HashMap<Integer, Double>();
+//		
+//		ranking.put(4, 0.5);
+//		ranking.put(3, 0.8);
+//		ranking.put(2, 0.7);
+//		
+//		Object[] a = ranking.entrySet().toArray();
+//		Arrays.sort(a, new Comparator() {
+//		    public int compare(Object o1, Object o2) {
+//		        return ((Map.Entry<Integer, Double>) o2).getValue()
+//		                   .compareTo(((Map.Entry<Integer, Double>) o1).getValue());
+//		    }
+//		});
+//		
+//		List<Integer> list = new ArrayList<Integer>();
+//
+//		for (int i=0; i<10; i++) {
+//		    if (i==ranking.size())
+//		    	break;
+//			list.add(( (Map.Entry<Integer, Double>) a[i]).getKey());
+//		}
+//	
 //		for (Object l:list)
 //		{
 //			System.out.println(l);
 //		}
+//		
+//		String sd = "check";
+//		List <Integer> listint = new ArrayList<Integer>();
+//		
+//		System.out.println(listint.size()==0);
+		System.out.println(HibernateApplicationDAO.getInstance().getRandomApplication(12, "ride", 1));
+		//System.out.println(sd.by);
 		
-		//System.out.println(Ranking.distance(31.922210, 31.936648, 34.785425, 34.799984, 1, 1));
-		 
+		//System.out.println("dist is: " +  Ranking.distance(Double.parseDouble("31.8913829"), Double.parseDouble("31.88711869999999"), Double.parseDouble("34.813065"), Double.parseDouble("34.831326"), 1, 1));
+		/*
+		list.remove(Integer.valueOf(4));
+		
+		for (Object l:list)
+		{
+			System.out.println(l);
+		}
+		*/
 		/*
 //		List <Application> list = HibernateApplicationDAO.getInstance().getAllSpecificApplicationTable("handyman");
 //		
@@ -84,39 +107,38 @@ public class TestApplication {
 		
 		//Application app = HibernateApplicationDAO.getInstance().getApplication(1, "student");
 		
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-		//the application day
-		String testDateString2 = "2018-07-27 12:50";
-	    Date period2  = (Date) df.parse(testDateString2);
-	    
-	    //today
-		String testDateString3 = "2018-07-27 11:40";
-	    Date period3 = (Date) df.parse(testDateString3);
-	    //Date today  = (Date) df.parse(testDateString3);
-	    
-	    
-		DateTime datatimeApp = new DateTime(period2);
-		DateTime datatimeOffer = new DateTime(period3);
-
-		org.joda.time.Period p = new org.joda.time.Period(datatimeOffer, datatimeApp);
-		int hours = p.getHours();
-		int minutes = p.getMinutes();
-		
-		System.out.println("hours: " + hours);
-		System.out.println("min: " + minutes);
-
-	    DateFormat outputFormatter = new SimpleDateFormat("MM/dd/yyyy");
-	    String output = outputFormatter.format(period2); // Output : 01/20/2012
-	    
-	    Date newDate = (Date) outputFormatter.parse(output);
+//		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//
+//		//the application day
+//		String testDateString2 = "2018-07-27 12:50";
+//	    Date period2  = (Date) df.parse(testDateString2);
 //	    
-	    System.out.println(newDate);
-	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", period2, false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
+//	    //today
+//		String testDateString3 = "2018-07-27 11:40";
+//	    Date period3 = (Date) df.parse(testDateString3);
+//	    	    
+//		DateTime datatimeApp = new DateTime(period2);
+//		DateTime datatimeOffer = new DateTime(period3);
+//
+//		org.joda.time.Period p = new org.joda.time.Period(datatimeOffer, datatimeApp);
+//		int hours = p.getHours();
+//		int minutes = p.getMinutes();
+//		
+//		System.out.println("hours: " + hours);
+//		System.out.println("min: " + minutes);
+//
+//	    DateFormat outputFormatter = new SimpleDateFormat("MM/dd/yyyy");
+//	    String output = outputFormatter.format(period2); // Output : 01/20/2012
+//	    
+//	    Date newDate = (Date) outputFormatter.parse(output);
+//    
+//	    System.out.println(newDate);
+//	    RideApplication ob = new RideApplication(1, period2, "sdf", "asda", 1, "asda", "asdasd", false, "sadas", "asdad", "asdad", "sdfsf", "asdas", "asdad", "asda", "asdas", 1, "asdad", "asdsa", period2);
 //
 //	    ob.setList(list);
 //
-	    HibernateApplicationDAO.getInstance().createApplication(ob);
+//	    int i = HibernateApplicationDAO.getInstance().createApplication(ob);
+//	    System.out.println("the app id is: " + i);
 //	    
 //	    Application app =  HibernateApplicationDAO.getInstance().getApplication(1, "ride");
 //	    

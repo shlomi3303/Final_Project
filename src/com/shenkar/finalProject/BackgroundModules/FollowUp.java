@@ -1,4 +1,4 @@
-package com.shenkar.finalProject.BackgroundModules;
+package com.shenkar.finalProject.backgroundModules;
 
 import java.io.IOException;
 import java.util.Date;
@@ -16,15 +16,17 @@ import org.hibernate.SessionFactory;
 
 import com.shenkar.finalProject.Globals.ConstantVariables;
 import com.shenkar.finalProject.Globals.GlobalsFunctions;
+import com.shenkar.finalProject.classes.Application;
+import com.shenkar.finalProject.classes.AutoMatch;
 import com.shenkar.finalProject.classes.ManualMatchUserApplication;
 import com.shenkar.finalProject.classes.ManualMatchUserOffer;
-import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.classes.Offer;
+import com.shenkar.finalProject.classes.RideApplication;
+import com.shenkar.finalProject.classes.RideOffer;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
-import com.shenkar.finalProject.model.RideApplication;
-import com.shenkar.finalProject.model.RideOffer;
 import com.shenkar.finalProject.model.UserExceptionHandler;
 
 @SuppressWarnings("unchecked")
@@ -53,7 +55,100 @@ public class FollowUp implements ServletContextListener
 
 	}
 	
-	private void reminderScanner()
+	private void reminderScannerAutoMatch()
+	{
+		Session session = null;
+		List <AutoMatch> autoMatchApp = null;
+		List <AutoMatch> autoMatchOffer = null;
+		
+		try
+		{
+			initFollowUpFactory();
+			session = GlobalsFunctions.getSession(followUpManualMatchFactory);
+			session.beginTransaction();
+			
+			//deal with match that the application user still not approval
+			autoMatchApp = session.createQuery ("from " + AutoMatch.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForAppApproval + "%").getResultList();
+			
+			if (autoMatchApp!=null)
+			{
+				for (int i=0; i<autoMatchApp.size(); i++)
+				{
+					if (autoMatchApp.get(i).getReminderCount()<3)
+					{
+						autoMatchApp.get(i).setReminderCount(autoMatchApp.get(i).getReminderCount()+1);
+						session.update(autoMatchApp.get(i));
+						
+						//notify the user application that he needs to approve or decline the match
+						Application app = HibernateApplicationDAO.getInstance().getApplication(autoMatchApp.get(i).getApplicationId(), autoMatchApp.get(i).getCategory());
+						HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectReminderApplication, ConstantVariables.bodyMailReminderApplication);
+					}
+					
+					//handle with the ttl value?
+					else if (autoMatchApp.get(i).getReminderCount()==3)
+					{
+						//change the match to archive
+						autoMatchApp.get(i).setArchive(true);
+						
+						session.update(autoMatchApp.get(i));
+						
+						//notify the offer user that the match is not relevant
+						Offer offer = HibernateOfferDAO.getInstance().getOffer(autoMatchApp.get(i).getOfferId(), autoMatchApp.get(i).getCategory());
+						HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
+						
+					}
+				}
+			}
+			
+			autoMatchOffer = session.createQuery ("from " + AutoMatch.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForOfferApproval + "%").getResultList();
+			
+			if (autoMatchOffer!=null)
+			{
+				
+				for (int j=0; j<autoMatchOffer.size(); j++)
+				{
+					if (autoMatchOffer.get(j).getReminderCount()<3)
+					{
+						autoMatchOffer.get(j).setReminderCount(autoMatchOffer.get(j).getReminderCount()+1);
+						session.update(autoMatchOffer.get(j));
+						
+						//notify the offer user that he needs to approve or decline the match
+						Offer offer = HibernateOfferDAO.getInstance().getOffer(autoMatchOffer.get(j).getOfferId(), autoMatchOffer.get(j).getCategory());
+						HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectReminderOffer, ConstantVariables.bodyMailReminderOffer);
+						
+					}
+					else if (autoMatchOffer.get(j).getReminderCount()==3)
+					{
+						//change the match to the archive
+						autoMatchOffer.get(j).setArchive(true);
+						session.update(autoMatchOffer.get(j));
+						
+						Application app = HibernateApplicationDAO.getInstance().getApplication(autoMatchOffer.get(j).getApplicationId(), autoMatchOffer.get(j).getCategory());
+						HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
+						
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally 
+		{
+			try 
+			{
+				if (session!=null)
+					session.close();
+			} 
+			catch (HibernateException e){
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
+	private void reminderScannerManualMatch()
 	{
 		//Date today = new Date();
 		Session session = null;
@@ -64,7 +159,7 @@ public class FollowUp implements ServletContextListener
 		try
 		{
 			initFollowUpFactory();
-			session = getSessionManualMatch();
+			session = GlobalsFunctions.getSession(followUpManualMatchFactory);
 			session.beginTransaction();
 			
 			mmOffer = session.createQuery ("from " + ManualMatchUserOffer.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.waitingForAppApproval + "%").getResultList();
@@ -120,11 +215,8 @@ public class FollowUp implements ServletContextListener
 						HibernateApplicationDAO.getInstance().notification(mmApp.get(j).getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
 						
 					}
-					
 				}
 			}
-			
-			
 			
 			if (mmApp != null || mmOffer !=null)
 				session.getTransaction().commit();
@@ -133,10 +225,16 @@ public class FollowUp implements ServletContextListener
 		{
 			e.printStackTrace();
 		}
-		finally
+		finally 
 		{
-			if (session!=null)
-				session.close();
+			try 
+			{
+				if (session!=null)
+					session.close();
+			} 
+			catch (HibernateException e){
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -154,7 +252,7 @@ public class FollowUp implements ServletContextListener
 		try
 		{
 			initFollowUpFactory();
-			session = getSessionManualMatch();
+			session = GlobalsFunctions.getSession(followUpManualMatchFactory);
 			session.beginTransaction();
 			
 			mmOffer = session.createQuery ("from " + ManualMatchUserOffer.class.getName() + " as table where table.isArchive = false and table.status like :key").setParameter("key",  "%" + ConstantVariables.bothSideApproved + "%").getResultList();
@@ -218,12 +316,17 @@ public class FollowUp implements ServletContextListener
 		{
 			e.printStackTrace();
 		}
-		finally
+		finally 
 		{
-			if (session!=null)
-				session.close();
+			try 
+			{
+				if (session!=null)
+					session.close();
+			} 
+			catch (HibernateException e){
+				e.printStackTrace();
+			}
 		}
-		
 	}
 	
 	class followUpRunner extends TimerTask
@@ -238,7 +341,8 @@ public class FollowUp implements ServletContextListener
 
 				System.out.println("Activate Follow Up Methods at: " + date);
 				sendSurvey();
-				reminderScanner();
+				reminderScannerManualMatch();
+				reminderScannerAutoMatch();
 			} catch (ApplicationExceptionHandler | UserExceptionHandler | IOException | OfferExceptionHandler e) {
 				e.printStackTrace();
 			}
@@ -252,21 +356,10 @@ public class FollowUp implements ServletContextListener
 		{
 		 if (followUpManualMatchFactory==null)
 		  {
-
 			 followUpManualMatchFactory = GlobalsFunctions.initSessionFactory(followUpManualMatchFactory,"hibernateMatch.cfg.xml");
 		  }
 		}
 		catch (Exception e){}
 		
 	}
-	
-	private static Session getSessionManualMatch() throws HibernateException {         
-		   Session sess = null;       
-		   try {         
-		       sess = followUpManualMatchFactory.getCurrentSession();  
-		   } catch (org.hibernate.HibernateException he) {  
-		       sess = followUpManualMatchFactory.openSession();     
-		   }             
-		   return sess;
-	} 
 }

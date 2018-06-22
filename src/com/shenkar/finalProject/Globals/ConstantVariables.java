@@ -3,7 +3,7 @@ package com.shenkar.finalProject.Globals;
 public class ConstantVariables 
 {
 	
-    public final static long TEST = 1000*60; 
+    public final static long TEST = 60000*60; 
     public final static long sessionMaxIdle =10*1000*60; 
 	public final static long ONCE_PER_DAY = 1000*60*60*24;
 	

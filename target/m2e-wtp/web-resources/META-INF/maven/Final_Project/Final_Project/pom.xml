@@ -35,7 +35,7 @@
    	 <dependency>
     	<groupId>com.sendgrid</groupId>
     	<artifactId>sendgrid-java</artifactId>
-    	<version>3.0.9</version>
+    	<version>4.2.0</version>
 	 </dependency>
    
    	 <!-- https://mvnrepository.com/artifact/com.coralogix.sdk/coralogix-sdk -->

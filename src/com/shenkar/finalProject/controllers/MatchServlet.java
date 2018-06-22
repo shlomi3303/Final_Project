@@ -118,7 +118,7 @@ public class MatchServlet extends HttpServlet {
 				String strOfferId = req.getParameter("offerId");
 				int offerId = Integer.parseInt(strOfferId);
 				HibernateMatchDAO.getInstance().acceptMatch(user, offerId, tableName);
-				res.getWriter().println("match was created");
+				res.getWriter().println("Accept process ended");
 			}
 			
 			else if (user.equals("application"))
@@ -126,7 +126,7 @@ public class MatchServlet extends HttpServlet {
 				String strApplicationId = req.getParameter("applicationId");
 				int applicationId = Integer.parseInt(strApplicationId);
 				HibernateMatchDAO.getInstance().acceptMatch(user, applicationId, tableName);
-				res.getWriter().println("match was created");
+				res.getWriter().println("Accept process ended");
 			}
 			else
 			{

@@ -5,9 +5,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.shenkar.finalProject.model.Application;
+import com.shenkar.finalProject.classes.Application;
+import com.shenkar.finalProject.classes.Offer;
 import com.shenkar.finalProject.model.HibernateOfferDAO;
-import com.shenkar.finalProject.model.Offer;
 import com.shenkar.finalProject.model.OfferExceptionHandler;
 
 import java.text.DateFormat;
