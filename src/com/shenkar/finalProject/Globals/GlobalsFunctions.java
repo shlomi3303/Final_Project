@@ -1,4 +1,4 @@
-package com.shenkar.finalProject.Globals;
+package com.shenkar.finalProject.globals;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -21,6 +21,17 @@ import com.sendgrid.SendGrid;
 
 public class GlobalsFunctions 
 {
+	
+	public static String getCoralogixPrivateKey()
+	{
+		String privateKey = System.getenv("CORALOGIX_privateKey");
+		
+		if (privateKey!=null && !privateKey.isEmpty())
+			return privateKey;
+		
+		return "";
+	}
+	
 	
 	public static SessionFactory initSessionFactory(SessionFactory sessionFactory, String hibernatFile)
 	{
@@ -61,18 +72,21 @@ public class GlobalsFunctions
 		{
 			e.printStackTrace();
 		}
-		
-		
+		System.out.println("returning null for hibernat file: " + hibernatFile);
 		return null;
-		
 	}
 
 	public static Session getSession(SessionFactory sessionFactory) throws HibernateException {         
 		   Session sess = null;       
-		   try {         
-		       sess = sessionFactory.getCurrentSession();  
+		   try 
+		   {
+			   if (sessionFactory!=null)
+				   {sess = sessionFactory.openSession();}
+			   else
+				   System.out.println("the session factory: " + sessionFactory + " is null");
 		   } catch (org.hibernate.HibernateException he) {  
-		       sess = sessionFactory.openSession();     
+		       sess = sessionFactory.getCurrentSession();  
+
 		   }             
 		   return sess;
 	} 
@@ -82,7 +96,7 @@ public class GlobalsFunctions
 		Email from = new Email("shlomi3303@gmail.com"); 
 		Email to = new Email(toEmail);
 		String link = "<a href=\"https://final-project-eef76.firebaseapp.com\"> לחץ כאן בכדי לעבור למחוברים לחיים </a>";
-		body = body + System.lineSeparator() + link;
+		body = body + "<br>" + link;
 		Content content = new Content("text/html", body);
 		Mail mail = new Mail(from, subject, to, content);
 		SendGrid sg = null;

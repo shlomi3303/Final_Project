@@ -1,4 +1,4 @@
-package com.shenkar.finalProject.Globals;
+package com.shenkar.finalProject.globals;
 
 public class ConstantVariables 
 {
@@ -6,6 +6,8 @@ public class ConstantVariables
     public final static long TEST = 60000*60; 
     public final static long sessionMaxIdle =10*1000*60; 
 	public final static long ONCE_PER_DAY = 1000*60*60*24;
+	
+	public static final String appName = "Final Project";
 	
 	public final static String userName = "root";
 	public final static String password = "root";
@@ -89,7 +91,33 @@ public class ConstantVariables
 
 	public final static String bodyMailReminderOffer = body1MailReminderOffer + System.lineSeparator() + body2MailReminderOffer;
 	
+	//subject and body for application that it's time has expired
 	
+	public final static String subjectYourApplicationIsexpired= "מחוברים לחיים: תאריך הבקשה שלך חלף!";
 	
+	private static String body1YourApplicationIsexpired = "לצערנו לא נמצאה התאמה לבקשה שלך במערכת וזמן הבקשה שהגשת חלף";
+	private static String body2YourApplicationIsexpired = "אנו מורידים את הבקשה מהאתר. נא היכנס/י לאתר בכדי  להעלות בקשות אחרות במידת הצורך";
+
+	public final static String bodyYourApplicationIsexpired = body1YourApplicationIsexpired + System.lineSeparator() + body2YourApplicationIsexpired;
+	
+	//subject and body for offer that it's time has expired
+	
+	public final static String subjectYourOfferIsexpired= "מחוברים לחיים: תאריך ההצעה שלך חלף!";
+	
+	private static String body1YourOfferIsexpired = "לצערנו לא נמצאה התאמה להצעה שלך במערכת וזמן ההצעה שהגשת חלף";
+	private static String body2YourOfferIsexpired = "אנו מורידים את ההצעה מהאתר. נא היכנס/י לאתר בכדי  להציע עזרות סיוע אחרות בעתיד!";
+
+	public final static String bodyYourOfferIsexpired = body1YourOfferIsexpired + System.lineSeparator() + body2YourOfferIsexpired;
+	
+	//subject and body for offer that it's time has expired
+	
+	public final static String subjectRegistertionConfiramtion= "מחוברים לחיים: תהליך הרישום הסתיים בהצלחה!";
+	
+	private static String body1RegistertionConfiramtion = "לצערנו לא נמצאה התאמה להצעה שלך במערכת וזמן ההצעה שהגשת חלף";
+	private static String body2RegistertionConfiramtion = "אנו מורידים את ההצעה מהאתר. נא היכנס/י לאתר בכדי  להציע עזרות סיוע אחרות בעתיד!";
+
+	public final static String bodyRegistertionConfiramtion = body1RegistertionConfiramtion + "<br>" + body2RegistertionConfiramtion;
+	
+
 	
 }

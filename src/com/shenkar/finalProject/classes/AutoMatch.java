@@ -40,7 +40,4 @@ public class AutoMatch extends Match
 	public void setApplicationId(int applicationId) {
 		this.applicationId = applicationId;
 	}
-	
-	
-
 }

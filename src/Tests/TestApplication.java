@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 
@@ -27,13 +29,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.HandymanApplication;
 import com.shenkar.finalProject.classes.Offer;
 import com.shenkar.finalProject.classes.OldersApplication;
 import com.shenkar.finalProject.classes.RideApplication;
 import com.shenkar.finalProject.classes.StudentApplication;
+import com.shenkar.finalProject.globals.GlobalsFunctions;
 import com.shenkar.finalProject.model.ApplicationExceptionHandler;
 import com.shenkar.finalProject.model.HibernateApplicationDAO;
 import com.shenkar.finalProject.model.HibernateMatchDAO;
@@ -46,6 +48,9 @@ public class TestApplication {
 	public static void main(String[] args) throws ParseException, ApplicationExceptionHandler, UserExceptionHandler 
 	{
 		
+		Long midnight=LocalDateTime.now().until(LocalDate.now().plusDays(1).atTime(4, 0), ChronoUnit.MINUTES);
+		System.out.println(LocalDate.now().plusDays(1).atTime(5, 0));
+
 		String regex = "\\d+";
 		
 		String check ="12";
@@ -85,7 +90,7 @@ public class TestApplication {
 //		List <Integer> listint = new ArrayList<Integer>();
 //		
 //		System.out.println(listint.size()==0);
-		System.out.println(HibernateApplicationDAO.getInstance().getRandomApplication(12, "ride", 1));
+		//System.out.println(HibernateApplicationDAO.getInstance().getRandomApplication(12, "ride", 1));
 		//System.out.println(sd.by);
 		
 		//System.out.println("dist is: " +  Ranking.distance(Double.parseDouble("31.8913829"), Double.parseDouble("31.88711869999999"), Double.parseDouble("34.813065"), Double.parseDouble("34.831326"), 1, 1));

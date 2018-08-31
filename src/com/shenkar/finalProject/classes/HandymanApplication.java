@@ -10,7 +10,6 @@ import javax.persistence.Table;
 @Table (name="applicationsHandyman")
 public class HandymanApplication extends Application 
 {
-
 	@Column (name="Des_colorCorrections")
 	boolean colorCorrections;
 	

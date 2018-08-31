@@ -1,4 +1,4 @@
-package com.shenkar.finalProject.Globals;
+package com.shenkar.finalProject.globals;
 
 import java.io.EOFException;
 import java.io.IOException;

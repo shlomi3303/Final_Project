@@ -6,8 +6,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.classes.AppUser;
+import com.shenkar.finalProject.globals.ConstantVariables;
+import com.shenkar.finalProject.globals.GlobalsFunctions;
 import com.shenkar.finalProject.model.interfaces.IUserDAO;
 
 @SuppressWarnings("unchecked")
@@ -42,6 +43,7 @@ public class HibernateUserDAO implements IUserDAO
 				session.beginTransaction();
 				session.save(user);
 				session.getTransaction().commit();
+				GlobalsFunctions.sendEmail(user.getMail(), ConstantVariables.subjectRegistertionConfiramtion, ConstantVariables.bodyRegistertionConfiramtion);
 			}
 			
 		}
@@ -138,7 +140,9 @@ public class HibernateUserDAO implements IUserDAO
 	      {
 				if (session.getTransaction() != null) session.getTransaction().rollback();
 	         	throw new UserExceptionHandler("Can'nt update user details at the moment, please check your connection");
-	      }finally {
+	      }
+	      finally 
+	      {
 	    	 try 
 	    	 {
 	    		 if (session!=null)
@@ -257,11 +261,13 @@ public class HibernateUserDAO implements IUserDAO
 	        	  
 	          }
 	        	  
-	      }catch (HibernateException e) 
+	      }
+	      catch (HibernateException e) 
 	      {
 				if (session.getTransaction() !=null) session.getTransaction().rollback();
 	         	throw new UserExceptionHandler("Sorry, connection problem was detected, login denied");
-	      }finally 
+	      }
+	      finally 
 	      {
 	    	 if (session != null)
 	    		 session.close();

@@ -101,8 +101,4 @@ public class CategoryOffersSuggestions {
 	public void setOlders_student(int olders_student) {
 		this.olders_student = olders_student;
 	}
-	
-	
-	
-	
 }

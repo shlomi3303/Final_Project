@@ -14,9 +14,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.google.gson.GsonBuilder;
-import com.shenkar.finalProject.Globals.ConstantVariables;
-import com.shenkar.finalProject.Globals.GlobalsFunctions;
-import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.HandymanApplication;
@@ -25,6 +22,9 @@ import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.classes.OldersApplication;
 import com.shenkar.finalProject.classes.RideApplication;
 import com.shenkar.finalProject.classes.StudentApplication;
+import com.shenkar.finalProject.globals.ConstantVariables;
+import com.shenkar.finalProject.globals.GlobalsFunctions;
+import com.shenkar.finalProject.globals.WebSocket;
 import com.shenkar.finalProject.model.interfaces.IApplicationDAO;
 
 @SuppressWarnings("unchecked")
@@ -431,7 +431,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 				        while (appByUserLocation.size() != num)
 				        {
 				        	int index = new Random().nextInt(maxId+1);
-				        	if (list.contains(Integer.valueOf(index)) && (tempCount/count)>1/3)
+				        	if (list.contains(Integer.valueOf(index)) && (tempCount/count)>1/2)
 				        		continue;
 				        	else
 				        	{
@@ -484,29 +484,32 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			  	root2 = criteriaQuery.from(getTableMapping(tableName));
 			  	criteriaQuery.select(builder.max(root2.get("applicationID")));
 			  	idList = session.createQuery(criteriaQuery).getResultList();
-			  	session.getTransaction().commit();
-			  	maxId = idList.get(0);
 			  	
-			  	if (count>num)
+		        if (idList!=null && idList.size()>0)
 			  	{
-				  	int i=0;
-				    while (i!=num)
-				    {
-				    	int index = random.nextInt(maxId+1);
-				    	if (list.contains(Integer.valueOf(index)) && list.size()!=count)
-				    		continue;
-				    	else
-				    	{
-					        Application app = getApplication(index, tableName);
-					        if (app != null && app.getStatus().equals(ConstantVariables.waitingForMatch))
-					        {
-				        		applicationsList.add(app);
-				        		list.add(index);
-				        		i++;
-					        }
-				    	}
-				    }
-				    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(applicationsList);
+			  		maxId = idList.get(0);
+			  	
+				  	if (count>num)
+				  	{
+					  	int i=0;
+					    while (i!=num)
+					    {
+					    	int index = random.nextInt(maxId+1);
+					    	if (list.contains(Integer.valueOf(index)) && list.size()!=count)
+					    		continue;
+					    	else
+					    	{
+						        Application app = getApplication(index, tableName);
+						        if (app != null && app.getStatus().equals(ConstantVariables.waitingForMatch))
+						        {
+					        		applicationsList.add(app);
+					        		list.add(index);
+					        		i++;
+						        }
+					    	}
+					    }
+					    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(applicationsList);
+				  	}
 			  	}
 			  	else
 			  	{
@@ -529,6 +532,7 @@ public class HibernateApplicationDAO implements IApplicationDAO
 			  		else
 			  			return null;
 			  	}
+			  	session.getTransaction().commit();
 			}
 		}
 		catch (Exception e)

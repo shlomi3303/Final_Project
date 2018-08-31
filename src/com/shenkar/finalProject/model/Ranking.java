@@ -26,7 +26,7 @@ import com.shenkar.finalProject.classes.StudentOffer;
 @SuppressWarnings("unchecked")
 public class Ranking {
 	
-	// const strings of education level
+	//const strings of education level
 	public static final String ELEMENTRY= "ביה\"ס יסודי";
 	public static final String MIDDLE= "חטיבת ביניים ";
 	public static final String HIGH= "חטיבה עליונה";
@@ -53,11 +53,13 @@ public class Ranking {
 	{
 		HashMap<Integer, Double> ranking = new HashMap<Integer, Double>();
 		
+		System.out.println("handkling with application ride number: " + app.getApplicationID());
+		
 		for (int i=0; i<listOffers.size(); i++)
 		{
 			double tempRanking=0;
 			RideOffer offer = listOffers.get(i);
-			System.out.println("handling with offer number: " + offer.getOfferId());
+			System.out.println("handling with ride offer number: " + offer.getOfferId());
 
 			//check if the offer is in the refuse list of the application
 			if (app.getRefuseList().contains(Integer.valueOf(offer.getOfferId())))
@@ -78,49 +80,56 @@ public class Ranking {
 			
 			if ( (appStart.compareTo(offerStart)==0) && (appEnd.compareTo(offerEnd)==0))
 			{
-				tempRanking+=1*0.5;	
+				tempRanking+=1*0.48;	
 				System.out.println("the same time, time ranking is: " + tempRanking);
 			}
 			
 			else if ((interval.overlaps( interval2 ))||( interval2.overlaps( interval)))
 			{
-				tempRanking+=1*0.5;
+				tempRanking+=1*0.48;
 				System.out.println("over lap, temp ranking is: " + tempRanking);
 			}
 			
 			else if (offerEnd.before(appStart))
 			{
-				System.out.println("offer before app");
 				org.joda.time.Period p = new org.joda.time.Period(offerFinish, appBegin);
 				int hours = Math.abs(p.getHours());
 				int minutes = p.getMinutes();
+				int days = p.getDays();
 				
-				double sum = ((hours*60) + minutes)/60;
-				
-				double check = 0.5-(0.1)*sum;
-				
-				if (check>0)
+				if (days==0)
 				{
-					tempRanking += check;
-					System.out.println("temp ranking get " + check + " and the sum of temp ranking is: " + tempRanking);
+					double sum = ((hours*60) + minutes)/60;
+				
+					double check = 0.48-(0.1)*sum;
+				
+					if (check>0)
+					{
+						tempRanking += check;
+					}
 				}
+				else
+					continue;
 			}
 			else if (appEnd.before(offerStart))
 			{
-				System.out.println("app before offer");
 				org.joda.time.Period p = new org.joda.time.Period(appFinish, offerBegin);
 				int hours = Math.abs(p.getHours());
 				int minutes = p.getMinutes();
+				int days = p.getDays();
 				
-				double sum = ((hours*60) + minutes)/60;
-				
-				double check = 0.5-(0.1)*sum;
-				
-				if (check>0)
+				if (days==0)
 				{
-					tempRanking += check;
-					System.out.println("temp ranking get " + check + " and the sum of temp ranking is: " + tempRanking);
+					double sum = ((hours*60) + minutes)/60;
+					double check = 0.48-(0.1)*sum;
+				
+					if (check>0)
+					{
+						tempRanking += check;
+					}
 				}
+				else
+					continue;
 			}
 			//break point to check if there is no match
 			if (tempRanking==0)
@@ -130,22 +139,27 @@ public class Ranking {
 			}
 			
 			//ranking language
-			if (app.getLanguage().equals(offer.getLanguage()))
+			if (app.getLanguage().equals(offer.getLanguage())||app.getLanguage().equals(NEVERMIND))
+					tempRanking += 0.02;
+			
+			//check that the gender is the same or nevermind
+			if (app.getGender().equals(offer.getGender())||app.getGender().equals(NEVERMIND))
 					tempRanking += 0.02;
 			
 			//ranking distance between pickup points.
 			double dist = distance(Double.parseDouble(app.getLatitude()), Double.parseDouble(offer.getLatitude()), Double.parseDouble(app.getLongitude()), Double.parseDouble(offer.getLongitude()), 1, 1);
 			
-			if (dist<=2){
-				tempRanking+=0.28;
-				System.out.println("full temp ranking in pickup dist, temp ranking is: " + tempRanking);
+			if (dist<=2)
+			{
+				tempRanking+=0.27;
+				System.out.println("full temp ranking in pickup distance, temp ranking is: " + tempRanking);
 			}
 			else
 			{
-				double check = 0.28-(((dist-2)/0.5)*0.04);
+				double check = 0.27-(((dist-2)/0.5)*0.04);
 				if (check>0){
 					tempRanking += check;
-					System.out.println("partial ranking in pickup dist: " + check + " the sum of temp ranking is: " + tempRanking);
+					System.out.println("partial ranking in pickup distance: " + check + " the sum of temp ranking is: " + tempRanking);
 				}
 			}
 			
@@ -153,20 +167,20 @@ public class Ranking {
 			double dist2 = distance(Double.parseDouble(app.getDestlatitude()), Double.parseDouble(offer.getDestlatitude()), Double.parseDouble(app.getDestLongitude()), Double.parseDouble(offer.getDestLongitude()), 1, 1);
 			
 			if (dist2<=4){
-				tempRanking+=0.2;
-				System.out.println("full temp ranking in drop off dist, temp ranking is: " + tempRanking);
+				tempRanking+=0.19;
+				System.out.println("full temp ranking in drop off distance, temp ranking is: " + tempRanking);
 			}
 			else
 			{
-				double check = 0.2-(((dist2-4)/0.5)*0.028);
+				double check = 0.19-(((dist2-4)/0.5)*0.028);
 				if (check>0){
 					tempRanking += check;
-					System.out.println("partial ranking in drop off dist, temp ranking is: " + tempRanking);
+					System.out.println("partial ranking in drop off distance, temp ranking is: " + tempRanking);
 				}
 			}
 			
 			System.out.println("the ranking for offer id: " + offer.getOfferId() + " is: " + tempRanking);
-			if (tempRanking>=0.50)
+			if (tempRanking>=0.58)
 				ranking.put(offer.getOfferId(), tempRanking);
 		}
 		return sortList(ranking);		
@@ -191,7 +205,6 @@ public class Ranking {
 		{
 			double tempRanking = 0;
 			OldersOffer offer = listOffers.get(i);
-			System.out.println("handling with offer number: " + offer.getOfferId());
 			boolean flag = false;
 			
 			//check if the offer is in the refuse list of the application
@@ -202,26 +215,22 @@ public class Ranking {
 			{
 				case shooping:
 					if ((offer.getShopping()==false)){
-						System.out.println("shooping flag on");
 						flag=true;
 					}
 					break;
 				case cooking:
 					if ((!offer.getCooking())){
-						System.out.println("cooking flag on");
 						flag=true;
 					}
 					break;
 				case conversation:
-					if (offer.getConversation()==false && (app.getLanguage().equals(offer.getLanguage())==false))
+					if (offer.getConversation()==false || (app.getLanguage().equals(offer.getLanguage())==false && !app.getLanguage().equals(NEVERMIND)))
 					{
-						System.out.println("conversation flag on");
 						flag=true;
 					}
 					break;
 				case escort:
-					if (offer.getEscortedAged()==false || (app.getLanguage().equals(offer.getLanguage())==false)){
-						System.out.println("escort flag on");
+					if (offer.getEscortedAged()==false || (app.getLanguage().equals(offer.getLanguage())==false && !app.getLanguage().equals(NEVERMIND))){
 						flag=true;
 					}
 					break;
@@ -231,9 +240,8 @@ public class Ranking {
 				continue;
 			
 			//check that the gender is the same or nevermind
-			if (!app.getGender().equals(offer.getGender()))
+			if (!(app.getGender().equals(offer.getGender())||app.getGender().equals(NEVERMIND)))
 			{	
-				System.out.println("not the same gender");
 				continue;
 			}
 			
@@ -263,7 +271,8 @@ public class Ranking {
 					tempRanking += check;
 				}
 			}
-			else{
+			else
+			{
 				System.out.println("not the same day");
 				continue;
 			}
@@ -278,7 +287,7 @@ public class Ranking {
 				
 				if (dist<=1.5)
 				{
-					System.out.println("full dist, temp ranking is: " + 0.4);
+					System.out.println("full distance, temp ranking is: " + 0.4);
 					tempRanking+=0.4;
 				}
 				else
@@ -299,7 +308,6 @@ public class Ranking {
 				ranking.put(offer.getOfferId(), tempRanking);
 			}
 		}
-		
 		return sortList(ranking);		
 	}
 	
@@ -309,63 +317,51 @@ public class Ranking {
 		fieldOfStudy appField=null;
 		educationLevel appLevel=null;
 		
-		//assign the enum of the app education level	
+		//assign the enum of the application education level	
 		if (app.getEducationLevel().equals(ELEMENTRY)){
 			appLevel= educationLevel.elementary;
-			System.out.println("app level is elementary " + appLevel);
 		}
 		else if (app.getEducationLevel().equals(MIDDLE)){
 			appLevel=educationLevel.middle;
-			System.out.println("app level is middle " + appLevel);
 		}
 		
 		if (app.getEducationLevel().equals(HIGH)){
 			appLevel= educationLevel.high;
-			System.out.println("app level is " + appLevel);
 		}
 		
 		else if (app.getEducationLevel().equals(COLLEGE)){
 			appLevel=educationLevel.college;
-			System.out.println("app level is college " + appLevel);
 		}
 		
 		if (app.getEducationLevel().equals(GRADUATE)){
 			appLevel= educationLevel.graduate;
-			System.out.println("app level is graduate " + appLevel);
 		}
 		
 		System.out.println("app field before the assign:" + appField);
-		//assign the enum of the app field of study		
+		//assign the enum of the application field of study		
 		if (app.getFieldOfStudy().equals(CIVICS)){
 			appField= fieldOfStudy.civics;
-			System.out.println("app field of study is civic " + appField);
 		}
 		
 		else if (app.getFieldOfStudy().equals(ENGLISH)){
 			appField=fieldOfStudy.english;
-			System.out.println("app field of study is english " + appField);
 		}
 		
 		if (app.getFieldOfStudy().equals(HISTORY)){
 			appField= fieldOfStudy.history;
-			System.out.println("app field of study is history " + appField);
 		}
 		else if (app.getFieldOfStudy().equals(LANGUAGE)){
 			appField=fieldOfStudy.language;
-			System.out.println("app field of study is language " + appField);
 		}
 		
 		if (app.getFieldOfStudy().equals(MATH)){
 			appField= fieldOfStudy.math;
-			System.out.println("app field of study is math " + appField);
 		}
 		else if (app.getFieldOfStudy().equals(LITERATURE)){
 			appField=fieldOfStudy.literature;
-			System.out.println("app field of study is literature " + appField);
 		}
 		else if (app.getFieldOfStudy().equals(BIBLE)){
 			appField=fieldOfStudy.bible;
-			System.out.println("app field of study is bible " + appField);
 		}
 
 		student studentEnum = null;
@@ -384,16 +380,17 @@ public class Ranking {
 			StudentOffer offer = listOffers.get(i);
 			fieldOfStudy offerField = null;
 			educationLevel offerLevel = null;
-			System.out.println("handling with offer number: " + offer.getOfferId());
 			
 			//check if the offer is in the refuse list of the application
 			if (app.getRefuseList().contains(Integer.valueOf(offer.getOfferId())))
 				continue;
 			
-			if (!app.getGender().equals(offer.getGender()))
+			if (!(app.getGender().equals(offer.getGender())||app.getGender().equals(NEVERMIND)))
 				continue;
 			
-			System.out.println("offer field before assign: " + offerField);
+			if (!(app.getLanguage().equals(offer.getLanguage())||app.getLanguage().equals(NEVERMIND)))
+				continue;
+			
 			//assign the enum of the offer field of study		
 			if (offer.getFieldOfStudy().equals(CIVICS))
 				offerField=fieldOfStudy.civics;
@@ -417,11 +414,9 @@ public class Ranking {
 			//assign the enum of the Offer education level	
 			if (offer.getEducationLevel().equals(ELEMENTRY)){
 				offerLevel= educationLevel.elementary;
-				System.out.println("offer id " + offer.getOfferId() + " enum ELEMENTRY assign is: " + offerLevel.ordinal());
 			}
 			else if (offer.getEducationLevel().equals(MIDDLE)){
 				offerLevel=educationLevel.middle;
-				System.out.println("offer id " + offer.getOfferId() + " enum middle assign is: " + offerLevel.ordinal());
 			}
 			else if (offer.getEducationLevel().equals(HIGH))
 				offerLevel= educationLevel.high;
@@ -438,8 +433,6 @@ public class Ranking {
 			
 			if (offernum>=appnum)
 			{
-				System.out.println("offer num: " + offernum);
-				System.out.println("app num: " + appnum);
 				int temp= offernum-appnum;
 				tempRanking+=0.3-(temp*0.070);
 				System.out.println("temp ranking after enums is " + tempRanking);
@@ -494,7 +487,6 @@ public class Ranking {
 				double check = 0.3-(0.1)*sum;
 				
 				if (check>0){
-					System.out.println("time ranking is: " + check);
 					tempRanking += check;
 					System.out.println("temp rankig after time ranking is: " + tempRanking);
 				}
@@ -510,14 +502,14 @@ public class Ranking {
 				if (dist<=2.5)
 				{
 					tempRanking+=0.3;
-					System.out.println("full ranking in dist, the temp ranking is: " + tempRanking);
+					System.out.println("full ranking in distance, the temp ranking is: " + tempRanking);
 				}
 				else
 				{
 					double check = 0.3-(((dist-2.5)/0.3)*0.005);
 					if (check>0){
 						tempRanking+=check;
-						System.out.println("not full ranking in dist, the temp ranking is: " + tempRanking);
+						System.out.println("not full ranking in distance, the temp ranking is: " + tempRanking);
 
 					}
 				}
@@ -554,7 +546,6 @@ public class Ranking {
 		
 		for (int i=0; i<listOffers.size(); i++)
 		{
-			System.out.println("begin for app");
 			boolean flag = false;
 			HandymanOffer offer = listOffers.get(i);
 			double tempRanking = 0;
@@ -562,47 +553,46 @@ public class Ranking {
 			//check if the offer is in the refuse list of the application
 			if (app.getRefuseList().contains(Integer.valueOf(offer.getOfferId())))
 			{
-				System.out.println("inside blacklist");
 				continue;
 			}
-			
-			switch(handymanEnum)
+						
+			if (handymanEnum!=null)
 			{
-				case colorCorrections:
-					if ((!offer.getColorCorrections())){
-						flag=true;
-						System.out.println("coolorcorrection flag on");
-					}
-					break;
-				case furniture:
-					if ((!offer.getFurniture())){
-						flag=true;
-						System.out.println("furnuture flag on");
-					}
-					break;
-				case generalHangingWorks:
-					if (!offer.getGeneralHangingWorks())
-					{
-						flag=true;
-						System.out.println("hanging flag on");
-					}
-					break;
-				case hangingOfLightFixtures:
-					if (!offer.getHangingOfLightFixtures())
-					{
-						flag=true;
-						System.out.println("lights flag on");
-					}
-					break;
-				case treatmentSocketsAndPowerPoints:
-					if (!offer.getTreatmentSocketsAndPowerPoints())
-					{
-						flag=true;
-						System.out.println("powerpoints flag on");
-					}
-					break;
-				default: flag=false;
+				switch(handymanEnum)
+				{
+					case colorCorrections:
+						if ((!offer.getColorCorrections())){
+							flag=true;
+						}
+						break;
+					case furniture:
+						if ((!offer.getFurniture())){
+							flag=true;
+						}
+						break;
+					case generalHangingWorks:
+						if (!offer.getGeneralHangingWorks())
+						{
+							flag=true;
+						}
+						break;
+					case hangingOfLightFixtures:
+						if (!offer.getHangingOfLightFixtures())
+						{
+							flag=true;
+						}
+						break;
+					case treatmentSocketsAndPowerPoints:
+						if (!offer.getTreatmentSocketsAndPowerPoints())
+						{
+							flag=true;
+						}
+						break;
+					default: flag=false;
+				}
 			}
+			else
+				continue;
 			
 			if(flag)
 				continue;
@@ -610,7 +600,6 @@ public class Ranking {
 			//check that the gender is the same never mind
 			if (app.getGender().equals(offer.getGender()))
 			{
-				System.out.println("gender temp");
 				tempRanking+=0.1;
 			}
 			
@@ -636,7 +625,7 @@ public class Ranking {
 				double check = 0.4-(0.1)*sum;
 				
 				if (check>0)
-				{	System.out.println("time temp: " + check);
+				{	
 					tempRanking += check;
 				}
 			}
@@ -645,9 +634,7 @@ public class Ranking {
 				continue;
 			}
 			//ranking language
-			if (app.getLanguage().equals(offer.getLanguage())){
-				
-				System.out.println("language temp");
+			if (app.getLanguage().equals(offer.getLanguage())){				
 				tempRanking += 0.05;
 			}
 			//ranking distance
@@ -655,9 +642,8 @@ public class Ranking {
 			{
 
 				double dist = distance(Double.parseDouble(app.getLatitude()), Double.parseDouble(offer.getLatitude()), Double.parseDouble(app.getLongitude()), Double.parseDouble(offer.getLongitude()), 1, 1);
-				System.out.println("distance is: " + dist);
 				if (dist<=2)
-				{	System.out.println("full dist ranking - 0.4");
+				{	
 					tempRanking+=0.45;
 				}
 				else
@@ -665,25 +651,24 @@ public class Ranking {
 					double check = 0.45-(((dist-2)/0.3)*0.005);
 					if (check>0)
 					{
-						System.out.println("paraitl dist: " + check);
+						System.out.println("paraitl distance ranking, the ranking is: " + check);
 						tempRanking += check;
 					}
 				}
 			}
 			else{
-				System.out.println("long or lat is null");
+				System.out.println("longitude or latitude is null");
 				continue;
 			}
-			System.out.println("tempRanking is: " + tempRanking);
 			if (tempRanking>=0.65){
 				ranking.put(offer.getOfferId(), tempRanking);
-				System.out.println("offer: " + offer.getOfferId() + " tempRanking: " + tempRanking);
 			}
 		}
 		
 		return sortList(ranking);		
 	}
 
+	//sort the offer list and return the top 10 offers
 	@SuppressWarnings("rawtypes")
 	private static List<Integer> sortList(HashMap<Integer, Double> ranking)
 	{
@@ -701,17 +686,17 @@ public class Ranking {
 
 		List<Integer> list = new ArrayList<Integer>();
 		
-		for (int i=0; i<10; i++) {
+		for (int i=0; i<10; i++) 
+		{	
+			//check if there is last from 10 offers
 		    if (i==ranking.size())
 		    	break;
 			list.add(( (Map.Entry<Integer, Double>) a[i]).getKey());
-			System.out.println(list.get(i));
-		}
-		System.out.println("out from the for loop");
-		
+		}		
 		return list;		
 	}
 	
+	//ranking the distance between the application and the offer
 	public static double distance(double lat1, double lat2, double lon1,
 	        double lon2, double el1, double el2) 
 	{
@@ -733,5 +718,4 @@ public class Ranking {
 
 	    return Math.sqrt(distance);
 	}
-
 }

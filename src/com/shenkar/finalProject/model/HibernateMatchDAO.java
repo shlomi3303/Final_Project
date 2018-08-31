@@ -7,8 +7,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.shenkar.finalProject.Globals.ConstantVariables;
-import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.backgroundModules.AutoMatchModules;
 import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.AutoMatch;
@@ -18,10 +16,12 @@ import com.shenkar.finalProject.classes.Match;
 import com.shenkar.finalProject.classes.Offer;
 import com.shenkar.finalProject.classes.RideApplication;
 import com.shenkar.finalProject.classes.RideOffer;
-import com.shenkar.finalProject.model.interfaces.IMatch;
+import com.shenkar.finalProject.globals.ConstantVariables;
+import com.shenkar.finalProject.globals.GlobalsFunctions;
+import com.shenkar.finalProject.model.interfaces.IManualMatch;
 
 @SuppressWarnings("unchecked")
-public class HibernateMatchDAO implements IMatch {
+public class HibernateMatchDAO implements IManualMatch {
 //public class HibernateManualMatchDAO{
 
 	private static HibernateMatchDAO instance;
@@ -81,46 +81,7 @@ public class HibernateMatchDAO implements IMatch {
 				//auto match case
 				else
 				{
-					Match autoMatch = getAutoMatch(offerId, "User Offer", tableName);
-					
-					if (autoMatch!=null)
-					{
-						initMatchFactory();
-						session = GlobalsFunctions.getSession(matchFactory);
-						
-						if (session!=null)
-						{
-							session.beginTransaction();
-
-							autoMatch.setOfferAproved(false);
-							autoMatch.setArchive(true);
-							autoMatch.setStatus(ConstantVariables.offerDeclined);
-							
-							AutoMatch auto = (AutoMatch) autoMatch;
-							
-							Application app = HibernateApplicationDAO.getInstance().getApplication(auto.getApplicationId(), auto.getCategory());
-							Offer offer = HibernateOfferDAO.getInstance().getOffer(auto.getOfferId(), auto.getCategory());
-							
-							//change the status for the application and offer
-							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, app);
-							HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
-							
-							//update the refuse list and the offer list in the application
-							HibernateApplicationDAO.getInstance().updateRefuseList(auto.getOfferId(), app);
-							HibernateApplicationDAO.getInstance().removeOfferFromOfferListPotential(app, auto.getOfferId());
-							
-							HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailOfferDecline);
-						
-							if (!session.getTransaction().isActive())
-								session.beginTransaction();
-							session.update(autoMatch);
-							
-							session.getTransaction().commit();
-							
-							//try to find another match to the application user from the offer list potential
-							findAnotherMatch(app, tableName);
-						}
-					}
+					HibernateAutoMatchDAO.getInstance().declineMatch(user, userRequestId, tableName);
 				}
 			}
 			
@@ -159,54 +120,7 @@ public class HibernateMatchDAO implements IMatch {
 				}
 				else
 				{
-					Match autoMatch = getAutoMatch(applicationId, "User Application", tableName);
-					
-					if (autoMatch!=null)
-					{
-						initMatchFactory();
-						session = GlobalsFunctions.getSession(matchFactory);
-						
-						if (session!=null)
-						{
-							session.beginTransaction();
-							
-							autoMatch.setApplicationAproved(false);
-							autoMatch.setArchive(true);
-							autoMatch.setStatus(ConstantVariables.applicationDeclined);
-							
-							AutoMatch auto = (AutoMatch) autoMatch;
-							
-							Application app = HibernateApplicationDAO.getInstance().getApplication(auto.getApplicationId(), auto.getCategory());
-							Offer offer = HibernateOfferDAO.getInstance().getOffer(auto.getOfferId(), auto.getCategory());
-							
-							if (app!=null)
-							{
-								HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForMatch, app);
-								//update the refuse list and the offer list in the application
-								HibernateApplicationDAO.getInstance().updateRefuseList(auto.getOfferId(), app);
-								HibernateApplicationDAO.getInstance().removeOfferFromOfferListPotential(app, auto.getOfferId());
-							}
-							else
-								System.out.println("application is null in auto match decline function");
-							if (offer!=null)
-							{
-								HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForMatch, offer);
-								HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailDecline, ConstantVariables.bodyMailApplicationDecline);
-							}
-							else
-								System.out.println("offer is null in auto match decline function");
-							
-							
-							if (!session.getTransaction().isActive())
-								session.beginTransaction();
-							session.update(autoMatch);
-							
-							session.getTransaction().commit();
-							
-							//try to find another match to the application user from the offer list potential
-							findAnotherMatch(app, tableName);
-						}
-					}
+					HibernateAutoMatchDAO.getInstance().declineMatch(user, userRequestId, tableName);
 				}
 			}
 		}
@@ -245,7 +159,6 @@ public class HibernateMatchDAO implements IMatch {
 					session = GlobalsFunctions.getSession(matchFactory);
 					session.beginTransaction();
 
-					
 					//notify the both user
 					HibernateApplicationDAO.getInstance().notification(manualApp.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
 					HibernateOfferDAO.getInstance().notification(manualApp.getUserToInform(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
@@ -265,47 +178,7 @@ public class HibernateMatchDAO implements IMatch {
 				}
 				else 
 				{
-					Match autoMatch = getAutoMatch(offerId, "User Offer", tableName);
-					
-					if (autoMatch!=null)
-					{
-						initMatchFactory();
-						session = GlobalsFunctions.getSession(matchFactory);
-						
-						autoMatch.setOfferAproved(true);
-						
-						AutoMatch auto = (AutoMatch) autoMatch;
-						
-						Application app = HibernateApplicationDAO.getInstance().getApplication(auto.getApplicationId(), auto.getCategory());
-						Offer offer = HibernateOfferDAO.getInstance().getOffer(auto.getOfferId(), auto.getCategory());
-						
-						//check if there is complete auto match
-						if (autoMatch.getApplicationAproved())
-						{
-							HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
-							HibernateApplicationDAO.getInstance().status(ConstantVariables.bothSideApproved, app);
-							
-							HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
-							HibernateOfferDAO.getInstance().status(ConstantVariables.bothSideApproved, offer);
-							
-							autoMatch.setStatus(ConstantVariables.bothSideApproved);
-						}
-						else
-						{
-							HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectReminderApplication, ConstantVariables.bodyMailReminderApplication);
-							HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForAppApproval, app);
-							
-							HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForAppApproval, offer);
-							
-							autoMatch.setStatus(ConstantVariables.waitingForAppApproval);
-							
-						}
-						
-						if (!session.getTransaction().isActive())
-							session.beginTransaction();
-						session.update(autoMatch);
-						session.getTransaction().commit();
-					}
+					HibernateAutoMatchDAO.getInstance().acceptMatch(user, userRequestId, tableName);
 				}
 			}
 			
@@ -343,50 +216,7 @@ public class HibernateMatchDAO implements IMatch {
 				//auto match case:
 				else
 				{
-					Match autoMatch = getAutoMatch(applicationId, "User Application", tableName);
-					
-					if (autoMatch!=null)
-					{
-					
-						initMatchFactory();
-						session = GlobalsFunctions.getSession(matchFactory);
-						
-						if (session!=null)
-						{
-							autoMatch.setApplicationAproved(true);
-							
-							AutoMatch auto = (AutoMatch) autoMatch;
-							
-							Application app = HibernateApplicationDAO.getInstance().getApplication(auto.getApplicationId(), auto.getCategory());
-							Offer offer = HibernateOfferDAO.getInstance().getOffer(auto.getOfferId(), auto.getCategory());
-							
-							if (autoMatch.getOfferAproved())
-							{
-								HibernateApplicationDAO.getInstance().notification(app.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
-								HibernateApplicationDAO.getInstance().status(ConstantVariables.bothSideApproved, app);
-								
-								HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectMailBothApproved, ConstantVariables.bodyMailBothSideApproved);
-								HibernateOfferDAO.getInstance().status(ConstantVariables.bothSideApproved, offer);
-								
-								autoMatch.setStatus(ConstantVariables.bothSideApproved);
-							}
-							else
-							{
-								HibernateOfferDAO.getInstance().notification(offer.getUserId(), ConstantVariables.subjectReminderApplication, ConstantVariables.bodyMailReminderApplication);
-								HibernateOfferDAO.getInstance().status(ConstantVariables.waitingForOfferApproval, offer);
-								
-								HibernateApplicationDAO.getInstance().status(ConstantVariables.waitingForOfferApproval, app);
-								
-								autoMatch.setStatus(ConstantVariables.waitingForOfferApproval);
-								
-							}
-							
-							if (!session.getTransaction().isActive())
-								session.beginTransaction();
-							session.update(autoMatch);
-							session.getTransaction().commit();
-						}
-					}
+					HibernateAutoMatchDAO.getInstance().acceptMatch(user, userRequestId, tableName);
 				}
 			}
 		}
@@ -504,59 +334,6 @@ public class HibernateMatchDAO implements IMatch {
 		}
 	}
 	
-	public Match getAutoMatch(int Id, String user, String tableName) 
-	{
-		 Session session = null;
-		 List<Match> autoMatch = null;
-		 
-		 initMatchFactory();
-		 session = GlobalsFunctions.getSession(matchFactory);
-		 
-		 if (!session.getTransaction().isActive())
-			 session.beginTransaction();
-		 try
-		 {
-	    	  if (user.equals("User Offer"))
-	    	  {
-		          autoMatch = session.createQuery("from " + AutoMatch.class.getName() + " as table where table.offerId = " + Id + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + tableName + "%").getResultList();
-	    	  }
-	    	  else if (user.equals("User Application"))
-	    	  {
-	    		  System.out.println("the applicationId is: ");
-	    		  System.out.println("the category is: " + tableName);
-	    		  autoMatch = session.createQuery("from " + AutoMatch.class.getName() + " as table where table.applicationId = " + Id + " and table.isArchive = false and table.category like :key").setParameter("key",  "%" + tableName + "%").getResultList();
-	    		  System.out.println("the auto match by applicationId is: " + autoMatch);
-	    	  }
-	    	  
-	    	  if (autoMatch != null && !autoMatch.isEmpty())
-	          {
-	        	  session.getTransaction().commit();
-	        	  if (autoMatch.size() > 0) {
-	        		  System.out.println("returning auto match: " + autoMatch.get(0).getMatchId());
-	    		      return autoMatch.get(0);	
-	    	      }
-	          }
-	     }
-		 catch (HibernateException e) 
-		 {
-	         if (session.getTransaction() != null) 
-	        	 session.getTransaction().rollback();
-	         	
-	      }
-	     finally 
-	     {
-	    	 try 
-	    	 {
-	    		 if (session!=null)
-	    			 session.close();
-	    	 } 
-	    	 catch(Exception e) 
-	    	 {
-	    		 e.printStackTrace();
-	    	 }
-	     }
-	     return null;
-	}
 	
 	public Match getManualMatch(int Id, String user, String tableName) 
 	{

@@ -14,9 +14,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.google.gson.Gson;
-import com.shenkar.finalProject.Globals.ConstantVariables;
-import com.shenkar.finalProject.Globals.GlobalsFunctions;
-import com.shenkar.finalProject.Globals.WebSocket;
 import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.classes.HandymanOffer;
 import com.shenkar.finalProject.classes.ManualMatchUserApplication;
@@ -25,6 +22,9 @@ import com.shenkar.finalProject.classes.Offer;
 import com.shenkar.finalProject.classes.OldersOffer;
 import com.shenkar.finalProject.classes.RideOffer;
 import com.shenkar.finalProject.classes.StudentOffer;
+import com.shenkar.finalProject.globals.ConstantVariables;
+import com.shenkar.finalProject.globals.GlobalsFunctions;
+import com.shenkar.finalProject.globals.WebSocket;
 import com.shenkar.finalProject.model.interfaces.IOfferDAO;
 
 @SuppressWarnings("unchecked")
@@ -357,33 +357,36 @@ public class HibernateOfferDAO implements IOfferDAO
 				        criteriaQuery.select(builder.max(root.get("offerId")));
 				        idList = session.createQuery(criteriaQuery).getResultList();
 				        session.getTransaction().commit();
-				        maxId = idList.get(0);
-				        list = new ArrayList<Integer>();
-						
-						for (Offer offer: offerByUserLocation)
-							list.add(offer.getOfferId());
-						
-						int tempCount = count;
-						
-						while(offerByUserLocation.size()!=num)
-						{
-							int index = new Random().nextInt(maxId+1);
-				        	if (list.contains(Integer.valueOf(index)) && (tempCount/count)>1/3)
-				        		continue;
-				        	else
-				        	{
-					        	Offer offer = getOffer(index, tableName);
-					        	if (offer != null && offer.getStatus().equals(ConstantVariables.waitingForMatch))
+				        if (idList!=null && idList.size()>0)
+				        {
+				        	maxId = idList.get(0);
+					        list = new ArrayList<Integer>();
+							
+							for (Offer offer: offerByUserLocation)
+								list.add(offer.getOfferId());
+							
+							int tempCount = count;
+							
+							while(offerByUserLocation.size()!=num)
+							{
+								int index = new Random().nextInt(maxId+1);
+					        	if (list.contains(Integer.valueOf(index)) && (tempCount/count)>1/2)
+					        		continue;
+					        	else
 					        	{
-					        		offerByUserLocation.add(offer);
-					        		list.add(offer.getOfferId());
-					        		tempCount--;
-					        		if (offerByUserLocation.size()==num)
-					        			break;
-					        	}
-					        }
-						}
-				        return new Gson().toJson(offerByUserLocation);
+						        	Offer offer = getOffer(index, tableName);
+						        	if (offer != null && offer.getStatus().equals(ConstantVariables.waitingForMatch))
+						        	{
+						        		offerByUserLocation.add(offer);
+						        		list.add(offer.getOfferId());
+						        		tempCount--;
+						        		if (offerByUserLocation.size()==num)
+						        			break;
+						        	}
+						        }
+							}
+					        return new Gson().toJson(offerByUserLocation);
+				        }
 					}
 					else
 					{

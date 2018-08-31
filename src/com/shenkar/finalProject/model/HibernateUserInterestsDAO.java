@@ -11,7 +11,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.shenkar.finalProject.Globals.GlobalsFunctions;
 import com.shenkar.finalProject.classes.AppUser;
 import com.shenkar.finalProject.classes.Application;
 import com.shenkar.finalProject.classes.CategoryOffersSuggestions;
@@ -24,6 +23,7 @@ import com.shenkar.finalProject.classes.StudentApplication;
 import com.shenkar.finalProject.classes.StudentOffer;
 import com.shenkar.finalProject.classes.UserSubcategoryApplicationsInterests;
 import com.shenkar.finalProject.classes.UserSubcategoryOffersInterests;
+import com.shenkar.finalProject.globals.GlobalsFunctions;
 
 @SuppressWarnings("unchecked")
 public class HibernateUserInterestsDAO {
